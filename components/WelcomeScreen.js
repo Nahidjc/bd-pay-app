@@ -6,7 +6,9 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import { SvgUri } from "react-native-svg";
+import Maintenance from "../assets/svgs/maintenance.svg";
+import { Dimensions } from "react-native";
+const { width, height } = Dimensions.get("window");
 const WelcomeScreen = ({ navigation }) => {
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -19,12 +21,7 @@ const WelcomeScreen = ({ navigation }) => {
         </Text>
         <Text style={styles.swipeText}>Swipe to learn more →</Text>
       </View>
-      <SvgUri
-        width="100%"
-        height="200"
-        uri="https://modernize-react.adminmart.com/assets/maintenance-ab9a84ac.svg"
-      />
-
+      <Maintenance width={width * 0.8} height={height * 0.5} />
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.loginButton}
