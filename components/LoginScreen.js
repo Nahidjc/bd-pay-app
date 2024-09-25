@@ -6,16 +6,14 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
-  ActivityIndicator,
 } from "react-native";
 import { SvgUri } from "react-native-svg";
 import { useDispatch, useSelector } from "react-redux";
 import { createUserLogin } from "../state/reducers/authSlice";
+import LoadingScreen from "./Loader/Loader";
 const LoginScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-  const { isLoading, isAuthenticated, errorMessage } = useSelector(
-    (state) => state.auth
-  );
+  const { isLoading } = useSelector((state) => state.auth);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const handleSubmit = async () => {
@@ -27,6 +25,7 @@ const LoginScreen = ({ navigation }) => {
   };
   return (
     <View style={styles.container}>
+      <LoadingScreen visible={isLoading} />
       <Text style={styles.title}>What’s your{"\n"}email address?</Text>
 
       <TextInput
@@ -52,11 +51,7 @@ const LoginScreen = ({ navigation }) => {
         disabled={!email && !password}
         onPress={handleSubmit}
       >
-        {isLoading ? (
-          <ActivityIndicator color="#fff" />
-        ) : (
-          <Text style={styles.continueButtonText}>Login</Text>
-        )}
+        <Text style={styles.continueButtonText}>Login</Text>
       </TouchableOpacity>
 
       <View style={styles.separatorContainer}>

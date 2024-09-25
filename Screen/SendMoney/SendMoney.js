@@ -12,7 +12,7 @@ import {
 import { Avatar } from "react-native-elements";
 import { Ionicons } from "@expo/vector-icons";
 import SendMoneyModal from "./SendMoneyModal";
-import { LoadingScreen } from "../../components/Loader/Loader";
+import LoadingScreen from "../../components/Loader/Loader";
 
 const { width } = Dimensions.get("window");
 const baseWidth = 375;
@@ -109,11 +109,11 @@ export default function SendMoney({ route, navigation }) {
   }, [amount, currentBalance, pin, pinLength]);
 
   const handleSendMoney = useCallback(async () => {
+    setModalVisible(false);
     setIsLoading(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 2000));
       setCurrentBalance((prevBalance) => prevBalance - parseFloat(amount));
-      setModalVisible(false);
       navigation.navigate("TransactionSuccess", {
         amount: parseFloat(amount),
         recipient: recipient,
@@ -137,9 +137,6 @@ export default function SendMoney({ route, navigation }) {
   const handlePressOut = useCallback(() => {
     setIsPressed(false);
   }, []);
-  if (isLoading) {
-    return <LoadingScreen />;
-  }
   const isEnglishLetter = (char) => /^[A-Za-z]$/.test(char);
   if (error) {
     return (
@@ -156,6 +153,7 @@ export default function SendMoney({ route, navigation }) {
   }
   return (
     <View style={styles.container}>
+      <LoadingScreen visible={isLoading} />
       <SendMoneyModal
         visible={isModalVisible}
         onClose={toggleModal}
@@ -217,7 +215,7 @@ export default function SendMoney({ route, navigation }) {
           placeholderTextColor="#999"
           value={reference}
           onChangeText={handleReferenceChange}
-          maxLength={maxChars} // Ensure the max characters are respected
+          maxLength={maxChars}
         />
       </View>
 
