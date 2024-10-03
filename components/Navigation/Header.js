@@ -1,3 +1,4 @@
+import React, { memo } from "react";
 import {
   Pressable,
   View,
@@ -6,7 +7,6 @@ import {
   Dimensions,
   Image,
 } from "react-native";
-import React from "react";
 import { useTheme } from "@react-navigation/native";
 import {
   useSafeAreaInsets,
@@ -14,6 +14,7 @@ import {
 } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
+
 const { width } = Dimensions.get("window");
 const baseWidth = 375;
 const scale = width / baseWidth;
@@ -44,8 +45,12 @@ const Header = ({ navigation, route, options, tabName, user }) => {
         {tabName === "Dashboard" ? (
           <View style={styles.profileContainer}>
             <Image
-              source={{ uri: user.shopLogo }}
+              source={{
+                uri: user.shopLogo,
+              }}
               style={styles.profileImage}
+              resizeMode="cover"
+              onError={() => console.log("Image load error")}
             />
             <View style={styles.textContainer}>
               <Text style={styles.greeting}>{user.ownerName}</Text>
@@ -93,7 +98,8 @@ const Header = ({ navigation, route, options, tabName, user }) => {
   );
 };
 
-export default Header;
+// Memoize the Header component to prevent unnecessary re-renders
+export default memo(Header);
 
 const styles = StyleSheet.create({
   appBar: {
@@ -142,6 +148,7 @@ const styles = StyleSheet.create({
     height: 35,
     borderRadius: 20,
     marginRight: 10,
+    backgroundColor: "#e0e0e0", // Placeholder background color while loading
   },
   textContainer: {
     flexDirection: "column",
