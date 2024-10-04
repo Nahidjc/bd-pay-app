@@ -21,6 +21,7 @@ import "./utilities/i18n";
 import { CustomDrawerContent } from "./components/Drawer/CustomDrawerContent";
 import { TransactionLimitScreen } from "./Screen/TransactionLimit/TransactionLimit";
 import StatementScreen from "./Screen/Transaction/Transaction";
+import { getOnboardingStatus } from "./state/storage";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -109,6 +110,8 @@ const MainTabs = () => {
 
 export default function MainApp() {
   const { isAuthenticated } = useSelector((state) => state.auth);
+  const isOnboarded = getOnboardingStatus();
+  console.log("===============isAuthenticated=======", isAuthenticated);
   return (
     <SafeAreaProvider>
       <StatusBar
@@ -172,7 +175,13 @@ export default function MainApp() {
           ) : (
             <>
               <Stack.Group screenOptions={{ headerShown: false }}>
-                <Stack.Screen name="Onboarding" component={OnboardingScreen} />
+                {!isOnboarded && (
+                  <Stack.Screen
+                    name="Onboarding"
+                    component={OnboardingScreen}
+                  />
+                )}
+
                 <Stack.Screen name="Welcome" component={WelcomeScreen} />
                 <Stack.Screen name="Login" component={LoginScreen} />
               </Stack.Group>
