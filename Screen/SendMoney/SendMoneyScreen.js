@@ -11,6 +11,8 @@ import {
 import { Avatar } from "react-native-elements";
 import { getContacts } from "../../utilities/contactsHelpers";
 import { Ionicons } from "@expo/vector-icons";
+import { useTranslation } from "react-i18next";
+import LoadingScreen from "../../components/Loader/Loader";
 
 const { width } = Dimensions.get("window");
 const baseWidth = 375;
@@ -19,7 +21,8 @@ const scale = width / baseWidth;
 export default function SendMoneyScreen({ navigation }) {
   const [contacts, setContacts] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-
+  const { t } = useTranslation();
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     async function loadContacts() {
       try {
@@ -27,6 +30,8 @@ export default function SendMoneyScreen({ navigation }) {
         setContacts(contactsData || []);
       } catch (error) {
         setContacts([]);
+      } finally {
+        setLoading(false);
       }
     }
     loadContacts();
@@ -65,7 +70,7 @@ export default function SendMoneyScreen({ navigation }) {
   const isEnglishLetter = (char) => /^[A-Za-z]$/.test(char);
   return (
     <View style={styles.container}>
-
+      <LoadingScreen visible={loading} />
       <View style={styles.searchContainer}>
         <Ionicons
           name="search"
@@ -74,7 +79,7 @@ export default function SendMoneyScreen({ navigation }) {
           style={styles.searchIcon}
         />
         <TextInput
-          placeholder="নাম বা নম্বর দিন"
+          placeholder={t("placeholder_name_or_number")}
           placeholderTextColor="#888"
           value={searchQuery}
           onChangeText={setSearchQuery}
@@ -112,16 +117,17 @@ export default function SendMoneyScreen({ navigation }) {
         )}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyMessage}>{`${
-              searchQuery || "একটি নম্বর"
-            } -কে সেন্ড মানি করুন`}</Text>
+            <Text style={styles.emptyMessage}>
+              {" "}
+              {t("send_money_message", {
+                query: searchQuery || t("default_number"),
+              })}
+            </Text>
             <TouchableOpacity
               style={styles.actionButton}
-              onPress={handleManualEntryPress} // Call manual entry handler
+              onPress={handleManualEntryPress}
             >
-              <Text style={styles.actionButtonText}>
-                পরের ধাপে যেতে ট্যাপ করুন
-              </Text>
+              <Text style={styles.actionButtonText}>{t("tap_to_proceed")}</Text>
             </TouchableOpacity>
           </View>
         }
