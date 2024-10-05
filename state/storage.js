@@ -8,7 +8,6 @@ export const StorageKeys = {
   Onboarding: "onboarded",
 };
 
-// Initialize MMKV
 const storageId = `${Application.applicationId}-mmkv`;
 export const storage = new MMKV({ id: storageId });
 
@@ -33,20 +32,27 @@ export const getUserData = () => {
 };
 
 export const isAuthenticated = () => {
-  try {
-    return storage.getString(StorageKeys.IsAuthenticated) === "true";
-  } catch (e) {
-    console.error("Error checking authentication status:", e);
-    return false;
-  }
+  return storage.getString(StorageKeys.IsAuthenticated) === "true";
 };
 
 export const clearUserData = () => {
-  try {
-    storage.delete(StorageKeys.User);
-    storage.delete(StorageKeys.IsAuthenticated);
-    console.log("User data and authentication status cleared");
-  } catch (e) {
-    console.error("Error clearing user data:", e);
-  }
+  storage.delete(StorageKeys.User);
+  storage.delete(StorageKeys.IsAuthenticated);
+};
+
+// New methods for onboarding status
+export const setOnboardingStatus = (status) => {
+  storage.set(StorageKeys.Onboarding, status ? "true" : "false");
+};
+
+export const getOnboardingStatus = () => {
+  return storage.getString(StorageKeys.Onboarding) === "true";
+};
+
+export const setLanguage = (language) => {
+  storage.set(StorageKeys.Language, language);
+};
+
+export const getLanguage = () => {
+  return storage.getString(StorageKeys.Language) || "en";
 };

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   StyleSheet,
   TouchableOpacity,
@@ -11,13 +11,31 @@ import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { logout } from "../../state/reducers/authSlice";
+import { getLanguage, storage, StorageKeys } from "../../state/storage";
+
+const saveLanguage = (language) => {
+  storage.set(StorageKeys.Language, language);
+};
+
+const loadLanguage = () => {
+  const lang = getLanguage();
+  return lang;
+};
 export const CustomDrawerContent = ({ navigation }) => {
   const { t, i18n } = useTranslation();
-  const isEnglish = i18n.language === "en";
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    const savedLanguage = loadLanguage();
+    i18n.changeLanguage(savedLanguage);
+  }, []);
+
   const toggleLanguage = () => {
-    i18n.changeLanguage(isEnglish ? "bn" : "en");
+    const newLanguage = i18n.language === "en" ? "bn" : "en";
+    i18n.changeLanguage(newLanguage);
+    saveLanguage(newLanguage);
   };
+
   const handleLogout = () => {
     dispatch(logout());
   };
@@ -31,7 +49,7 @@ export const CustomDrawerContent = ({ navigation }) => {
           onPress={toggleLanguage}
         >
           <Text style={styles.languageButtonText}>
-            {isEnglish ? "বাংলা" : "English"}
+            {i18n.language === "en" ? "বাংলা" : "English"}
           </Text>
         </TouchableOpacity>
 

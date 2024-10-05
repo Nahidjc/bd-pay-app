@@ -12,6 +12,7 @@ import OnboardingImage3 from "../assets/onboard/onb3.svg";
 import OnboardingImage2 from "../assets/onboard/onb2.svg";
 import OnboardingImage1 from "../assets/onboard/onb1.svg";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import { setOnboardingStatus } from "../state/storage";
 const { width, height } = Dimensions.get("window");
 
 const OnboardingScreen = ({ navigation }) => {
@@ -19,6 +20,7 @@ const OnboardingScreen = ({ navigation }) => {
   const [index, setIndex] = useState(0);
 
   const handleSkip = () => {
+    setOnboardingStatus(true);
     navigation.navigate("Welcome");
   };
 
@@ -32,6 +34,7 @@ const OnboardingScreen = ({ navigation }) => {
     if (index < 2) {
       swiperRef.current.scrollBy(1);
     } else {
+      setOnboardingStatus(true);
       navigation.replace("Welcome");
     }
   };
