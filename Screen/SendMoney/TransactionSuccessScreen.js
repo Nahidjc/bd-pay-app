@@ -10,12 +10,13 @@ import {
   Clipboard,
 } from "react-native";
 import { useRoute } from "@react-navigation/native";
+import { useTranslation } from "react-i18next";
 
 const { width, height } = Dimensions.get("window");
 
 const TransactionSuccessScreen = () => {
   const route = useRoute();
-  const [copied, setCopied] = useState(false);
+  const { t } = useTranslation();
   const {
     message,
     name,
@@ -31,8 +32,7 @@ const TransactionSuccessScreen = () => {
   } = route.params;
   const copyTransactionId = () => {
     Clipboard.setString(transactionId);
-    setCopied(true);
-    ToastAndroid.show("Transaction ID Copied", ToastAndroid.SHORT);
+    ToastAndroid.show(t('copy_transaction_id'), ToastAndroid.SHORT);
   };
   return (
     <View style={styles.container}>
@@ -60,11 +60,11 @@ const TransactionSuccessScreen = () => {
       <View style={styles.detailsContainer}>
         <View style={styles.row}>
           <View style={[styles.cell, styles.rightBorder]}>
-            <Text style={styles.detailLabel}>সময়</Text>
+          <Text style={styles.detailLabel}>{t('time')}</Text>
             <Text style={styles.detailValue}>{`${time} ${date}`}</Text>
           </View>
           <View style={styles.cell}>
-            <Text style={styles.detailLabel}>ট্রানজেকশন আইডি</Text>
+          <Text style={styles.detailLabel}>{t('transaction_id')}</Text>
             <View style={styles.valueWithIcon}>
               <Text style={styles.detailValue}>{transactionId}</Text>
               <TouchableOpacity onPress={copyTransactionId}>
@@ -79,11 +79,11 @@ const TransactionSuccessScreen = () => {
 
         <View style={styles.row}>
           <View style={[styles.cell, styles.rightBorder]}>
-            <Text style={styles.detailLabel}>সর্বমোট</Text>
+          <Text style={styles.detailLabel}>{t('total_label')}</Text>
             <Text style={styles.detailValue}>৳{amount}</Text>
           </View>
           <View style={styles.cell}>
-            <Text style={styles.detailLabel}>নতুন ব্যালেন্স</Text>
+          <Text style={styles.detailLabel}>{t('new_balance_label')}</Text>
             <View style={styles.valueWithIcon}>
               <Text style={styles.detailValue}>৳{newBalance}</Text>
               <Image
@@ -96,16 +96,16 @@ const TransactionSuccessScreen = () => {
 
         <View style={[styles.row, styles.lastRow]}>
           <View style={styles.fullWidthCell}>
-            <Text style={styles.detailLabel}>রেফারেন্স</Text>
+          <Text style={styles.detailLabel}>{t('reference_label')}</Text>
             <Text style={styles.detailValue}>{reference}</Text>
           </View>
         </View>
       </View>
       <TouchableOpacity style={styles.autoPay} onPress={onAutoPayPress}>
-        <Text style={styles.autoPayText}>অটো পে চালু করুন</Text>
+      <Text style={styles.autoPayText}>{t('auto_pay')}</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.homeButton} onPress={onHomePress}>
-        <Text style={styles.homeButtonText}>হোম-এ ফিরে যাই</Text>
+      <Text style={styles.homeButtonText}>{t('home_button')}</Text>
       </TouchableOpacity>
     </View>
   );
