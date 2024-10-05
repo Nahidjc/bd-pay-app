@@ -22,6 +22,7 @@ import { CustomDrawerContent } from "./components/Drawer/CustomDrawerContent";
 import { TransactionLimitScreen } from "./Screen/TransactionLimit/TransactionLimit";
 import StatementScreen from "./Screen/Transaction/Transaction";
 import { getOnboardingStatus } from "./state/storage";
+import TransactionSuccessScreen from "./Screen/SendMoney/TransactionSuccessScreen";
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -168,6 +169,13 @@ export default function MainApp() {
                     },
                   }}
                   component={SendMoney}
+                />
+                 <Stack.Screen
+                  name="TransactionSuccess"
+                  options={{
+                    headerShown: false,
+                  }}
+                  component={TransactionSuccessScreen}
                 />
               </Stack.Group>
             </>
