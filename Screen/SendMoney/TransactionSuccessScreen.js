@@ -29,7 +29,6 @@ const TransactionSuccessScreen = () => {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerText}>{message}</Text>
         <Image
@@ -38,7 +37,6 @@ const TransactionSuccessScreen = () => {
         />
       </View>
 
-      {/* User Info */}
       <View style={styles.userInfo}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>{name[0]}</Text>
@@ -52,7 +50,6 @@ const TransactionSuccessScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Details Section with Precise Borders */}
       <View style={styles.detailsContainer}>
         <View style={styles.row}>
           <View style={[styles.cell, styles.rightBorder]}>
@@ -89,13 +86,9 @@ const TransactionSuccessScreen = () => {
           </View>
         </View>
       </View>
-
-      {/* Auto Pay Button */}
       <TouchableOpacity style={styles.autoPay} onPress={onAutoPayPress}>
         <Text style={styles.autoPayText}>অটো পে চালু করুন</Text>
       </TouchableOpacity>
-
-      {/* Home Button */}
       <TouchableOpacity style={styles.homeButton} onPress={onHomePress}>
         <Text style={styles.homeButtonText}>হোম-এ ফিরে যাই</Text>
       </TouchableOpacity>
@@ -103,7 +96,6 @@ const TransactionSuccessScreen = () => {
   );
 };
 
-// Styles for better spacing, borders, and row/column setup
 const styles = StyleSheet.create({
   container: {
     flex: 1,
