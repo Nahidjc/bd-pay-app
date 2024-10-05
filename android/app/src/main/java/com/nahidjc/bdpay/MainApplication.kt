@@ -14,17 +14,18 @@ import com.facebook.soloader.SoLoader
 
 import expo.modules.ApplicationLifecycleDispatcher
 import expo.modules.ReactNativeHostWrapper
-
+import org.devio.rn.splashscreen.SplashScreenReactPackage;
 class MainApplication : Application(), ReactApplication {
 
   override val reactNativeHost: ReactNativeHost = ReactNativeHostWrapper(
         this,
         object : DefaultReactNativeHost(this) {
           override fun getPackages(): List<ReactPackage> {
-            // Packages that cannot be autolinked yet can be added manually here, for example:
-            // packages.add(new MyReactNativePackage());
-            return PackageList(this).packages
-          }
+            // Autolinked packages + manually added packages
+            val packages = PackageList(this).packages
+            packages.add(SplashScreenReactPackage()) // Adding SplashScreenReactPackage
+            return packages
+        }
 
           override fun getJSMainModuleName(): String = ".expo/.virtual-metro-entry"
 
@@ -52,4 +53,7 @@ class MainApplication : Application(), ReactApplication {
     super.onConfigurationChanged(newConfig)
     ApplicationLifecycleDispatcher.onConfigurationChanged(this, newConfig)
   }
+  override val reactNativeHost: ReactNativeHost
+    get() = mReactNativeHost
+
 }

@@ -5,7 +5,6 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { StatusBar } from "expo-status-bar";
 import { useSelector } from "react-redux";
 import DashboardScreen from "./Screen/DashboardScreen";
-import HelloWorldScreen from "./components/HelloWorld";
 import LoginScreen from "./components/LoginScreen";
 import WelcomeScreen from "./components/WelcomeScreen";
 import OnboardingScreen from "./Screen/OnboardingScreen";
