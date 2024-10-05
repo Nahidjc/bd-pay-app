@@ -57,17 +57,17 @@ const SendMoneyModal = ({
 
           <View style={styles.amountContainer}>
             <View style={styles.amountColumn}>
-              <Text style={styles.amountLabel}>{t("total_label")}</Text>
+              <Text style={styles.amountLabel}>{t("total")}</Text>
               <Text style={styles.amountValue}>৳{amount.toFixed(2)}</Text>
               <Text style={styles.chargeText}>
                 {charge > 0
-                  ? `${t("charge_label")} ৳${charge.toFixed(2)}`
+                  ? `${t("charge")} ৳${charge.toFixed(2)}`
                   : t("no_charge")}
               </Text>
             </View>
             <View style={styles.amountDivider} />
             <View style={styles.amountColumn}>
-              <Text style={styles.amountLabel}>{t("new_balance_label")}</Text>
+              <Text style={styles.amountLabel}>{t("new_balance")}</Text>
               <Text style={styles.amountValue}>৳{newBalance.toFixed(2)}</Text>
             </View>
           </View>
@@ -75,7 +75,7 @@ const SendMoneyModal = ({
           {reference && (
             <View style={styles.referenceContainer}>
               <Text style={styles.referenceText}>
-                {t("reference_label")}: {reference}
+                {t("reference")}: {reference}
               </Text>
             </View>
           )}

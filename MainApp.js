@@ -173,10 +173,7 @@ export default function MainApp() {
                  <Stack.Screen
                   name="TransactionSuccess"
                   options={{
-                    title: "ট্রানজেকশন সফল",
-                    headerStyle: {
-                      backgroundColor: "#E91E63",
-                    },
+                    headerShown: false,
                   }}
                   component={TransactionSuccessScreen}
                 />

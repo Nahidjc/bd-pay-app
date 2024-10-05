@@ -79,11 +79,11 @@ const TransactionSuccessScreen = () => {
 
         <View style={styles.row}>
           <View style={[styles.cell, styles.rightBorder]}>
-          <Text style={styles.detailLabel}>{t('total_label')}</Text>
+          <Text style={styles.detailLabel}>{t('total')}</Text>
             <Text style={styles.detailValue}>৳{amount}</Text>
           </View>
           <View style={styles.cell}>
-          <Text style={styles.detailLabel}>{t('new_balance_label')}</Text>
+          <Text style={styles.detailLabel}>{t('new_balance')}</Text>
             <View style={styles.valueWithIcon}>
               <Text style={styles.detailValue}>৳{newBalance}</Text>
               <Image
@@ -96,7 +96,7 @@ const TransactionSuccessScreen = () => {
 
         <View style={[styles.row, styles.lastRow]}>
           <View style={styles.fullWidthCell}>
-          <Text style={styles.detailLabel}>{t('reference_label')}</Text>
+          <Text style={styles.detailLabel}>{t('reference')}</Text>
             <Text style={styles.detailValue}>{reference}</Text>
           </View>
         </View>
@@ -116,13 +116,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     paddingHorizontal: width * 0.05,
-    paddingTop: height * 0.02,
+    paddingTop: height * 0.03,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: height * 0.02,
+    marginTop: height * 0.08,
   },
   headerText: {
     fontSize: width * 0.05,

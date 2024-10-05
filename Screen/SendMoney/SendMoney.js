@@ -124,7 +124,7 @@ export default function SendMoney({ route, navigation }) {
       const date = now.toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: '2-digit' });
 
       navigation.navigate("TransactionSuccess", {
-        message: "Transaction Successful!",
+        message: t('send_money_success'),
         name: recipient.name,
         phoneNumber: recipient.number,
         time,
@@ -137,7 +137,7 @@ export default function SendMoney({ route, navigation }) {
           console.log("Auto Pay Pressed");
         },
         onHomePress: () => {
-          navigation.navigate("Home"); 
+          navigation.navigate("Dashboard"); 
         }
       });
     } catch (err) {
@@ -216,16 +216,16 @@ export default function SendMoney({ route, navigation }) {
             <Text style={styles.value}>{`৳ ${amount}`}</Text>
           </View>
           <View style={styles.amountCol}>
-            <Text style={styles.label}>{t("charge_label")}</Text>
+            <Text style={styles.label}>{t("charge")}</Text>
             <Text style={styles.value}>+৳ 0.00</Text>
           </View>
           <View style={styles.amountCol}>
-            <Text style={styles.label}>{t("total_label")}</Text>
+            <Text style={styles.label}>{t("total")}</Text>
             <Text style={styles.value}>{`৳ ${amount}`}</Text>
           </View>
         </View>
         <View style={styles.referenceRow}>
-          <Text style={styles.referenceLabel}>{t("reference_label")}</Text>
+          <Text style={styles.referenceLabel}>{t("reference")}</Text>
           <Text style={styles.referenceLimit}>
             {reference.length}/{maxChars}
           </Text>
