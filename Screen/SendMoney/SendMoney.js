@@ -114,10 +114,31 @@ export default function SendMoney({ route, navigation }) {
     setIsLoading(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      setCurrentBalance((prevBalance) => prevBalance - parseFloat(amount));
+      const newBalance = currentBalance - parseFloat(amount);
+      setCurrentBalance(newBalance);
+      
+      const transactionId = 'TXN' + Math.random().toString(36).substr(2, 9).toUpperCase();
+      
+      const now = new Date();
+      const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+      const date = now.toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: '2-digit' });
+
       navigation.navigate("TransactionSuccess", {
+        message: "Transaction Successful!",
+        name: recipient.name,
+        phoneNumber: recipient.number,
+        time,
+        date,
+        transactionId,
         amount: parseFloat(amount),
-        recipient: recipient,
+        newBalance,
+        reference,
+        onAutoPayPress: () => {
+          console.log("Auto Pay Pressed");
+        },
+        onHomePress: () => {
+          navigation.navigate("Home"); 
+        }
       });
     } catch (err) {
       Alert.alert(
@@ -129,8 +150,7 @@ export default function SendMoney({ route, navigation }) {
       setProgress(0);
       setIsPressed(false);
     }
-  }, [amount, recipient, navigation]);
-
+  }, [amount, recipient, navigation, currentBalance, reference, t]);
   const handlePressIn = useCallback(() => {
     setIsPressed(true);
   }, []);
