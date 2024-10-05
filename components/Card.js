@@ -9,17 +9,27 @@ import {
 } from "react-native";
 import { useTranslation } from "react-i18next";
 import { useCurrencyFormatter } from "../utilities/helper/useCurrencyFormatter";
+import LottieView from "lottie-react-native";
+import checkingAnimation from "../assets/checking.json";
 
 const { width, height } = Dimensions.get("window");
 
 const Card = () => {
   const [balance, setBalance] = useState(85343);
   const [showBalance, setShowBalance] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { t } = useTranslation();
   const formatCurrency = useCurrencyFormatter();
 
   const handleRefresh = () => {
-    setShowBalance(!showBalance);
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      setShowBalance(true);
+      setTimeout(() => {
+        setShowBalance(false);
+      }, 10000);
+    }, 2000);
   };
 
   return (
@@ -27,15 +37,35 @@ const Card = () => {
       <View style={styles.card}>
         <Text style={styles.balanceLabel}>{t("balance_label")}</Text>
         <View style={styles.amountContainer}>
-          <Text style={styles.balanceAmount}>
-            {showBalance ? `৳ ${formatCurrency(balance)}` : "৳ ****"}
-          </Text>
-          <Pressable onPress={handleRefresh} style={styles.refreshButton}>
-            <Image
-              source={require("../assets/icon/refresh.png")}
-              style={styles.refreshIcon}
+          {loading ? (
+            <LottieView
+              source={checkingAnimation}
+              autoPlay
+              loop
+              style={styles.lottieLoader}
             />
-          </Pressable>
+          ) : (
+            <Text style={styles.balanceAmount}>
+              {showBalance ? `৳ ${formatCurrency(balance)}` : "৳ ****"}
+            </Text>
+          )}
+          {!showBalance ? (
+            <Pressable onPress={handleRefresh} style={styles.refreshButton}>
+              <Image
+                source={require("../assets/icon/show.png")}
+                style={styles.refreshIcon}
+              />
+            </Pressable>
+          ) : (
+            showBalance && (
+              <Pressable style={styles.refreshButton}>
+                <Image
+                  source={require("../assets/icon/hide.png")}
+                  style={styles.refreshIcon}
+                />
+              </Pressable>
+            )
+          )}
         </View>
       </View>
     </View>
@@ -67,6 +97,11 @@ const styles = StyleSheet.create({
     color: "#000",
     fontSize: width * 0.06,
     fontWeight: "bold",
+  },
+  lottieLoader: {
+    width: width * 0.2,
+    height: width * 0.1,
+    fontSize: width * 0.06,
   },
   refreshButton: {
     width: width * 0.1,

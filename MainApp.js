@@ -123,7 +123,7 @@ export default function MainApp() {
         <Stack.Navigator
           screenOptions={{
             header: (props) => <Header {...props} />,
-            animation: "slide_from_bottom",
+            animation: "slide_from_right",
           }}
         >
           {isAuthenticated ? (
