@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
+  ToastAndroid,
+  Clipboard,
 } from "react-native";
 import { useRoute } from "@react-navigation/native";
 
@@ -13,6 +15,7 @@ const { width, height } = Dimensions.get("window");
 
 const TransactionSuccessScreen = () => {
   const route = useRoute();
+  const [copied, setCopied] = useState(false);
   const {
     message,
     name,
@@ -26,7 +29,11 @@ const TransactionSuccessScreen = () => {
     onAutoPayPress,
     onHomePress,
   } = route.params;
-
+  const copyTransactionId = () => {
+    Clipboard.setString(transactionId);
+    setCopied(true);
+    ToastAndroid.show("Transaction ID Copied", ToastAndroid.SHORT);
+  };
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -58,7 +65,15 @@ const TransactionSuccessScreen = () => {
           </View>
           <View style={styles.cell}>
             <Text style={styles.detailLabel}>ট্রানজেকশন আইডি</Text>
-            <Text style={styles.detailValue}>{transactionId}</Text>
+            <View style={styles.valueWithIcon}>
+              <Text style={styles.detailValue}>{transactionId}</Text>
+              <TouchableOpacity onPress={copyTransactionId}>
+                <Image
+                  source={require("../../assets/icon/copy.png")}
+                  style={styles.copyIcon}
+                />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
 
@@ -115,8 +130,8 @@ const styles = StyleSheet.create({
     color: "#027e02",
   },
   checkIcon: {
-    width: width * 0.08,
-    height: width * 0.08,
+    width: width * 0.15,
+    height: width * 0.15,
   },
   userInfo: {
     flexDirection: "row",
@@ -161,7 +176,6 @@ const styles = StyleSheet.create({
     fontSize: width * 0.035,
   },
 
-  // Details Section
   detailsContainer: {
     borderRadius: width * 0.02,
     borderWidth: 1,
@@ -178,7 +192,7 @@ const styles = StyleSheet.create({
   },
   cell: {
     flex: 0.5,
-    paddingVertical: height * 0.015,
+    paddingVertical: height * 0.02,
     paddingHorizontal: width * 0.04,
   },
   rightBorder: {
@@ -199,9 +213,15 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginTop: height * 0.005,
   },
+  copyIcon: {
+    width: width * 0.04,
+    height: width * 0.04,
+    marginLeft: width * 0.03,
+    marginTop: width * 0.01,
+  },
   valueWithIcon: {
     flexDirection: "row",
-    alignItems: "center",
+  alignItems: "center",
   },
   eyeIcon: {
     width: width * 0.04,
