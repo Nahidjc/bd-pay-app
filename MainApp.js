@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -22,7 +22,7 @@ import { TransactionLimitScreen } from "./Screen/TransactionLimit/TransactionLim
 import StatementScreen from "./Screen/Transaction/Transaction";
 import { getOnboardingStatus } from "./state/storage";
 import TransactionSuccessScreen from "./Screen/SendMoney/TransactionSuccessScreen";
-
+import SplashScreen from "react-native-splash-screen";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 LogBox.ignoreAllLogs();
@@ -111,6 +111,9 @@ const MainTabs = () => {
 export default function MainApp() {
   const { isAuthenticated } = useSelector((state) => state.auth);
   const isOnboarded = getOnboardingStatus();
+  useEffect(() => {
+    SplashScreen.hide();
+  }, []);
   return (
     <SafeAreaProvider>
       <StatusBar
@@ -169,7 +172,7 @@ export default function MainApp() {
                   }}
                   component={SendMoney}
                 />
-                 <Stack.Screen
+                <Stack.Screen
                   name="TransactionSuccess"
                   options={{
                     headerShown: false,

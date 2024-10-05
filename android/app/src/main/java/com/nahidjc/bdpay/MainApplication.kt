@@ -21,11 +21,10 @@ class MainApplication : Application(), ReactApplication {
         this,
         object : DefaultReactNativeHost(this) {
           override fun getPackages(): List<ReactPackage> {
-            // Autolinked packages + manually added packages
-            val packages = PackageList(this).packages
-            packages.add(SplashScreenReactPackage()) // Adding SplashScreenReactPackage
-            return packages
-        }
+            // Packages that cannot be autolinked yet can be added manually here, for example:
+            // packages.add(new MyReactNativePackage());
+            return PackageList(this).packages
+          }
 
           override fun getJSMainModuleName(): String = ".expo/.virtual-metro-entry"
 
@@ -53,7 +52,5 @@ class MainApplication : Application(), ReactApplication {
     super.onConfigurationChanged(newConfig)
     ApplicationLifecycleDispatcher.onConfigurationChanged(this, newConfig)
   }
-  override val reactNativeHost: ReactNativeHost
-    get() = mReactNativeHost
 
 }
