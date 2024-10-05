@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
+import { useTranslation } from "react-i18next";
 import {
   Modal,
   View,
@@ -26,6 +27,8 @@ const SendMoneyModal = ({
   onPressIn,
   onPressOut,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <Modal
       visible={visible}
@@ -36,7 +39,7 @@ const SendMoneyModal = ({
       <View style={styles.container}>
         <View style={styles.content}>
           <View style={styles.header}>
-            <Text style={styles.title}>সেন্ড মানি নিশ্চিত করুন</Text>
+            <Text style={styles.title}>{t("confirm_send_money")}</Text>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
               <Text style={styles.closeText}>✕</Text>
             </TouchableOpacity>
@@ -54,24 +57,26 @@ const SendMoneyModal = ({
 
           <View style={styles.amountContainer}>
             <View style={styles.amountColumn}>
-              <Text style={styles.amountLabel}>সর্বমোট</Text>
+              <Text style={styles.amountLabel}>{t("total_label")}</Text>
               <Text style={styles.amountValue}>৳{amount.toFixed(2)}</Text>
               <Text style={styles.chargeText}>
                 {charge > 0
-                  ? `+ চার্জ ৳${charge.toFixed(2)}`
-                  : "+ চার্জ প্রযোজ্য নয়"}
+                  ? `${t("charge_label")} ৳${charge.toFixed(2)}`
+                  : t("no_charge")}
               </Text>
             </View>
             <View style={styles.amountDivider} />
             <View style={styles.amountColumn}>
-              <Text style={styles.amountLabel}>নতুন ব্যালেন্স</Text>
+              <Text style={styles.amountLabel}>{t("new_balance_label")}</Text>
               <Text style={styles.amountValue}>৳{newBalance.toFixed(2)}</Text>
             </View>
           </View>
 
           {reference && (
             <View style={styles.referenceContainer}>
-              <Text style={styles.referenceText}>রেফারেন্স: {reference}</Text>
+              <Text style={styles.referenceText}>
+                {t("reference_label")}: {reference}
+              </Text>
             </View>
           )}
 
@@ -80,13 +85,7 @@ const SendMoneyModal = ({
               source={require("../../assets/images/paypal.png")}
               style={styles.infoIcon}
             />
-            <Text style={styles.infoText}>
-              প্রিয় নাম্বারে প্রতি মাসে ২৫,০০০ টাকা পর্যন্ত সেন্ড মানি করতে
-              কোনো চার্জ প্রযোজ্য হবে না। যদি কোনো লেনদেন লিমিট অতিক্রম করে, তখন
-              নির্দিষ্ট চার্জ প্রযোজ্য হবে এবং প্রিয় নাম্বারে সেন্ড মানি'র
-              লিমিট শেষ হয়ে যাবে । তবে যেকোনো নাম্বারে ১০০ টাকা পর্যন্ত সেন্ড
-              মানি করতে কোনো চার্জ প্রযোজ্য
-            </Text>
+            <Text style={styles.infoText}>{t("send_money_info")}</Text>
           </View>
         </View>
 
@@ -108,7 +107,7 @@ const SendMoneyModal = ({
               onPressOut={onPressOut}
             >
               <Text style={styles.sendButtonText}>
-                সেন্ড মানি করতে ট্যাপ করে ধরে রাখুন
+                {t("hold_to_send")}
               </Text>
             </TouchableOpacity>
           </LinearGradient>

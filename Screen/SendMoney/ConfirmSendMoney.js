@@ -10,12 +10,14 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Avatar } from "react-native-elements";
+import { useTranslation } from "react-i18next";
 const { width } = Dimensions.get("window");
 const baseWidth = 375;
 const scale = width / baseWidth;
 
 export default function ConfirmSendMoneyScreen({ route, navigation }) {
   const [amount, setAmount] = useState("");
+  const { t } = useTranslation();
   const { recipient } = route.params;
 
   const handleAmountChange = (value) => {
@@ -52,12 +54,12 @@ export default function ConfirmSendMoneyScreen({ route, navigation }) {
           value={amount}
           onChangeText={handleAmountChange}
           keyboardType="numeric"
-          placeholder="5"
+          placeholder={t("amount_placeholder")}
           placeholderTextColor="#999"
         />
       </KeyboardAvoidingView>
 
-      <Text style={styles.balanceText}>ব্যবহারযোগ্য ব্যালেন্স: ৳10.15</Text>
+      <Text style={styles.balanceText}>  {t("available_balance")}: ৳10000.15</Text>
 
       <TouchableOpacity
         style={styles.confirmButton}
@@ -68,7 +70,7 @@ export default function ConfirmSendMoneyScreen({ route, navigation }) {
           });
         }}
       >
-        <Text style={styles.confirmButtonText}>এগিয়ে যান</Text>
+        <Text style={styles.confirmButtonText}>{t("proceed")}</Text>
         <Ionicons name="arrow-forward" size={24 * scale} color="#fff" />
       </TouchableOpacity>
     </View>

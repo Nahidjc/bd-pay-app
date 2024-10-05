@@ -6,13 +6,13 @@ import {
   Dimensions,
   TextInput,
   TouchableOpacity,
-  ActivityIndicator,
   Alert,
 } from "react-native";
 import { Avatar } from "react-native-elements";
 import { Ionicons } from "@expo/vector-icons";
 import SendMoneyModal from "./SendMoneyModal";
 import LoadingScreen from "../../components/Loader/Loader";
+import { useTranslation } from "react-i18next";
 
 const { width } = Dimensions.get("window");
 const baseWidth = 375;
@@ -20,6 +20,7 @@ const scale = width / baseWidth;
 
 export default function SendMoney({ route, navigation }) {
   const { recipient, amount } = route.params;
+  const { t } = useTranslation();
   const [pin, setPin] = useState("");
   const [reference, setReference] = useState("");
   const [isModalVisible, setModalVisible] = useState(false);
@@ -65,7 +66,7 @@ export default function SendMoney({ route, navigation }) {
       setCurrentBalance(response.balance);
       setError(null);
     } catch (err) {
-      setError("Failed to fetch current balance. Please try again.");
+      setError(t("transaction_failure_msg")); 
     } finally {
       setIsLoading(false);
     }
@@ -91,18 +92,18 @@ export default function SendMoney({ route, navigation }) {
 
   const validateInputs = useCallback(() => {
     if (!amount || parseFloat(amount) <= 0) {
-      Alert.alert("Invalid Amount", "Please enter a valid amount.");
+      Alert.alert(t("invalid_amount"), t("enter_valid_amount"));
       return false;
     }
     if (parseFloat(amount) > currentBalance) {
       Alert.alert(
-        "Insufficient Balance",
-        "You do not have enough balance for this transaction."
+        t("insufficient_balance"),
+        t("not_enough_balance")
       );
       return false;
     }
     if (pin.length !== pinLength) {
-      Alert.alert("Invalid PIN", "Please enter a valid 4-digit PIN.");
+      Alert.alert(t("enter_valid_pin")); 
       return false;
     }
     return true;
@@ -120,8 +121,8 @@ export default function SendMoney({ route, navigation }) {
       });
     } catch (err) {
       Alert.alert(
-        "Transaction Failed",
-        "Unable to complete the transaction. Please try again."
+        t("transaction_failed"),
+        t("transaction_failure_msg")
       );
     } finally {
       setIsLoading(false);
@@ -146,7 +147,7 @@ export default function SendMoney({ route, navigation }) {
           style={styles.retryButton}
           onPress={fetchCurrentBalance}
         >
-          <Text style={styles.retryButtonText}>Retry</Text>
+          <Text style={styles.retryButtonText}>{t("retry")}</Text>
         </TouchableOpacity>
       </View>
     );
@@ -168,7 +169,7 @@ export default function SendMoney({ route, navigation }) {
         onPressOut={handlePressOut}
       />
       <View style={styles.recipientCard}>
-        <Text style={styles.toText}>প্রাপক</Text>
+      <Text style={styles.toText}>{t("recipient")}</Text>  
         <View style={styles.recipientContainer}>
           <View style={styles.avatar}>
             {isEnglishLetter(recipient.name[0]) ? (
@@ -191,27 +192,27 @@ export default function SendMoney({ route, navigation }) {
       <View style={styles.amountSection}>
         <View style={styles.amountRow}>
           <View style={styles.amountCol}>
-            <Text style={styles.label}>পরিমাণ</Text>
+            <Text style={styles.label}>{t("amount_label")}</Text>
             <Text style={styles.value}>{`৳ ${amount}`}</Text>
           </View>
           <View style={styles.amountCol}>
-            <Text style={styles.label}>চার্জ</Text>
+            <Text style={styles.label}>{t("charge_label")}</Text>
             <Text style={styles.value}>+৳ 0.00</Text>
           </View>
           <View style={styles.amountCol}>
-            <Text style={styles.label}>সর্বমোট</Text>
+            <Text style={styles.label}>{t("total_label")}</Text>
             <Text style={styles.value}>{`৳ ${amount}`}</Text>
           </View>
         </View>
         <View style={styles.referenceRow}>
-          <Text style={styles.referenceLabel}>রেফারেন্স</Text>
+          <Text style={styles.referenceLabel}>{t("reference_label")}</Text>
           <Text style={styles.referenceLimit}>
             {reference.length}/{maxChars}
           </Text>
         </View>
         <TextInput
           style={styles.referenceInput}
-          placeholder="নোট লিখতে ট্যাপ করুন"
+          placeholder={t("note_placeholder")}
           placeholderTextColor="#999"
           value={reference}
           onChangeText={handleReferenceChange}
@@ -229,7 +230,7 @@ export default function SendMoney({ route, navigation }) {
           />
           <TextInput
             style={styles.pinInput}
-            placeholder="পিন নম্বর দিন"
+            placeholder={t("pin_placeholder")} 
             placeholderTextColor="#999"
             value={pin}
             keyboardType="number-pad"
@@ -248,7 +249,7 @@ export default function SendMoney({ route, navigation }) {
         disabled={pin.length !== pinLength}
         onPress={() => setModalVisible(true)}
       >
-        <Text style={styles.confirmButtonText}>পিন কনফার্ম করুন</Text>
+        <Text style={styles.confirmButtonText}>{t("confirm_pin")}</Text>
         <Ionicons name="arrow-forward" size={24 * scale} color="#fff" />
       </TouchableOpacity>
     </View>

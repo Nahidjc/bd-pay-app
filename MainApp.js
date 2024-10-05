@@ -111,7 +111,6 @@ const MainTabs = () => {
 export default function MainApp() {
   const { isAuthenticated } = useSelector((state) => state.auth);
   const isOnboarded = getOnboardingStatus();
-  console.log("===============isAuthenticated=======", isAuthenticated);
   return (
     <SafeAreaProvider>
       <StatusBar
@@ -124,7 +123,7 @@ export default function MainApp() {
         <Stack.Navigator
           screenOptions={{
             header: (props) => <Header {...props} />,
-            animation: "slide_from_right",
+            animation: "slide_from_bottom",
           }}
         >
           {isAuthenticated ? (
