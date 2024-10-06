@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from "react";
+import React, { lazy, Suspense, useState } from "react";
 import { NavigationContainer, useFocusEffect } from "@react-navigation/native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -63,12 +63,29 @@ const CustomTabBarButton = ({ children, onPress }) => (
 );
 
 const StatementWrapper = () => {
+  const [isReady, setIsReady] = useState(false);
+
   useFocusEffect(
     React.useCallback(() => {
-      // Preload data or start heavy computations here
-      // For example: dispatch(fetchStatementData());
+      let isMounted = true;
+      const prepareScreen = async () => {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        if (isMounted) {
+          setIsReady(true);
+        }
+      };
+      setIsReady(false);
+      prepareScreen();
+
+      return () => {
+        isMounted = false;
+      };
     }, [])
   );
+
+  if (!isReady) {
+    return <LoadingScreen />;
+  }
 
   return (
     <Suspense fallback={<LoadingScreen />}>
