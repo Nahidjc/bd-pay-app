@@ -63,27 +63,19 @@ const CustomTabBarButton = ({ children, onPress }) => (
 );
 
 const StatementWrapper = () => {
-  const [isReady, setIsReady] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useFocusEffect(
     React.useCallback(() => {
-      let isMounted = true;
       const prepareScreen = async () => {
         await new Promise(resolve => setTimeout(resolve, 1000));
-        if (isMounted) {
-          setIsReady(true);
-        }
+        setLoading(false); 
       };
-      setIsReady(false);
       prepareScreen();
-
-      return () => {
-        isMounted = false;
-      };
     }, [])
   );
 
-  if (!isReady) {
+  if (loading) {
     return <LoadingScreen />;
   }
 
@@ -93,6 +85,7 @@ const StatementWrapper = () => {
     </Suspense>
   );
 };
+
 
 const MainTabs = () => {
   const { user } = useSelector((state) => state.auth);
