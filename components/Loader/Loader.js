@@ -11,7 +11,6 @@ const LoadingScreen = ({ visible }) => {
       onRequestClose={() => {}}
       statusBarTranslucent={true}
     >
-      {/* <StatusBar hidden={true} /> */}
 
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.loaderContainer}>
