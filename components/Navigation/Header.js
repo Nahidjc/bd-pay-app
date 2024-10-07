@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useState, useEffect } from "react";
 import {
   Pressable,
   View,
@@ -21,10 +21,17 @@ const scale = width / baseWidth;
 
 const Header = ({ navigation, route, options, tabName, user }) => {
   const { t } = useTranslation();
-  const insets = useSafeAreaInsets();
   const theme = useTheme();
+  const [imageError, setImageError] = useState(false);
+  const [secureImageUrl, setSecureImageUrl] = useState('');
   const backgroundColor =
     StyleSheet.flatten(options.headerStyle)?.backgroundColor ?? theme.white;
+
+  useEffect(() => {
+    if (user?.shopLogo) {
+      setSecureImageUrl(user.shopLogo.replace('http://', 'https://'));
+    }
+  }, [user]);
 
   const goBack = () => {
     const routes = navigation.getState()?.routes;
@@ -39,67 +46,90 @@ const Header = ({ navigation, route, options, tabName, user }) => {
     navigation.toggleDrawer();
   };
 
+  const handleImageError = () => {
+    console.log("Image load error for URL:", secureImageUrl);
+    setImageError(true);
+  };
+
+  const renderProfileSection = () => (
+    <View style={styles.profileContainer}>
+      {imageError || !secureImageUrl ? (
+        <View style={[styles.profileImage, styles.placeholderImage]}>
+          <Text style={styles.placeholderText}>
+            {user?.ownerName ? user.ownerName[0].toUpperCase() : '?'}
+          </Text>
+        </View>
+      ) : (
+        <Image
+          source={{ uri: secureImageUrl }}
+          style={styles.profileImage}
+          resizeMode="cover"
+          onError={handleImageError}
+        />
+      )}
+      <View style={styles.textContainer}>
+        <Text style={styles.greeting}>{user?.ownerName || t("user")}</Text>
+        <Text style={styles.subtitle}>{t("welcome")}</Text>
+      </View>
+    </View>
+  );
+
+  const renderBackButton = () => (
+    <View style={{ flex: 1 }}>
+      <Pressable
+        style={[styles.button, styles.backButton]}
+        onPress={goBack}
+      >
+        <Ionicons
+          name="arrow-back"
+          size={24 * scale}
+          color="#fff"
+          style={styles.backIcon}
+        />
+      </Pressable>
+    </View>
+  );
+
+  const renderTitle = () => (
+    <Text
+      style={styles.title}
+      numberOfLines={1}
+      allowFontScaling={false}
+    >
+      {t(options.title || route.name)}
+    </Text>
+  );
+
+  const renderHeaderRight = () => (
+    options.headerRight && (
+      <View style={[styles.button, styles.rightButton]}>
+        {options.headerRight({ canGoBack: navigation.canGoBack() })}
+      </View>
+    )
+  );
+
+  const renderMenuButton = () => (
+    <Pressable onPress={openMenu} style={styles.menuButton}>
+      <Ionicons name="menu" size={24} color="white" />
+    </Pressable>
+  );
+
   return (
     <SafeAreaView style={{ backgroundColor }} edges={["top"]}>
       <View style={styles.appBar}>
-        {tabName === "Dashboard" ? (
-          <View style={styles.profileContainer}>
-            <Image
-              source={{
-                uri: user.shopLogo,
-              }}
-              style={styles.profileImage}
-              resizeMode="cover"
-              onError={() => console.log("Image load error")}
-            />
-            <View style={styles.textContainer}>
-              <Text style={styles.greeting}>{user.ownerName}</Text>
-              <Text style={styles.subtitle}>{t("welcome")}</Text>
-            </View>
-          </View>
-        ) : (
+        {tabName === "Dashboard" && renderProfileSection()}
+        {tabName !== "Dashboard" && (
           <>
-            {navigation.canGoBack() && (
-              <View style={{ flex: 1 }}>
-                <Pressable
-                  style={[styles.button, styles.backButton]}
-                  onPress={goBack}
-                >
-                  <Ionicons
-                    name="arrow-back"
-                    size={24 * scale}
-                    color="#fff"
-                    style={styles.backIcon}
-                  />
-                </Pressable>
-              </View>
-            )}
-            <Text
-              style={styles.title}
-              numberOfLines={1}
-              allowFontScaling={false}
-            >
-              {t(options.title || route.name)}
-            </Text>
-            {options.headerRight && (
-              <View style={[styles.button, styles.rightButton]}>
-                {options.headerRight({ canGoBack: false })}
-              </View>
-            )}
+            {navigation.canGoBack() && renderBackButton()}
+            {renderTitle()}
+            {renderHeaderRight()}
           </>
         )}
-        {(tabName === "Dashboard" || tabName === "Statements") && (
-          <Pressable onPress={openMenu} style={styles.menuButton}>
-            <Ionicons name="menu" size={24} color="white" />
-          </Pressable>
-        )}
+        {(tabName === "Dashboard" || tabName === "Statements") && renderMenuButton()}
       </View>
     </SafeAreaView>
   );
 };
-
-// Memoize the Header component to prevent unnecessary re-renders
-export default memo(Header);
 
 const styles = StyleSheet.create({
   appBar: {
@@ -148,7 +178,16 @@ const styles = StyleSheet.create({
     height: 35,
     borderRadius: 20,
     marginRight: 10,
-    backgroundColor: "#e0e0e0", // Placeholder background color while loading
+  },
+  placeholderImage: {
+    backgroundColor: "#e0e0e0",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  placeholderText: {
+    color: "#ffffff",
+    fontSize: 18,
+    fontWeight: "bold",
   },
   textContainer: {
     flexDirection: "column",
@@ -163,3 +202,5 @@ const styles = StyleSheet.create({
     color: "white",
   },
 });
+
+export default memo(Header);

@@ -1,11 +1,10 @@
-import React from "react";
-import { NavigationContainer } from "@react-navigation/native";
+import React, { lazy, Suspense, useState } from "react";
+import { NavigationContainer, useFocusEffect } from "@react-navigation/native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { StatusBar } from "expo-status-bar";
 import { useSelector } from "react-redux";
 import DashboardScreen from "./Screen/DashboardScreen";
-import HelloWorldScreen from "./components/HelloWorld";
 import LoginScreen from "./components/LoginScreen";
 import WelcomeScreen from "./components/WelcomeScreen";
 import OnboardingScreen from "./Screen/OnboardingScreen";
@@ -20,15 +19,17 @@ import Header from "./components/Navigation/Header";
 import "./utilities/i18n";
 import { CustomDrawerContent } from "./components/Drawer/CustomDrawerContent";
 import { TransactionLimitScreen } from "./Screen/TransactionLimit/TransactionLimit";
-import StatementScreen from "./Screen/Transaction/Transaction";
 import { getOnboardingStatus } from "./state/storage";
 import TransactionSuccessScreen from "./Screen/SendMoney/TransactionSuccessScreen";
-
+import LoadingScreen from "./components/Loader/Loader";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 LogBox.ignoreAllLogs();
 
 const Drawer = createDrawerNavigator();
+
+const StatementScreen = lazy(() => import("./Screen/Transaction/Transaction"));
+
 const DrawerNavigator = () => {
   return (
     <Drawer.Navigator
@@ -60,6 +61,31 @@ const CustomTabBarButton = ({ children, onPress }) => (
     <View style={styles.customTabButtonContent}>{children}</View>
   </TouchableOpacity>
 );
+
+const StatementWrapper = () => {
+  const [loading, setLoading] = useState(true);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      const prepareScreen = async () => {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        setLoading(false); 
+      };
+      prepareScreen();
+    }, [])
+  );
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
+
+  return (
+    <Suspense fallback={<LoadingScreen />}>
+      <StatementScreen />
+    </Suspense>
+  );
+};
+
 
 const MainTabs = () => {
   const { user } = useSelector((state) => state.auth);
@@ -97,7 +123,7 @@ const MainTabs = () => {
       />
       <Tab.Screen
         name="Statements"
-        component={StatementScreen}
+        component={StatementWrapper}
         options={{
           headerStyle: {
             backgroundColor: "#E91E63",
@@ -170,7 +196,7 @@ export default function MainApp() {
                   }}
                   component={SendMoney}
                 />
-                 <Stack.Screen
+                <Stack.Screen
                   name="TransactionSuccess"
                   options={{
                     headerShown: false,
