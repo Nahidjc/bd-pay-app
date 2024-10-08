@@ -1,10 +1,11 @@
 import { store } from "./state/store";
 import { Provider } from "react-redux";
 import MainApp from "./MainApp";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import SplashScreen from "react-native-splash-screen";
 import messaging from "@react-native-firebase/messaging";
 import { registerPushNotifications } from "./utilities/notifications";
+import LoadingScreen from "./components/Loader/Loader";
 export default function App() {
   useEffect(() => {
     const hideSplashScreen = async () => {
@@ -37,7 +38,9 @@ export default function App() {
 
   return (
     <Provider store={store}>
-      <MainApp />
+      <Suspense fallback={<LoadingScreen />}>
+        <MainApp />
+      </Suspense>
     </Provider>
   );
 }

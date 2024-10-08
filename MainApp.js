@@ -1,5 +1,5 @@
-import React, { lazy, Suspense, useState } from "react";
-import { NavigationContainer, useFocusEffect } from "@react-navigation/native";
+import React, { lazy } from "react";
+import { NavigationContainer } from "@react-navigation/native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { StatusBar } from "expo-status-bar";
@@ -11,24 +11,31 @@ import OnboardingScreen from "./Screen/OnboardingScreen";
 import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, TouchableOpacity, View, LogBox } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import SendMoneyScreen from "./Screen/SendMoney/SendMoneyScreen";
+const SendMoneyScreen = lazy(() =>
+  import("./Screen/SendMoney/SendMoneyScreen")
+);
 import ConfirmSendMoneyScreen from "./Screen/SendMoney/ConfirmSendMoney";
 import SendMoney from "./Screen/SendMoney/SendMoney";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Header from "./components/Navigation/Header";
-import "./utilities/i18n";
+
 import { CustomDrawerContent } from "./components/Drawer/CustomDrawerContent";
-import { TransactionLimitScreen } from "./Screen/TransactionLimit/TransactionLimit";
+const TransactionLimitScreen = lazy(() =>
+  import("./Screen/TransactionLimit/TransactionLimit")
+);
 import { getOnboardingStatus } from "./state/storage";
-import TransactionSuccessScreen from "./Screen/SendMoney/TransactionSuccessScreen";
-import LoadingScreen from "./components/Loader/Loader";
+const TransactionSuccessScreen = lazy(() =>
+  import("./Screen/SendMoney/TransactionSuccessScreen")
+);
+const StatementScreen = lazy(() => import("./Screen/Transaction/Transaction"));
+import "./utilities/i18n";
+import HelloWorldScreen from "./components/HelloWorld";
+import { useTranslation } from "react-i18next";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 LogBox.ignoreAllLogs();
 
 const Drawer = createDrawerNavigator();
-
-const StatementScreen = lazy(() => import("./Screen/Transaction/Transaction"));
 
 const DrawerNavigator = () => {
   return (
@@ -62,31 +69,6 @@ const CustomTabBarButton = ({ children, onPress }) => (
   </TouchableOpacity>
 );
 
-const StatementWrapper = () => {
-  const [loading, setLoading] = useState(true);
-
-  useFocusEffect(
-    React.useCallback(() => {
-      const prepareScreen = async () => {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setLoading(false); 
-      };
-      prepareScreen();
-    }, [])
-  );
-
-  if (loading) {
-    return <LoadingScreen />;
-  }
-
-  return (
-    <Suspense fallback={<LoadingScreen />}>
-      <StatementScreen />
-    </Suspense>
-  );
-};
-
-
 const MainTabs = () => {
   const { user } = useSelector((state) => state.auth);
   return (
@@ -98,6 +80,8 @@ const MainTabs = () => {
             iconName = focused ? "home" : "home-outline";
           } else if (route.name === "Statements") {
             iconName = focused ? "stats-chart" : "stats-chart-outline";
+          } else if (route.name === "HelloWorld") {
+            iconName = focused ? "bookmark-sharp" : "bookmark-outline";
           }
           return <Ionicons name={iconName} size={size} color={color} />;
         },
@@ -123,12 +107,22 @@ const MainTabs = () => {
       />
       <Tab.Screen
         name="Statements"
-        component={StatementWrapper}
+        component={StatementScreen}
         options={{
           headerStyle: {
             backgroundColor: "#E91E63",
           },
           header: (props) => <Header {...props} tabName="Statements" />,
+        }}
+      />
+      <Tab.Screen
+        name="HelloWorld"
+        component={HelloWorldScreen}
+        options={{
+          headerStyle: {
+            backgroundColor: "#E91E63",
+          },
+          header: (props) => <Header {...props} tabName="HelloWorld" />,
         }}
       />
     </Tab.Navigator>
@@ -138,6 +132,7 @@ const MainTabs = () => {
 export default function MainApp() {
   const { isAuthenticated } = useSelector((state) => state.auth);
   const isOnboarded = getOnboardingStatus();
+  const { t } = useTranslation();
   return (
     <SafeAreaProvider>
       <StatusBar
@@ -149,26 +144,24 @@ export default function MainApp() {
       <NavigationContainer>
         <Stack.Navigator
           screenOptions={{
-            header: (props) => <Header {...props} />,
             animation: "slide_from_right",
+            header: (props) => <Header {...props} />,
           }}
         >
           {isAuthenticated ? (
             <>
-              <Stack.Group>
-                <Stack.Screen
-                  name="DrawerNavigator"
-                  component={DrawerNavigator}
-                  options={{
-                    headerShown: false,
-                  }}
-                />
-              </Stack.Group>
+              <Stack.Screen
+                name="DrawerNavigator"
+                component={DrawerNavigator}
+                options={{
+                  headerShown: false,
+                }}
+              />
 
               <Stack.Group>
                 <Stack.Screen
                   options={{
-                    title: "সেন্ড মানি",
+                    title: t("send"),
                     headerStyle: {
                       backgroundColor: "#E91E63",
                     },
@@ -179,7 +172,7 @@ export default function MainApp() {
                 <Stack.Screen
                   name="ConfirmSendMoney"
                   options={{
-                    title: "সেন্ড মানি",
+                    title: t("send"),
                     headerStyle: {
                       backgroundColor: "#E91E63",
                     },
@@ -189,7 +182,7 @@ export default function MainApp() {
                 <Stack.Screen
                   name="SendMoney"
                   options={{
-                    title: "সেন্ড মানি",
+                    title: t("send"),
                     headerStyle: {
                       backgroundColor: "#E91E63",
                     },
