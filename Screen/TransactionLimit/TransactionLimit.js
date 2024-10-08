@@ -170,7 +170,7 @@ const monthlyData = [
   },
 ];
 
-export const TransactionLimitScreen = () => {
+export default function TransactionLimitScreen() {
   const [selectedTab, setSelectedTab] = useState("Daily");
   const data = selectedTab === "Daily" ? dailyData : monthlyData;
 
@@ -252,7 +252,7 @@ export const TransactionLimitScreen = () => {
       </View>
     </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   screenContainer: {
