@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -8,7 +8,8 @@ import {
   SafeAreaView,
   Dimensions,
 } from "react-native";
-import { showMessage, hideMessage } from "react-native-flash-message";
+import { showMessage } from "react-native-flash-message";
+import { MaterialIcons, FontAwesome } from "@expo/vector-icons"; // Import icons from expo/vector-icons
 import BkashSVG from "../../assets/svgs/bkash.svg";
 
 const { width, height } = Dimensions.get("window");
@@ -17,8 +18,6 @@ export default function RegistrationScreen() {
   const [accountNumber, setAccountNumber] = useState("");
   const [pin, setPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
-  const [error, setError] = useState("");
-  const [showError, setShowError] = useState(false);
 
   const validateForm = () => {
     if (accountNumber.length !== 13) {
@@ -36,17 +35,14 @@ export default function RegistrationScreen() {
   const handleRegister = () => {
     const validationError = validateForm();
     if (validationError) {
-      setError(validationError);
       showMessage({
-        message: error,
+        message: validationError,
         backgroundColor: "#e2136e",
         type: "default",
         color: "white",
       });
     } else {
       console.log("Registration successful");
-      setError("");
-      setShowError(false);
     }
   };
 
@@ -56,32 +52,58 @@ export default function RegistrationScreen() {
         <BkashSVG width={width} height={height * 0.15} />
 
         <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            placeholder="Account Number (13 digits)"
-            value={accountNumber}
-            onChangeText={setAccountNumber}
-            keyboardType="numeric"
-            maxLength={13}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Create TPin (4 digits)"
-            value={pin}
-            onChangeText={setPin}
-            keyboardType="numeric"
-            secureTextEntry
-            maxLength={4}
-          />
-          <TextInput
-            style={styles.input}
-            placeholder="Confirm TPin (4 digits)"
-            value={confirmPin}
-            onChangeText={setConfirmPin}
-            keyboardType="numeric"
-            secureTextEntry
-            maxLength={4}
-          />
+          <View style={styles.inputWrapper}>
+            <FontAwesome
+              name="user"
+              size={20}
+              color="#666"
+              style={styles.icon}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Account Number (13 digits)"
+              value={accountNumber}
+              onChangeText={setAccountNumber}
+              keyboardType="numeric"
+              maxLength={13}
+            />
+          </View>
+
+          <View style={styles.inputWrapper}>
+            <MaterialIcons
+              name="lock"
+              size={20}
+              color="#666"
+              style={styles.icon}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Create TPin (4 digits)"
+              value={pin}
+              onChangeText={setPin}
+              keyboardType="numeric"
+              secureTextEntry
+              maxLength={4}
+            />
+          </View>
+
+          <View style={styles.inputWrapper}>
+            <MaterialIcons
+              name="lock"
+              size={20}
+              color="#666"
+              style={styles.icon}
+            />
+            <TextInput
+              style={styles.input}
+              placeholder="Confirm TPin (4 digits)"
+              value={confirmPin}
+              onChangeText={setConfirmPin}
+              keyboardType="numeric"
+              secureTextEntry
+              maxLength={4}
+            />
+          </View>
         </View>
 
         <TouchableOpacity style={styles.button} onPress={handleRegister}>
@@ -107,18 +129,26 @@ const styles = StyleSheet.create({
     width: "100%",
     marginBottom: 20,
   },
-  input: {
-    backgroundColor: "white",
+  inputWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#fff",
     borderWidth: 1,
     borderColor: "#ddd",
     borderRadius: 5,
-    padding: 10,
     marginBottom: 10,
+    paddingHorizontal: 10,
+  },
+  icon: {
+    marginRight: 10,
+  },
+  input: {
+    flex: 1,
+    paddingVertical: 10,
   },
   button: {
-    backgroundColor: "#666",
+    backgroundColor: "#e2136e",
     paddingVertical: 12,
-    paddingHorizontal: 30,
     borderRadius: 5,
     width: "100%",
     alignItems: "center",
@@ -127,17 +157,5 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     fontWeight: "bold",
-  },
-  errorContainer: {
-    position: "absolute",
-    bottom: 0,
-    left: 0,
-    right: 0,
-    backgroundColor: "red",
-    padding: 10,
-  },
-  errorText: {
-    color: "white",
-    textAlign: "center",
   },
 });
