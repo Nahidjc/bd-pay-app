@@ -15,17 +15,15 @@ import { useDispatch, useSelector } from "react-redux";
 import { createUserRegistration } from "../../state/reducers/authSlice";
 import { getFCMToken } from "../../utilities/notifications";
 import LoadingScreen from "../../components/Loader/Loader";
-import { useNavigation } from "@react-navigation/native";
 
 const { width, height } = Dimensions.get("window");
 
-export default function RegistrationScreen() {
+export default function RegistrationScreen({ navigation }) {
   const dispatch = useDispatch();
   const { isLoading } = useSelector((state) => state.auth);
   const [accountNumber, setAccountNumber] = useState("");
   const [pin, setPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
-  const navigation = useNavigation();
 
   const validateForm = () => {
     if (accountNumber.length !== 11) {

@@ -224,11 +224,11 @@ export default function MainApp() {
                 )}
 
                 <Stack.Screen name="Welcome" component={WelcomeScreen} />
-                <Stack.Screen name="Login" component={LoginScreen} />
                 <Stack.Screen
                   name="Registration"
                   component={RegistrationScreen}
                 />
+                <Stack.Screen name="Login" component={LoginScreen} />
               </Stack.Group>
             </>
           )}

@@ -98,8 +98,8 @@ const authSlice = createSlice({
       })
       .addCase(createUserRegistration.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.isAuthenticated = true;
-        state.user = action.payload;
+        // state.isAuthenticated = true;
+        // state.user = action.payload;
         state.errorMessage = "";
         saveAuthState(true, action.payload);
       })
