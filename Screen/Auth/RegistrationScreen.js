@@ -11,10 +11,16 @@ import {
 import { showMessage } from "react-native-flash-message";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons"; // Import icons from expo/vector-icons
 import BkashSVG from "../../assets/svgs/bkash.svg";
+import { useDispatch, useSelector } from "react-redux";
+import { createUserRegistration } from "../../state/reducers/authSlice";
+import { getFCMToken } from "../../utilities/notifications";
+import LoadingScreen from "../../components/Loader/Loader";
 
 const { width, height } = Dimensions.get("window");
 
 export default function RegistrationScreen() {
+  const dispatch = useDispatch();
+  const { isLoading } = useSelector((state) => state.auth);
   const [accountNumber, setAccountNumber] = useState("");
   const [pin, setPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
@@ -42,12 +48,19 @@ export default function RegistrationScreen() {
         color: "white",
       });
     } else {
-      console.log("Registration successful");
+      dispatch(
+        createUserRegistration({
+          accountNumber,
+          pin,
+          deviceToken: getFCMToken(),
+        })
+      );
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
+      <LoadingScreen visible={isLoading} />
       <View style={styles.content}>
         <BkashSVG width={width} height={height * 0.15} />
 
