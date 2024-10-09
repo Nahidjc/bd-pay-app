@@ -32,6 +32,7 @@ import "./utilities/i18n";
 import HelloWorldScreen from "./components/HelloWorld";
 import { useTranslation } from "react-i18next";
 import LoadingScreen from "./components/Loader/Loader";
+import RegistrationScreen from "./Screen/Auth/RegistrationScreen";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 LogBox.ignoreAllLogs();
@@ -224,6 +225,10 @@ export default function MainApp() {
 
                 <Stack.Screen name="Welcome" component={WelcomeScreen} />
                 <Stack.Screen name="Login" component={LoginScreen} />
+                <Stack.Screen
+                  name="Registration"
+                  component={RegistrationScreen}
+                />
               </Stack.Group>
             </>
           )}
