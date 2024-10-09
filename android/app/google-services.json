@@ -1,0 +1,29 @@
+{
+    "project_info": {
+      "project_number": "6955557434",
+      "project_id": "bd-pay-firebase",
+      "storage_bucket": "bd-pay-firebase.appspot.com"
+    },
+    "client": [
+      {
+        "client_info": {
+          "mobilesdk_app_id": "1:6955557434:android:a3a41a6ddc264893d08b03",
+          "android_client_info": {
+            "package_name": "com.nahidjc.bdpay"
+          }
+        },
+        "oauth_client": [],
+        "api_key": [
+          {
+            "current_key": "AIzaSyD-MwI5SJ7wjz4Q8EJ96W5VOdt27RNMVy0"
+          }
+        ],
+        "services": {
+          "appinvite_service": {
+            "other_platform_oauth_client": []
+          }
+        }
+      }
+    ],
+    "configuration_version": "1"
+  }
