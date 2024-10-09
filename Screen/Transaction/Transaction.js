@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import {
   View,
   Text,
@@ -125,28 +125,49 @@ const transactions = [
   },
 ];
 
-const FilterButtons = ({ onFilterPress }) => (
+const FilterButtons = React.memo(({ onFilterPress, currentFilter }) => (
   <View style={styles.filterContainer}>
     <Text style={styles.filterLabel}>Filter By</Text>
     <View style={styles.filterButtonGroup}>
       <TouchableOpacity
-        style={[styles.filterButton, styles.filterButtonIn]}
+        style={[
+          styles.filterButton,
+          styles.filterButtonIn,
+          currentFilter === true && styles.filterButtonInActive,
+        ]}
         onPress={() => onFilterPress(true)}
       >
-        <Text style={styles.filterButtonTextIn}>+ IN</Text>
+        <Text
+          style={[
+            styles.filterButtonTextIn,
+            currentFilter === true && styles.filterButtonTextActive,
+          ]}
+        >
+          + IN
+        </Text>
       </TouchableOpacity>
       <TouchableOpacity
-        style={[styles.filterButton, styles.filterButtonOut]}
+        style={[
+          styles.filterButton,
+          styles.filterButtonOut,
+          currentFilter === false && styles.filterButtonOutActive,
+        ]}
         onPress={() => onFilterPress(false)}
       >
-        <Text style={styles.filterButtonTextOut}>- OUT</Text>
+        <Text
+          style={[
+            styles.filterButtonTextOut,
+            currentFilter === false && styles.filterButtonTextActive,
+          ]}
+        >
+          - OUT
+        </Text>
       </TouchableOpacity>
     </View>
   </View>
-);
+));
 
-// Transaction Item Component
-const TransactionItem = ({ item }) => (
+const TransactionItem = React.memo(({ item }) => (
   <View style={styles.transactionContainer}>
     <Ionicons
       name="person-circle-outline"
@@ -169,46 +190,76 @@ const TransactionItem = ({ item }) => (
       <Text style={styles.transactionCharge}>Charge ৳{item.charge}</Text>
     </View>
   </View>
-);
+));
 
-// Main Component
-const StatementScreen = () => {
-  const [index, setIndex] = useState(0);
-  const [routes] = useState([
-    { key: "history", title: "Transaction History" },
-    { key: "summary", title: "Transaction Summary" },
-  ]);
-  const [filter, setFilter] = useState(null);
-  const filteredTransactions = transactions.filter((transaction) =>
-    filter === null ? true : transaction.isCredited === filter
-  );
-  const renderScene = SceneMap({
-    history: () => (
+const TransactionHistory = React.memo(
+  ({ transactions, filter, onFilterPress }) => {
+    const filteredTransactions = useMemo(
+      () =>
+        transactions.filter((transaction) =>
+          filter === null ? true : transaction.isCredited === filter
+        ),
+      [transactions, filter]
+    );
+
+    return (
       <View style={{ flex: 1 }}>
-        <FilterButtons onFilterPress={setFilter} />
+        <FilterButtons onFilterPress={onFilterPress} currentFilter={filter} />
         <FlatList
           data={filteredTransactions}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => <TransactionItem item={item} />}
+          showsVerticalScrollIndicator={false}
         />
       </View>
-    ),
-    summary: () => (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text>Transaction Summary Content</Text>
-      </View>
-    ),
-  });
+    );
+  }
+);
 
-  const renderTabBar = (props) => (
-    <TabBar
-      {...props}
-      indicatorStyle={styles.tabIndicator}
-      style={styles.tabBar}
-      labelStyle={styles.tabLabel}
-      activeColor="#000"
-      inactiveColor="#999"
-    />
+const TransactionSummary = React.memo(() => (
+  <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+    <Text>Transaction Summary Content</Text>
+  </View>
+));
+
+const StatementScreen = () => {
+  const [index, setIndex] = useState(0);
+  const [filter, setFilter] = useState(null);
+
+  const routes = useMemo(
+    () => [
+      { key: "history", title: "Transaction History" },
+      { key: "summary", title: "Transaction Summary" },
+    ],
+    []
+  );
+
+  const renderScene = useCallback(
+    SceneMap({
+      history: () => (
+        <TransactionHistory
+          transactions={transactions}
+          filter={filter}
+          onFilterPress={setFilter}
+        />
+      ),
+      summary: TransactionSummary,
+    }),
+    [filter]
+  );
+
+  const renderTabBar = useCallback(
+    (props) => (
+      <TabBar
+        {...props}
+        indicatorStyle={styles.tabIndicator}
+        style={styles.tabBar}
+        labelStyle={styles.tabLabel}
+        activeColor="#000"
+        inactiveColor="#999"
+      />
+    ),
+    []
   );
 
   return (
@@ -274,6 +325,14 @@ const styles = StyleSheet.create({
   filterButtonOut: {
     borderColor: "red",
   },
+  filterButtonInActive: {
+    backgroundColor: "green",
+    borderColor: "green",
+  },
+  filterButtonOutActive: {
+    backgroundColor: "red",
+    borderColor: "red",
+  },
   filterButtonTextIn: {
     color: "green",
     fontWeight: "bold",
@@ -283,6 +342,9 @@ const styles = StyleSheet.create({
     color: "red",
     fontWeight: "bold",
     fontSize: 14,
+  },
+  filterButtonTextActive: {
+    color: "white",
   },
   transactionContainer: {
     flexDirection: "row",

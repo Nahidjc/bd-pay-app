@@ -1,4 +1,4 @@
-import React, { lazy } from "react";
+import React, { lazy, Suspense } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -31,6 +31,7 @@ const StatementScreen = lazy(() => import("./Screen/Transaction/Transaction"));
 import "./utilities/i18n";
 import HelloWorldScreen from "./components/HelloWorld";
 import { useTranslation } from "react-i18next";
+import LoadingScreen from "./components/Loader/Loader";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 LogBox.ignoreAllLogs();
@@ -71,6 +72,7 @@ const CustomTabBarButton = ({ children, onPress }) => (
 
 const MainTabs = () => {
   const { user } = useSelector((state) => state.auth);
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -91,6 +93,8 @@ const MainTabs = () => {
         tabBarShowLabel: false,
         headerShown: true,
         tabBarButton: (props) => <CustomTabBarButton {...props} />,
+        lazy: true,
+        unmountOnBlur: false,
       })}
     >
       <Tab.Screen
@@ -107,24 +111,34 @@ const MainTabs = () => {
       />
       <Tab.Screen
         name="Statements"
-        component={StatementScreen}
         options={{
           headerStyle: {
             backgroundColor: "#E91E63",
           },
           header: (props) => <Header {...props} tabName="Statements" />,
         }}
-      />
+      >
+        {() => (
+          <Suspense fallback={<LoadingScreen />}>
+            <StatementScreen />
+          </Suspense>
+        )}
+      </Tab.Screen>
       <Tab.Screen
         name="HelloWorld"
-        component={HelloWorldScreen}
         options={{
           headerStyle: {
             backgroundColor: "#E91E63",
           },
           header: (props) => <Header {...props} tabName="HelloWorld" />,
         }}
-      />
+      >
+        {() => (
+          <Suspense fallback={<LoadingScreen />}>
+            <HelloWorldScreen />
+          </Suspense>
+        )}
+      </Tab.Screen>
     </Tab.Navigator>
   );
 };
