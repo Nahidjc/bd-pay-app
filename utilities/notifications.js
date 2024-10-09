@@ -20,7 +20,7 @@ async function requestUserPermission() {
 }
 
 // Get FCM Token
-async function getFCMToken() {
+export async function getFCMToken() {
   const token = await messaging().getToken();
   console.log("FCM Token:", token);
   return token;
@@ -45,8 +45,6 @@ messaging().setBackgroundMessageHandler(async (remoteMessage) => {
 
 export const registerPushNotifications = () => {
   requestUserPermission();
-  getFCMToken();
-
   PushNotification.createChannel(
     {
       channelId: "default-channel-id",

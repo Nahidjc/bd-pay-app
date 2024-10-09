@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import { SvgUri } from "react-native-svg";
 import { useDispatch, useSelector } from "react-redux";
 import { createUserLogin } from "../state/reducers/authSlice";
 import LoadingScreen from "./Loader/Loader";
-const LoginScreen = ({ navigation }) => {
+const LoginScreen = () => {
   const dispatch = useDispatch();
   const { isLoading } = useSelector((state) => state.auth);
   const [email, setEmail] = useState("");

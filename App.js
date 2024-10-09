@@ -1,5 +1,6 @@
 import { store } from "./state/store";
 import { Provider } from "react-redux";
+import FlashMessage from "react-native-flash-message";
 import MainApp from "./MainApp";
 import { Suspense, useEffect } from "react";
 import SplashScreen from "react-native-splash-screen";
@@ -40,6 +41,7 @@ export default function App() {
     <Provider store={store}>
       <Suspense fallback={<LoadingScreen />}>
         <MainApp />
+        <FlashMessage position="bottom" />
       </Suspense>
     </Provider>
   );
