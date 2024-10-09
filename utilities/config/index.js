@@ -1,1 +1,2 @@
-export const api = "https://a88c-27-147-128-18.ngrok-free.app/v1";
+export const api =
+  "http://bd-pay-service-env.eba-pafqmxf4.ap-south-1.elasticbeanstalk.com/v1";
