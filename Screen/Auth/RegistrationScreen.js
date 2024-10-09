@@ -9,12 +9,13 @@ import {
   Dimensions,
 } from "react-native";
 import { showMessage } from "react-native-flash-message";
-import { MaterialIcons, FontAwesome } from "@expo/vector-icons"; // Import icons from expo/vector-icons
+import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import BkashSVG from "../../assets/svgs/bkash.svg";
 import { useDispatch, useSelector } from "react-redux";
 import { createUserRegistration } from "../../state/reducers/authSlice";
 import { getFCMToken } from "../../utilities/notifications";
 import LoadingScreen from "../../components/Loader/Loader";
+import { useNavigation } from "@react-navigation/native";
 
 const { width, height } = Dimensions.get("window");
 
@@ -24,10 +25,11 @@ export default function RegistrationScreen() {
   const [accountNumber, setAccountNumber] = useState("");
   const [pin, setPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
+  const navigation = useNavigation();
 
   const validateForm = () => {
-    if (accountNumber.length !== 13) {
-      return "Account Number must be 13 digits";
+    if (accountNumber.length !== 11) {
+      return "Account Number must be 11 digits";
     }
     if (pin.length !== 4) {
       return "PIN must be 4 digits";
@@ -38,7 +40,8 @@ export default function RegistrationScreen() {
     return "";
   };
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
+    const deviceToken = await getFCMToken();
     const validationError = validateForm();
     if (validationError) {
       showMessage({
@@ -52,9 +55,29 @@ export default function RegistrationScreen() {
         createUserRegistration({
           accountNumber,
           pin,
-          deviceToken: getFCMToken(),
+          deviceToken,
         })
-      );
+      )
+        .unwrap()
+        .then(() => {
+          showMessage({
+            message: "Registration successful!",
+            type: "success",
+            backgroundColor: "#4BB543",
+            color: "white",
+          });
+          setTimeout(() => {
+            navigation.navigate("Login");
+          }, 1000);
+        })
+        .catch((error) => {
+          showMessage({
+            message: error.message || "Registration failed.",
+            type: "danger",
+            backgroundColor: "#e2136e",
+            color: "white",
+          });
+        });
     }
   };
 
@@ -74,11 +97,11 @@ export default function RegistrationScreen() {
             />
             <TextInput
               style={styles.input}
-              placeholder="Account Number (13 digits)"
+              placeholder="Account Number (11 digits)"
               value={accountNumber}
               onChangeText={setAccountNumber}
               keyboardType="numeric"
-              maxLength={13}
+              maxLength={11}
             />
           </View>
 
