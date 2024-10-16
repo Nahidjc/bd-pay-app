@@ -2,9 +2,10 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { publicPost } from "../../utilities/apiCaller";
 import { storage, StorageKeys } from "../storage";
 
-const saveAuthState = (isAuthenticated, user) => {
+const saveAuthState = (isAuthenticated, user, token) => {
   storage.set(StorageKeys.IsAuthenticated, isAuthenticated ? "true" : "false");
   storage.set(StorageKeys.User, JSON.stringify(user));
+  storage.set(StorageKeys.Token, token);
 };
 
 const loadAuthState = () => {
@@ -12,12 +13,14 @@ const loadAuthState = () => {
     storage.getString(StorageKeys.IsAuthenticated) === "true";
   const userString = storage.getString(StorageKeys.User);
   const user = userString ? JSON.parse(userString) : {};
-  return { isAuthenticated, user };
+  const token = storage.getString(StorageKeys.Token) || null;
+  return { isAuthenticated, user, token };
 };
 
 const clearAuthState = () => {
   storage.delete(StorageKeys.IsAuthenticated);
   storage.delete(StorageKeys.User);
+  storage.delete(StorageKeys.Token);
 };
 
 export const createUserLogin = createAsyncThunk(
@@ -50,6 +53,7 @@ const authSlice = createSlice({
     isAuthenticated: false,
     isLoading: false,
     user: {},
+    token: null,
     error: false,
     errorMessage: "",
     updatedStudent: false,
@@ -60,6 +64,7 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.isLoading = false;
       state.user = {};
+      state.token = null;
       state.error = false;
       state.errorMessage = "";
       clearAuthState();
@@ -81,9 +86,9 @@ const authSlice = createSlice({
         state.error = null;
         state.isAuthenticated = true;
         state.user = action.payload.user;
+        state.token = action.payload.token; // Save token in state
         state.errorMessage = "";
-        state.token = action.payload.token;
-        saveAuthState(true, action.payload.user);
+        saveAuthState(true, action.payload.user, action.payload.token); // Save token
       })
       .addCase(createUserLogin.rejected, (state, action) => {
         state.isLoading = false;
@@ -98,15 +103,12 @@ const authSlice = createSlice({
       })
       .addCase(createUserRegistration.fulfilled, (state, action) => {
         state.isLoading = false;
-        // state.isAuthenticated = true;
-        // state.user = action.payload;
         state.errorMessage = "";
-        // saveAuthState(true, action.payload);
       })
       .addCase(createUserRegistration.rejected, (state, action) => {
         state.isLoading = false;
         state.error = true;
-        // state.errorMessage = action.payload.data.message;
+        state.errorMessage = action.payload.data.message;
       });
   },
 });

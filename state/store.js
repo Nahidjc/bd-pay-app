@@ -1,8 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authSlice from "./reducers/authSlice";
+import accountReducer from "./reducers/accountSlice";
 
 const combinedReducer = {
   auth: authSlice,
+  account: accountReducer,
 };
 const middlewares = [];
 export const store = configureStore({
@@ -14,4 +16,3 @@ export const store = configureStore({
     }).concat(middlewares),
   devTools: true,
 });
-// export const persistor = persistStore(store);

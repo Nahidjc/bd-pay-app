@@ -11,25 +11,28 @@ import { useTranslation } from "react-i18next";
 import { useCurrencyFormatter } from "../utilities/helper/useCurrencyFormatter";
 import LottieView from "lottie-react-native";
 import checkingAnimation from "../assets/checking.json";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchAccountBalance } from "../state/reducers/accountSlice";
 
 const { width, height } = Dimensions.get("window");
 
 const Card = () => {
-  const [balance, setBalance] = useState(85343);
+  const dispatch = useDispatch();
+  const { token } = useSelector((state) => state.auth);
+  const { balance, isLoading } = useSelector((state) => state.account);
   const [showBalance, setShowBalance] = useState(false);
-  const [loading, setLoading] = useState(false);
   const { t } = useTranslation();
   const formatCurrency = useCurrencyFormatter();
 
   const handleRefresh = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setShowBalance(true);
-      setTimeout(() => {
-        setShowBalance(false);
-      }, 10000);
-    }, 2000);
+    dispatch(fetchAccountBalance(token))
+      .unwrap()
+      .then(() => {
+        setShowBalance(true);
+        setTimeout(() => {
+          setShowBalance(false);
+        }, 5000);
+      });
   };
 
   return (
@@ -37,7 +40,7 @@ const Card = () => {
       <View style={styles.card}>
         <Text style={styles.balanceLabel}>{t("balance_label")}</Text>
         <View style={styles.amountContainer}>
-          {loading ? (
+          {isLoading ? (
             <LottieView
               source={checkingAnimation}
               autoPlay
