@@ -13,7 +13,7 @@ import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import BkashSVG from "../../assets/svgs/bkash.svg";
 import { useDispatch, useSelector } from "react-redux";
 import { createUserRegistration } from "../../state/reducers/authSlice";
-import { getFCMToken } from "../../utilities/notifications";
+import { getDeviceType, getFCMToken } from "../../utilities/notifications";
 import LoadingScreen from "../../components/Loader/Loader";
 
 const { width, height } = Dimensions.get("window");
@@ -40,7 +40,9 @@ export default function RegistrationScreen({ navigation }) {
 
   const handleRegister = async () => {
     const deviceToken = await getFCMToken();
+    const deviceType = getDeviceType();
     const validationError = validateForm();
+    console.log(accountNumber, pin, deviceToken, deviceType);
     if (validationError) {
       showMessage({
         message: validationError,
@@ -54,6 +56,7 @@ export default function RegistrationScreen({ navigation }) {
           accountNumber,
           pin,
           deviceToken,
+          deviceType,
         })
       )
         .unwrap()
@@ -70,7 +73,7 @@ export default function RegistrationScreen({ navigation }) {
         })
         .catch((error) => {
           showMessage({
-            message: error.message || "Registration failed.",
+            message: "Registration failed.",
             type: "danger",
             backgroundColor: "#e2136e",
             color: "white",

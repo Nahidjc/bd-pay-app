@@ -24,7 +24,7 @@ export const createUserLogin = createAsyncThunk(
   "user/login",
   async (data, { rejectWithValue }) => {
     try {
-      const response = await publicPost("/auth/login", data);
+      const response = await publicPost("/user/login", data);
       return response.data;
     } catch (err) {
       return rejectWithValue(err.response);
@@ -36,7 +36,7 @@ export const createUserRegistration = createAsyncThunk(
   "user/register",
   async (data, { rejectWithValue }) => {
     try {
-      const response = await publicPost("/auth/register", data);
+      const response = await publicPost("/user/registration", data);
       return response.data;
     } catch (err) {
       return rejectWithValue(err.response);
@@ -101,12 +101,12 @@ const authSlice = createSlice({
         // state.isAuthenticated = true;
         // state.user = action.payload;
         state.errorMessage = "";
-        saveAuthState(true, action.payload);
+        // saveAuthState(true, action.payload);
       })
       .addCase(createUserRegistration.rejected, (state, action) => {
         state.isLoading = false;
         state.error = true;
-        state.errorMessage = action.payload.data.message;
+        // state.errorMessage = action.payload.data.message;
       });
   },
 });

@@ -1,6 +1,6 @@
 import messaging from "@react-native-firebase/messaging";
 import PushNotification from "react-native-push-notification";
-import { PermissionsAndroid } from "react-native";
+import { PermissionsAndroid, Platform } from "react-native";
 
 async function requestUserPermission() {
   const authStatus = await messaging().requestPermission();
@@ -56,3 +56,7 @@ export const registerPushNotifications = () => {
     (created) => console.log(`Notification channel created: ${created}`)
   );
 };
+
+export function getDeviceType() {
+  return Platform.OS === "ios" ? "iOS" : "Android";
+}
