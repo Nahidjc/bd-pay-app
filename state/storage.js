@@ -4,6 +4,7 @@ import * as Application from "expo-application";
 export const StorageKeys = {
   User: "user",
   IsAuthenticated: "isAuthenticated",
+  Token: "token",
   Language: "language",
   Onboarding: "onboarded",
 };
@@ -11,11 +12,12 @@ export const StorageKeys = {
 const storageId = `${Application.applicationId}-mmkv`;
 export const storage = new MMKV({ id: storageId });
 
-export const saveUserData = (user) => {
+export const saveUserData = (user, token) => {
   try {
     storage.set(StorageKeys.User, JSON.stringify(user));
+    storage.set(StorageKeys.Token, token);
     storage.set(StorageKeys.IsAuthenticated, "true");
-    console.log("User data and authentication status saved");
+    console.log("User data, token, and authentication status saved");
   } catch (e) {
     console.error("Error saving user data:", e);
   }
@@ -38,6 +40,7 @@ export const isAuthenticated = () => {
 export const clearUserData = () => {
   storage.delete(StorageKeys.User);
   storage.delete(StorageKeys.IsAuthenticated);
+  storage.delete(StorageKeys.Token);
 };
 
 // New methods for onboarding status
@@ -55,4 +58,13 @@ export const setLanguage = (language) => {
 
 export const getLanguage = () => {
   return storage.getString(StorageKeys.Language) || "en";
+};
+
+export const getToken = () => {
+  try {
+    return storage.getString(StorageKeys.Token);
+  } catch (e) {
+    console.error("Error retrieving token:", e);
+    return null;
+  }
 };
