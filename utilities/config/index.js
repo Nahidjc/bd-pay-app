@@ -1,1 +1,1 @@
-export const api = "https://a88c-27-147-128-18.ngrok-free.app/v1";
+export const api = "https://ynshx467b6.execute-api.ap-south-1.amazonaws.com";

@@ -12,18 +12,16 @@ import { showMessage } from "react-native-flash-message";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import BkashSVG from "../../assets/svgs/bkash.svg";
 import { useDispatch, useSelector } from "react-redux";
-import { createUserRegistration } from "../../state/reducers/authSlice";
-import { getDeviceType, getFCMToken } from "../../utilities/notifications";
+import { createUserLogin } from "../../state/reducers/authSlice";
 import LoadingScreen from "../../components/Loader/Loader";
 
 const { width, height } = Dimensions.get("window");
 
-export default function RegistrationScreen({ navigation }) {
+export default function LoginScreen({ navigation }) {
   const dispatch = useDispatch();
   const { isLoading } = useSelector((state) => state.auth);
   const [accountNumber, setAccountNumber] = useState("");
   const [pin, setPin] = useState("");
-  const [confirmPin, setConfirmPin] = useState("");
 
   const validateForm = () => {
     if (accountNumber.length !== 11) {
@@ -32,17 +30,11 @@ export default function RegistrationScreen({ navigation }) {
     if (pin.length !== 4) {
       return "PIN must be 4 digits";
     }
-    if (confirmPin !== pin) {
-      return "PINs do not match";
-    }
     return "";
   };
 
-  const handleRegister = async () => {
-    const deviceToken = await getFCMToken();
-    const deviceType = getDeviceType();
+  const handleLogin = async () => {
     const validationError = validateForm();
-    console.log(accountNumber, pin, deviceToken, deviceType);
     if (validationError) {
       showMessage({
         message: validationError,
@@ -52,28 +44,23 @@ export default function RegistrationScreen({ navigation }) {
       });
     } else {
       dispatch(
-        createUserRegistration({
+        createUserLogin({
           accountNumber,
           pin,
-          deviceToken,
-          deviceType,
         })
       )
         .unwrap()
         .then(() => {
           showMessage({
-            message: "Registration successful!",
+            message: "Login successful!",
             type: "success",
             backgroundColor: "#4BB543",
             color: "white",
           });
-          setTimeout(() => {
-            navigation.navigate("Login");
-          }, 1000);
         })
         .catch((error) => {
           showMessage({
-            message: "Registration failed.",
+            message: error.message || "Login failed.",
             type: "danger",
             backgroundColor: "#e2136e",
             color: "white",
@@ -115,7 +102,7 @@ export default function RegistrationScreen({ navigation }) {
             />
             <TextInput
               style={styles.input}
-              placeholder="Create TPin (4 digits)"
+              placeholder="TPin (4 digits)"
               value={pin}
               onChangeText={setPin}
               keyboardType="numeric"
@@ -123,28 +110,19 @@ export default function RegistrationScreen({ navigation }) {
               maxLength={4}
             />
           </View>
-
-          <View style={styles.inputWrapper}>
-            <MaterialIcons
-              name="lock"
-              size={20}
-              color="#666"
-              style={styles.icon}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder="Confirm TPin (4 digits)"
-              value={confirmPin}
-              onChangeText={setConfirmPin}
-              keyboardType="numeric"
-              secureTextEntry
-              maxLength={4}
-            />
-          </View>
         </View>
 
-        <TouchableOpacity style={styles.button} onPress={handleRegister}>
-          <Text style={styles.buttonText}>REGISTER</Text>
+        <TouchableOpacity style={styles.button} onPress={handleLogin}>
+          <Text style={styles.buttonText}>LOGIN</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => navigation.navigate("Registration")}
+          style={styles.registerLink}
+        >
+          <Text style={styles.registerText}>
+            Don't have an account? Register
+          </Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -194,5 +172,11 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     fontWeight: "bold",
+  },
+  registerLink: {
+    marginTop: 15,
+  },
+  registerText: {
+    color: "#e2136e",
   },
 });
