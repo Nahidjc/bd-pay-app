@@ -10,15 +10,11 @@ import {
 import Card from "../components/Card";
 import TransactionList from "../components/TransactionList";
 import { LinearGradient } from "expo-linear-gradient";
-import { useSelector } from "react-redux";
-import { useNavigation } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
 const { width, height } = Dimensions.get("window");
 
-const DashboardScreen = () => {
-  const { user } = useSelector((state) => state.auth);
+const DashboardScreen = ({ navigation }) => {
   const { t } = useTranslation();
-  const navigation = useNavigation();
   return (
     <View style={styles.container}>
       <LinearGradient colors={["#CBF2FD", "#F4FAFB"]} style={styles.header}>
@@ -38,12 +34,15 @@ const DashboardScreen = () => {
           </View>
 
           <View style={styles.gridItemContainer}>
-            <View style={styles.iconBox}>
+            <TouchableOpacity
+              style={styles.iconBox}
+              onPress={() => navigation.navigate("Profile")}
+            >
               <Image
                 source={require("../assets/icon/cash-out.png")}
                 style={styles.iconImage}
               />
-            </View>
+            </TouchableOpacity>
             <Text style={styles.gridText}>{t("cashOut")}</Text>
           </View>
 

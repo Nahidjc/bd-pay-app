@@ -23,6 +23,7 @@ export default function SendMoneyScreen({ navigation }) {
   const [searchQuery, setSearchQuery] = useState("");
   const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     async function loadContacts() {
       try {
@@ -37,20 +38,32 @@ export default function SendMoneyScreen({ navigation }) {
     loadContacts();
   }, []);
 
-  const filteredContacts = contacts.filter((contact) => {
-    const hasPhoneNumber =
-      contact.phoneNumbers && contact.phoneNumbers.length > 0;
-    return (
-      contact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (hasPhoneNumber && contact.phoneNumbers[0].number.includes(searchQuery))
-    );
-  });
+  const formatPhoneNumber = (number) => {
+    const cleanedNumber = number.replace(/\D/g, "");
+    return cleanedNumber.length === 11 ? cleanedNumber : null;
+  };
+
+  const filteredContacts = contacts
+    .filter(
+      (contact) =>
+        contact.phoneNumbers &&
+        contact.phoneNumbers.length > 0 &&
+        formatPhoneNumber(contact.phoneNumbers[0].number)
+    )
+    .filter((contact) => {
+      const formattedNumber = formatPhoneNumber(contact.phoneNumbers[0].number);
+      return (
+        contact.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (formattedNumber && formattedNumber.includes(searchQuery))
+      );
+    });
 
   const handleContactPress = (contact) => {
+    const formattedNumber = formatPhoneNumber(contact.phoneNumbers[0].number);
     navigation.navigate("ConfirmSendMoney", {
       recipient: {
         name: contact.name,
-        number: contact.phoneNumbers[0]?.number,
+        number: formattedNumber,
         avatar: contact.name[0],
       },
     });
@@ -67,7 +80,9 @@ export default function SendMoneyScreen({ navigation }) {
       });
     }
   };
+
   const isEnglishLetter = (char) => /^[A-Za-z]$/.test(char);
+
   return (
     <View style={styles.container}>
       <LoadingScreen visible={loading} />
@@ -110,7 +125,7 @@ export default function SendMoneyScreen({ navigation }) {
             <View style={styles.contactDetails}>
               <Text style={styles.contactName}>{item.name}</Text>
               <Text style={styles.contactNumber}>
-                {item.phoneNumbers && item.phoneNumbers[0]?.number}
+                {formatPhoneNumber(item.phoneNumbers[0].number)}
               </Text>
             </View>
           </TouchableOpacity>
@@ -118,7 +133,6 @@ export default function SendMoneyScreen({ navigation }) {
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyMessage}>
-              {" "}
               {t("send_money_message", {
                 query: searchQuery || t("default_number"),
               })}
@@ -140,26 +154,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-  },
-  header: {
-    backgroundColor: "#E91E63",
-    height: 56 * scale,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 16 * scale,
-  },
-  backIcon: {
-    position: "absolute",
-    left: 16 * scale,
-    top: "50%",
-    transform: [{ translateY: -12 * scale }],
-  },
-  headerTitle: {
-    fontSize: 20 * scale,
-    color: "#fff",
-    fontWeight: "bold",
-    textAlign: "center",
   },
   searchContainer: {
     flexDirection: "row",
@@ -188,8 +182,6 @@ const styles = StyleSheet.create({
     paddingVertical: 14 * scale,
     paddingHorizontal: 10 * scale,
     marginBottom: 8 * scale,
-    // borderBottomWidth: 1,
-    // borderBottomColor: "#ccc",
   },
   contactDetails: {
     marginLeft: 12 * scale,
