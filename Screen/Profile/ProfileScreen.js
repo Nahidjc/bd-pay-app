@@ -19,12 +19,12 @@ import {
   ArrowRight,
 } from "lucide-react-native";
 import * as ImagePicker from "expo-image-picker";
+const defaultAvatar = require("../../assets/avatar.png");
+
 const { width } = Dimensions.get("window");
 
 const ProfileScreen = () => {
-  const [profileImage, setProfileImage] = useState(
-    "https://avatars.githubusercontent.com/u/50502837?v=4"
-  );
+  const [profileImage, setProfileImage] = useState(null);
   const [name, setName] = useState("Nirob");
   const [bKashNumber, setBKashNumber] = useState("+8801311164248");
 
@@ -73,7 +73,7 @@ const ProfileScreen = () => {
             ]}
           >
             <Image
-              source={{ uri: profileImage }}
+              source={profileImage ? { uri: profileImage } : defaultAvatar} // Use default avatar if no profile image
               style={[
                 styles.profileImage,
                 { width: PROFILE_IMAGE_SIZE, height: PROFILE_IMAGE_SIZE },

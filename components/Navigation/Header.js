@@ -8,12 +8,11 @@ import {
   Image,
 } from "react-native";
 import { useTheme } from "@react-navigation/native";
-import {
-  useSafeAreaInsets,
-  SafeAreaView,
-} from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
+
+const DefaultAvatar = require("../../assets/avatar.png");
 
 const { width } = Dimensions.get("window");
 const baseWidth = 375;
@@ -57,11 +56,11 @@ const Header = ({ navigation, route, options, tabName, user }) => {
       onPress={() => navigation.navigate("Profile")}
     >
       {imageError || !secureImageUrl ? (
-        <View style={[styles.profileImage, styles.placeholderImage]}>
-          <Text style={styles.placeholderText}>
-            {user?.ownerName ? user.ownerName[0].toUpperCase() : "?"}
-          </Text>
-        </View>
+        <Image
+          source={DefaultAvatar}
+          style={styles.profileImage}
+          resizeMode="cover"
+        />
       ) : (
         <Image
           source={{ uri: secureImageUrl }}
