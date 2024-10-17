@@ -57,6 +57,11 @@ const resources = {
       auto_pay: "Enable Auto Pay",
       home_button: "Go to Home",
       send_money_success: "Your Send Money transaction was successful!",
+      change_name: "Change Name",
+      change_picture: "Change Picture",
+      manage_account: "Manage Account",
+      settings: "Settings",
+      version: "Version",
     },
   },
   bn: {
@@ -113,7 +118,11 @@ const resources = {
       auto_pay: "অটো পে চালু করুন",
       home_button: "হোম-এ ফিরে যাই",
       send_money_success: "আপনার সেন্ড মানি সফল হয়েছে",
-
+      change_name: "নাম পরিবর্তন করুন",
+      change_picture: "ছবি পরিবর্তন করুন",
+      manage_account: "অ্যাকাউন্ট পরিচালনা করুন",
+      settings: "সেটিংস",
+      version: "সংস্করণ",
     },
   },
 };

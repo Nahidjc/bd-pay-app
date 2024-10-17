@@ -5,7 +5,6 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { StatusBar } from "expo-status-bar";
 import { useSelector } from "react-redux";
 import DashboardScreen from "./Screen/DashboardScreen";
-// import LoginScreen from "./components/LoginScreen";
 import WelcomeScreen from "./components/WelcomeScreen";
 import OnboardingScreen from "./Screen/OnboardingScreen";
 import { Ionicons } from "@expo/vector-icons";
@@ -34,6 +33,10 @@ import { useTranslation } from "react-i18next";
 import LoadingScreen from "./components/Loader/Loader";
 import RegistrationScreen from "./Screen/Auth/RegistrationScreen";
 import LoginScreen from "./Screen/Auth/LoginScreen";
+import SettingsScreen from "./Screen/Setting/Setting";
+import ProfileScreen from "./Screen/Profile/ProfileScreen";
+import ChangeNameScreen from "./Screen/Setting/ChangeNameScreen";
+import ChangePictureScreen from "./Screen/Setting/ChangeProfileScreen";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 LogBox.ignoreAllLogs();
@@ -60,6 +63,17 @@ const DrawerNavigator = () => {
             backgroundColor: "#E91E63",
           },
           header: (props) => <Header {...props} title="Limit" />,
+        }}
+      />
+      <Drawer.Screen
+        name="Setting"
+        component={SettingsScreen}
+        options={{
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: "#E91E63",
+          },
+          header: (props) => <Header {...props} title="Setting" />,
         }}
       />
     </Drawer.Navigator>
@@ -211,6 +225,36 @@ export default function MainApp() {
                     headerShown: false,
                   }}
                   component={TransactionSuccessScreen}
+                />
+                <Stack.Screen
+                  name="Profile"
+                  options={{
+                    title: "Profile",
+                    headerStyle: {
+                      backgroundColor: "#E91E63",
+                    },
+                  }}
+                  component={ProfileScreen}
+                />
+                <Stack.Screen
+                  name="ChangeName"
+                  options={{
+                    title: t("change_name"),
+                    headerStyle: {
+                      backgroundColor: "#E91E63",
+                    },
+                  }}
+                  component={ChangeNameScreen}
+                />
+                <Stack.Screen
+                  name="ChangePicture"
+                  options={{
+                    title: t("change_picture"),
+                    headerStyle: {
+                      backgroundColor: "#E91E63",
+                    },
+                  }}
+                  component={ChangePictureScreen}
                 />
               </Stack.Group>
             </>

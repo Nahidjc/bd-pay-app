@@ -6,8 +6,18 @@ import {
   Text,
   ScrollView,
 } from "react-native";
-import AntDesign from "@expo/vector-icons/AntDesign";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import {
+  Home,
+  BarChart,
+  AlertTriangle,
+  Ticket,
+  Info,
+  Edit3,
+  Users,
+  LogOut,
+  Settings,
+} from "lucide-react-native";
+
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { logout } from "../../state/reducers/authSlice";
@@ -21,6 +31,7 @@ const loadLanguage = () => {
   const lang = getLanguage();
   return lang;
 };
+
 export const CustomDrawerContent = ({ navigation }) => {
   const { t, i18n } = useTranslation();
   const dispatch = useDispatch();
@@ -39,6 +50,7 @@ export const CustomDrawerContent = ({ navigation }) => {
   const handleLogout = () => {
     dispatch(logout());
   };
+
   return (
     <View style={styles.drawerContainer}>
       <ScrollView>
@@ -57,7 +69,7 @@ export const CustomDrawerContent = ({ navigation }) => {
           style={styles.menuItem}
           onPress={() => navigation.navigate("Dashboard")}
         >
-          <AntDesign name="home" size={24} style={styles.menuIcon} />
+          <Home size={24} style={styles.menuIcon} />
           <Text style={styles.menuText}>{t("home")}</Text>
         </TouchableOpacity>
 
@@ -65,7 +77,7 @@ export const CustomDrawerContent = ({ navigation }) => {
           style={styles.menuItem}
           onPress={() => navigation.navigate("Statements")}
         >
-          <Text style={styles.menuIcon}>📊</Text>
+          <BarChart size={24} style={styles.menuIcon} />
           <Text style={styles.menuText}>{t("statement")}</Text>
         </TouchableOpacity>
 
@@ -73,37 +85,45 @@ export const CustomDrawerContent = ({ navigation }) => {
           style={styles.menuItem}
           onPress={() => navigation.navigate("Limit")}
         >
-          <Text style={styles.menuIcon}>⚠️</Text>
+          <AlertTriangle size={24} style={styles.menuIcon} />
           <Text style={styles.menuText}>{t("limit")}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.menuItem} onPress={() => {}}>
-          <Text style={styles.menuIcon}>🎟️</Text>
+          <Ticket size={24} style={styles.menuIcon} />
           <Text style={styles.menuText}>{t("coupon")}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.menuItem} onPress={() => {}}>
-          <Text style={styles.menuIcon}>ℹ️</Text>
+          <Info size={24} style={styles.menuIcon} />
           <Text style={styles.menuText}>{t("info_update")}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.menuItem} onPress={() => {}}>
-          <Text style={styles.menuIcon}>📝</Text>
+          <Edit3 size={24} style={styles.menuIcon} />
           <Text style={styles.menuText}>{t("nominee_update")}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.menuItem} onPress={() => {}}>
-          <FontAwesome5 name="user-friends" size={24} style={styles.menuIcon} />
+          <Users size={24} style={styles.menuIcon} />
           <Text style={styles.menuText}>{t("refer_app")}</Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => navigation.navigate("Setting")}
+        >
+          <Settings size={24} style={styles.menuIcon} />
+          <Text style={styles.menuText}>{t("settings")}</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
-          <AntDesign name="logout" size={24} style={styles.menuIcon} />
+          <LogOut size={24} style={styles.menuIcon} />
           <Text style={styles.menuText}>{t("logout")}</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   drawerContainer: {
     flex: 1,
@@ -138,7 +158,6 @@ const styles = StyleSheet.create({
     borderBottomColor: "#f0f0f0",
   },
   menuIcon: {
-    fontSize: 20,
     marginRight: 20,
     color: "#e3007b",
   },

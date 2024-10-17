@@ -8,12 +8,11 @@ import {
   Image,
 } from "react-native";
 import { useTheme } from "@react-navigation/native";
-import {
-  useSafeAreaInsets,
-  SafeAreaView,
-} from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
+
+const DefaultAvatar = require("../../assets/avatar.png");
 
 const { width } = Dimensions.get("window");
 const baseWidth = 375;
@@ -23,13 +22,13 @@ const Header = ({ navigation, route, options, tabName, user }) => {
   const { t } = useTranslation();
   const theme = useTheme();
   const [imageError, setImageError] = useState(false);
-  const [secureImageUrl, setSecureImageUrl] = useState('');
+  const [secureImageUrl, setSecureImageUrl] = useState("");
   const backgroundColor =
     StyleSheet.flatten(options.headerStyle)?.backgroundColor ?? theme.white;
 
   useEffect(() => {
     if (user?.shopLogo) {
-      setSecureImageUrl(user.shopLogo.replace('http://', 'https://'));
+      setSecureImageUrl(user.shopLogo.replace("http://", "https://"));
     }
   }, [user]);
 
@@ -52,13 +51,16 @@ const Header = ({ navigation, route, options, tabName, user }) => {
   };
 
   const renderProfileSection = () => (
-    <View style={styles.profileContainer}>
+    <Pressable
+      style={styles.profileContainer}
+      onPress={() => navigation.navigate("Profile")}
+    >
       {imageError || !secureImageUrl ? (
-        <View style={[styles.profileImage, styles.placeholderImage]}>
-          <Text style={styles.placeholderText}>
-            {user?.ownerName ? user.ownerName[0].toUpperCase() : '?'}
-          </Text>
-        </View>
+        <Image
+          source={DefaultAvatar}
+          style={styles.profileImage}
+          resizeMode="cover"
+        />
       ) : (
         <Image
           source={{ uri: secureImageUrl }}
@@ -71,15 +73,12 @@ const Header = ({ navigation, route, options, tabName, user }) => {
         <Text style={styles.greeting}>{user?.ownerName || t("user")}</Text>
         <Text style={styles.subtitle}>{t("welcome")}</Text>
       </View>
-    </View>
+    </Pressable>
   );
 
   const renderBackButton = () => (
     <View style={{ flex: 1 }}>
-      <Pressable
-        style={[styles.button, styles.backButton]}
-        onPress={goBack}
-      >
+      <Pressable style={[styles.button, styles.backButton]} onPress={goBack}>
         <Ionicons
           name="arrow-back"
           size={24 * scale}
@@ -91,22 +90,17 @@ const Header = ({ navigation, route, options, tabName, user }) => {
   );
 
   const renderTitle = () => (
-    <Text
-      style={styles.title}
-      numberOfLines={1}
-      allowFontScaling={false}
-    >
+    <Text style={styles.title} numberOfLines={1} allowFontScaling={false}>
       {t(options.title || route.name)}
     </Text>
   );
 
-  const renderHeaderRight = () => (
+  const renderHeaderRight = () =>
     options.headerRight && (
       <View style={[styles.button, styles.rightButton]}>
         {options.headerRight({ canGoBack: navigation.canGoBack() })}
       </View>
-    )
-  );
+    );
 
   const renderMenuButton = () => (
     <Pressable onPress={openMenu} style={styles.menuButton}>
@@ -125,7 +119,8 @@ const Header = ({ navigation, route, options, tabName, user }) => {
             {renderHeaderRight()}
           </>
         )}
-        {(tabName === "Dashboard" || tabName === "Statements") && renderMenuButton()}
+        {(tabName === "Dashboard" || tabName === "Statements") &&
+          renderMenuButton()}
       </View>
     </SafeAreaView>
   );
