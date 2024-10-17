@@ -21,11 +21,11 @@ import {
 import * as ImagePicker from "expo-image-picker";
 const defaultAvatar = require("../../assets/avatar.png");
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
-const ProfileScreen = () => {
+const ProfileScreen = ({ navigation }) => {
   const [profileImage, setProfileImage] = useState(null);
-  const [name, setName] = useState("Nirob");
+  const [name, setName] = useState("Nahid Hasan");
   const [bKashNumber, setBKashNumber] = useState("+8801311164248");
 
   const handleImageUpdate = async () => {
@@ -56,7 +56,7 @@ const ProfileScreen = () => {
         <Text style={styles.profileItemTitle}>{title}</Text>
         {subtitle && <Text style={styles.profileItemSubtitle}>{subtitle}</Text>}
       </View>
-      <ArrowRight color="#E91E63" size={28} />
+      <ArrowRight color="#E91E63" size={width * 0.06} />
     </TouchableOpacity>
   );
 
@@ -73,50 +73,50 @@ const ProfileScreen = () => {
             ]}
           >
             <Image
-              source={profileImage ? { uri: profileImage } : defaultAvatar} // Use default avatar if no profile image
+              source={profileImage ? { uri: profileImage } : defaultAvatar}
               style={[
                 styles.profileImage,
                 { width: PROFILE_IMAGE_SIZE, height: PROFILE_IMAGE_SIZE },
               ]}
             />
             <TouchableOpacity
-              style={styles.editImageButton}
+              style={[styles.editImageButton, { padding: width * 0.02 }]}
               onPress={handleImageUpdate}
             >
-              <Edit2 color="white" size={14} />
+              <Edit2 color="white" size={width * 0.035} />
             </TouchableOpacity>
           </View>
         </View>
         <Text style={styles.nameText}>{name}</Text>
         <View style={styles.profileItems}>
           <ProfileItem
-            icon={<Edit2 color="#E91E63" size={28} />}
+            icon={<Edit2 color="#E91E63" size={width * 0.05} />}
             title="Change Name"
-            onPress={() => console.log("Change Name")}
+            onPress={() => navigation.navigate("ChangeName")}
           />
           <ProfileItem
-            icon={<QrCode color="#E91E63" size={28} />}
+            icon={<QrCode color="#E91E63" size={width * 0.05} />}
             title="My QR"
             onPress={() => console.log("My QR")}
           />
           <ProfileItem
-            icon={<User color="#E91E63" size={28} />}
-            title="Update bKash Number"
+            icon={<User color="#E91E63" size={width * 0.05} />}
+            title="Update BD Pay Number"
             subtitle={bKashNumber}
-            onPress={() => console.log("Update bKash Number")}
+            onPress={() => console.log("Update BD Pay Number")}
           />
           <ProfileItem
-            icon={<CreditCard color="#E91E63" size={28} />}
+            icon={<CreditCard color="#E91E63" size={width * 0.05} />}
             title="Saved cards"
             onPress={() => console.log("Saved cards")}
           />
           <ProfileItem
-            icon={<Info color="#E91E63" size={28} />}
+            icon={<Info color="#E91E63" size={width * 0.05} />}
             title="Information Update"
             onPress={() => console.log("Information Update")}
           />
           <ProfileItem
-            icon={<Users color="#E91E63" size={28} />}
+            icon={<Users color="#E91E63" size={width * 0.05} />}
             title="Nominee Update"
             onPress={() => console.log("Nominee Update")}
           />
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
   },
   profileImageContainer: {
     alignItems: "center",
-    marginTop: 40,
+    marginTop: height * 0.05,
   },
   imageWrapper: {
     position: "relative",
@@ -150,45 +150,44 @@ const styles = StyleSheet.create({
     right: 0,
     backgroundColor: "#E91E63",
     borderRadius: 50,
-    padding: 8,
     borderWidth: 2,
     borderColor: "#FFF",
   },
   nameText: {
-    fontSize: 24,
+    fontSize: width * 0.05,
     fontWeight: "bold",
     textAlign: "center",
-    marginTop: 20,
-    marginBottom: 10,
+    marginTop: height * 0.02,
+    marginBottom: height * 0.01,
   },
   profileItems: {
     backgroundColor: "white",
     borderRadius: 10,
-    marginTop: 10,
-    marginHorizontal: 10,
-    paddingVertical: 10,
+    marginTop: height * 0.015,
+    marginHorizontal: width * 0.03,
+    paddingVertical: height * 0.015,
     elevation: 3,
   },
   profileItem: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 18,
-    paddingHorizontal: 20,
+    paddingVertical: height * 0.02,
+    paddingHorizontal: width * 0.04,
     borderBottomWidth: 1,
     borderBottomColor: "#E0E0E0",
   },
   profileItemText: {
     flex: 1,
-    marginLeft: 18,
+    marginLeft: width * 0.04,
   },
   profileItemTitle: {
-    fontSize: 18,
+    fontSize: width * 0.04,
     color: "#333",
   },
   profileItemSubtitle: {
-    fontSize: 16,
+    fontSize: width * 0.04,
     color: "#757575",
-    marginTop: 4,
+    marginTop: height * 0.005,
   },
 });
 

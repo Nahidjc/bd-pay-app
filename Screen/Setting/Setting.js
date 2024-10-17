@@ -28,7 +28,7 @@ const SettingsScreen = ({ navigation }) => {
         <SettingItem
           icon={<Image color="#E91E63" size={24} />}
           title="Change Picture"
-          onPress={() => navigation.navigate("ChangePictureScreen")}
+          onPress={() => navigation.navigate("ChangePicture")}
         />
         <SettingItem
           icon={<User color="#E91E63" size={24} />}

@@ -36,6 +36,7 @@ import LoginScreen from "./Screen/Auth/LoginScreen";
 import SettingsScreen from "./Screen/Setting/Setting";
 import ProfileScreen from "./Screen/Profile/ProfileScreen";
 import ChangeNameScreen from "./Screen/Setting/ChangeNameScreen";
+import ChangePictureScreen from "./Screen/Setting/ChangeProfileScreen";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 LogBox.ignoreAllLogs();
@@ -238,12 +239,22 @@ export default function MainApp() {
                 <Stack.Screen
                   name="ChangeName"
                   options={{
-                    title: "Change Name",
+                    title: t("change_name"),
                     headerStyle: {
                       backgroundColor: "#E91E63",
                     },
                   }}
                   component={ChangeNameScreen}
+                />
+                <Stack.Screen
+                  name="ChangePicture"
+                  options={{
+                    title: t("change_picture"),
+                    headerStyle: {
+                      backgroundColor: "#E91E63",
+                    },
+                  }}
+                  component={ChangePictureScreen}
                 />
               </Stack.Group>
             </>
