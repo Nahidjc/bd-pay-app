@@ -8,9 +8,9 @@ import {
 } from "react-native";
 import { ArrowRight, Edit2, Image, User } from "lucide-react-native";
 
-const SettingsScreen = () => {
-  const SettingItem = ({ icon, title }) => (
-    <TouchableOpacity style={styles.settingItem}>
+const SettingsScreen = ({ navigation }) => {
+  const SettingItem = ({ icon, title, onPress }) => (
+    <TouchableOpacity style={styles.settingItem} onPress={onPress}>
       {icon}
       <Text style={styles.settingText}>{title}</Text>
       <ArrowRight color="#E91E63" size={24} />
@@ -23,10 +23,12 @@ const SettingsScreen = () => {
         <SettingItem
           icon={<Edit2 color="#E91E63" size={24} />}
           title="Change Name"
+          onPress={() => navigation.navigate("ChangeName")}
         />
         <SettingItem
           icon={<Image color="#E91E63" size={24} />}
           title="Change Picture"
+          onPress={() => navigation.navigate("ChangePictureScreen")}
         />
         <SettingItem
           icon={<User color="#E91E63" size={24} />}

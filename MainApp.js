@@ -35,6 +35,7 @@ import RegistrationScreen from "./Screen/Auth/RegistrationScreen";
 import LoginScreen from "./Screen/Auth/LoginScreen";
 import SettingsScreen from "./Screen/Setting/Setting";
 import ProfileScreen from "./Screen/Profile/ProfileScreen";
+import ChangeNameScreen from "./Screen/Setting/ChangeNameScreen";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 LogBox.ignoreAllLogs();
@@ -233,6 +234,16 @@ export default function MainApp() {
                     },
                   }}
                   component={ProfileScreen}
+                />
+                <Stack.Screen
+                  name="ChangeName"
+                  options={{
+                    title: "Change Name",
+                    headerStyle: {
+                      backgroundColor: "#E91E63",
+                    },
+                  }}
+                  component={ChangeNameScreen}
                 />
               </Stack.Group>
             </>
