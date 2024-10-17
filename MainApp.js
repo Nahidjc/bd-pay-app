@@ -5,7 +5,6 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { StatusBar } from "expo-status-bar";
 import { useSelector } from "react-redux";
 import DashboardScreen from "./Screen/DashboardScreen";
-// import LoginScreen from "./components/LoginScreen";
 import WelcomeScreen from "./components/WelcomeScreen";
 import OnboardingScreen from "./Screen/OnboardingScreen";
 import { Ionicons } from "@expo/vector-icons";
@@ -35,6 +34,7 @@ import LoadingScreen from "./components/Loader/Loader";
 import RegistrationScreen from "./Screen/Auth/RegistrationScreen";
 import LoginScreen from "./Screen/Auth/LoginScreen";
 import SettingsScreen from "./Screen/Setting/Setting";
+import ProfileScreen from "./Screen/Profile/ProfileScreen";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 LogBox.ignoreAllLogs();
@@ -223,6 +223,16 @@ export default function MainApp() {
                     headerShown: false,
                   }}
                   component={TransactionSuccessScreen}
+                />
+                <Stack.Screen
+                  name="Profile"
+                  options={{
+                    title: "Profile",
+                    headerStyle: {
+                      backgroundColor: "#E91E63",
+                    },
+                  }}
+                  component={ProfileScreen}
                 />
               </Stack.Group>
             </>
