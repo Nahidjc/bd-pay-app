@@ -34,6 +34,7 @@ import { useTranslation } from "react-i18next";
 import LoadingScreen from "./components/Loader/Loader";
 import RegistrationScreen from "./Screen/Auth/RegistrationScreen";
 import LoginScreen from "./Screen/Auth/LoginScreen";
+import SettingsScreen from "./Screen/Setting/Setting";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 LogBox.ignoreAllLogs();
@@ -60,6 +61,17 @@ const DrawerNavigator = () => {
             backgroundColor: "#E91E63",
           },
           header: (props) => <Header {...props} title="Limit" />,
+        }}
+      />
+      <Drawer.Screen
+        name="Setting"
+        component={SettingsScreen}
+        options={{
+          headerShown: true,
+          headerStyle: {
+            backgroundColor: "#E91E63",
+          },
+          header: (props) => <Header {...props} title="Setting" />,
         }}
       />
     </Drawer.Navigator>
