@@ -124,12 +124,12 @@ const MyQrCodeScreen = ({ navigation }) => {
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={saveQRCodeToGallery}>
-            <Download color="#E91E63" size={24} />
+            <Download color="#E91E63" size={20} />
             <Text style={styles.buttonText}>Download</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.button} onPress={shareQRCode}>
-            <ShareIcon color="#E91E63" size={24} />
+            <ShareIcon color="#E91E63" size={20} />
             <Text style={styles.buttonText}>Share</Text>
           </TouchableOpacity>
         </View>
@@ -231,30 +231,28 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   buttonContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    width: "100%",
-    paddingHorizontal: 10,
-    position: "absolute",
-    bottom: 40,
+    flexDirection: "row", // Align buttons in a row
+    justifyContent: "space-between", // Distribute space between the buttons
+    paddingHorizontal: 20,
   },
   button: {
-    flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
-    paddingVertical: 12,
-    marginHorizontal: 10,
-    borderRadius: 15,
-    borderWidth: 1,
-    borderColor: "#E91E63",
-    backgroundColor: "white",
-    gap: 8,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    margin: 10, // Adjust margin to give spacing between buttons
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.5,
+    elevation: 5,
   },
   buttonText: {
-    color: "#E91E63",
-    fontSize: 1,
-    fontWeight: "500",
+    color: "#E91E63", // Set text color
+    fontSize: 14, // Ensure a readable font size
+    marginLeft: 10, // Space between the icon and the text
   },
 });
 
