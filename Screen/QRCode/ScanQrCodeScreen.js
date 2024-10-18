@@ -123,6 +123,8 @@ const ScanQrCodeScreen = () => {
         onBarCodeRead={onQRCodeScanned}
         barCodeTypes={[RNCamera.Constants.BarCodeType.qr]}
         captureAudio={false}
+        autoFocus={RNCamera.Constants.AutoFocus.on}
+        whiteBalance={RNCamera.Constants.WhiteBalance.auto}
       >
         <ScannerOverlay />
       </RNCamera>
@@ -135,19 +137,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#000",
   },
-  backButton: {
-    padding: 8,
-  },
-  rightIcon: {
-    width: 40,
-    height: 40,
-  },
   camera: {
     flex: 1,
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: "rgba(0,0,0,0.7)",
+    backgroundColor: "rgba(0,0,0,0.3)",
   },
   scannerContainer: {
     flex: 1,
