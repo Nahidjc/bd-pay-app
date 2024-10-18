@@ -35,7 +35,7 @@ const SettingsScreen = ({ navigation }) => {
           title="Manage Account"
         />
       </View>
-      <Text style={styles.version}>Version: 6.2.0</Text>
+      <Text style={styles.version}>Version: 1.0.1</Text>
     </SafeAreaView>
   );
 };

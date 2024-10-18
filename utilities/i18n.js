@@ -62,6 +62,7 @@ const resources = {
       manage_account: "Manage Account",
       settings: "Settings",
       version: "Version",
+      qrCode: "QR Code",
     },
   },
   bn: {
@@ -123,6 +124,7 @@ const resources = {
       manage_account: "অ্যাকাউন্ট পরিচালনা করুন",
       settings: "সেটিংস",
       version: "সংস্করণ",
+      qrCode: "কিউআর কোড",
     },
   },
 };

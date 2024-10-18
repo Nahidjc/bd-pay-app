@@ -97,7 +97,7 @@ const ProfileScreen = ({ navigation }) => {
           <ProfileItem
             icon={<QrCode color="#E91E63" size={width * 0.05} />}
             title="My QR"
-            onPress={() => console.log("My QR")}
+            onPress={() => navigation.navigate("QRCode")}
           />
           <ProfileItem
             icon={<User color="#E91E63" size={width * 0.05} />}
