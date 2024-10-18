@@ -37,6 +37,7 @@ import SettingsScreen from "./Screen/Setting/Setting";
 import ProfileScreen from "./Screen/Profile/ProfileScreen";
 import ChangeNameScreen from "./Screen/Setting/ChangeNameScreen";
 import ChangePictureScreen from "./Screen/Setting/ChangeProfileScreen";
+import MyQrCodeScreen from "./Screen/QRCode/MyQrCodeScreen";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 LogBox.ignoreAllLogs();
@@ -225,6 +226,14 @@ const AuthenticatedStack = () => {
           component={ChangePictureScreen}
           options={{
             title: t("change_picture"),
+            headerStyle: { backgroundColor: "#E91E63" },
+          }}
+        />
+        <Stack.Screen
+          name="QRCode"
+          component={MyQrCodeScreen}
+          options={{
+            title: t("qrCode"),
             headerStyle: { backgroundColor: "#E91E63" },
           }}
         />
