@@ -7,7 +7,7 @@ import {
   Platform,
   StyleSheet,
   SafeAreaView,
-  Dimensions, // Import Dimensions
+  Dimensions,
 } from "react-native";
 import QRCode from "react-native-qrcode-svg";
 import RNFS from "react-native-fs";
@@ -16,12 +16,19 @@ import Share from "react-native-share";
 import { PERMISSIONS, request } from "react-native-permissions";
 import { Download, Share as ShareIcon } from "lucide-react-native";
 
-// Get screen dimensions
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 const MyQrCodeScreen = ({ navigation }) => {
   const svgRef = useRef(null);
   const accountNumber = "01910125428";
+
+  const qrData = JSON.stringify({
+    recipient: {
+      name: accountNumber,
+      number: accountNumber,
+    },
+    route: "ConfirmCashOut",
+  });
 
   const requestStoragePermission = async () => {
     try {
@@ -106,19 +113,19 @@ const MyQrCodeScreen = ({ navigation }) => {
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
         <View style={styles.qrFrame}>
-          <View style={styles.cornerTL} />
+          {/* <View style={styles.cornerTL} />
           <View style={styles.cornerTR} />
           <View style={styles.cornerBL} />
-          <View style={styles.cornerBR} />
+          <View style={styles.cornerBR} /> */}
 
           <QRCode
-            value={accountNumber}
+            value={qrData}
             size={SCREEN_WIDTH * 0.63}
             color="#E91E63"
-            backgroundColor="white"
-            logo={require("../../assets/logo_bkash.png")}
-            logoSize={SCREEN_WIDTH * 0.15}
-            logoBackgroundColor="white"
+            // backgroundColor="white"
+            // logo={require("../../assets/logo_bkash.png")}
+            // logoSize={SCREEN_WIDTH * 0.15}
+            // logoBackgroundColor="white"
             getRef={(c) => (svgRef.current = c)}
           />
         </View>

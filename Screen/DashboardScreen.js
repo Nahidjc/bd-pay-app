@@ -36,7 +36,7 @@ const DashboardScreen = ({ navigation }) => {
           <View style={styles.gridItemContainer}>
             <TouchableOpacity
               style={styles.iconBox}
-              onPress={() => navigation.navigate("Profile")}
+              onPress={() => navigation.navigate("InitialCashOutScreen")}
             >
               <Image
                 source={require("../assets/icon/cash-out.png")}
