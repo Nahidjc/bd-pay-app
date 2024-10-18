@@ -7,6 +7,7 @@ import {
   Platform,
   StyleSheet,
   SafeAreaView,
+  Dimensions, // Import Dimensions
 } from "react-native";
 import QRCode from "react-native-qrcode-svg";
 import RNFS from "react-native-fs";
@@ -14,6 +15,9 @@ import * as MediaLibrary from "expo-media-library";
 import Share from "react-native-share";
 import { PERMISSIONS, request } from "react-native-permissions";
 import { Download, Share as ShareIcon } from "lucide-react-native";
+
+// Get screen dimensions
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 const MyQrCodeScreen = ({ navigation }) => {
   const svgRef = useRef(null);
@@ -34,7 +38,6 @@ const MyQrCodeScreen = ({ navigation }) => {
         }
       }
 
-      // For both iOS and Android, request media library permission
       const { status } = await MediaLibrary.requestPermissionsAsync();
       if (status !== "granted") {
         Alert.alert(
@@ -110,11 +113,11 @@ const MyQrCodeScreen = ({ navigation }) => {
 
           <QRCode
             value={accountNumber}
-            size={280}
+            size={SCREEN_WIDTH * 0.63}
             color="#E91E63"
             backgroundColor="white"
             logo={require("../../assets/logo_bkash.png")}
-            logoSize={50}
+            logoSize={SCREEN_WIDTH * 0.15}
             logoBackgroundColor="white"
             getRef={(c) => (svgRef.current = c)}
           />
@@ -143,43 +146,23 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
   },
-  header: {
-    backgroundColor: "#E91E63",
-    padding: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    height: 56,
-    paddingTop: Platform.OS === "android" ? 35 : 16,
-  },
-  backButton: {
-    padding: 8,
-  },
-  headerTitle: {
-    color: "#fff",
-    fontSize: 20,
-    fontWeight: "500",
-    marginLeft: 16,
-  },
   container: {
     flex: 1,
-    padding: 20,
+    padding: SCREEN_WIDTH * 0.05,
     backgroundColor: "#fff",
     alignItems: "center",
   },
   qrFrame: {
-    width: 320,
-    height: 320,
+    width: SCREEN_WIDTH * 0.8,
+    height: SCREEN_WIDTH * 0.8,
     backgroundColor: "white",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 40,
-    marginBottom: 40,
+    marginTop: SCREEN_HEIGHT * 0.05,
+    marginBottom: SCREEN_HEIGHT * 0.05,
     elevation: 2,
     shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     borderRadius: 8,
@@ -187,62 +170,64 @@ const styles = StyleSheet.create({
   },
   cornerTL: {
     position: "absolute",
-    top: 20,
-    left: 20,
-    width: 30,
-    height: 30,
+    top: SCREEN_HEIGHT * 0.02,
+    left: SCREEN_HEIGHT * 0.02,
+    width: SCREEN_WIDTH * 0.1,
+    height: SCREEN_WIDTH * 0.1,
     borderLeftWidth: 4,
     borderTopWidth: 4,
     borderColor: "#E91E63",
   },
   cornerTR: {
     position: "absolute",
-    top: 20,
-    right: 20,
-    width: 30,
-    height: 30,
+    top: SCREEN_HEIGHT * 0.02,
+    right: SCREEN_HEIGHT * 0.02,
+    width: SCREEN_WIDTH * 0.1,
+    height: SCREEN_WIDTH * 0.1,
     borderRightWidth: 4,
     borderTopWidth: 4,
     borderColor: "#E91E63",
   },
   cornerBL: {
     position: "absolute",
-    bottom: 20,
-    left: 20,
-    width: 30,
-    height: 30,
+    bottom: SCREEN_HEIGHT * 0.02,
+    left: SCREEN_HEIGHT * 0.02,
+    width: SCREEN_WIDTH * 0.1,
+    height: SCREEN_WIDTH * 0.1,
     borderLeftWidth: 4,
     borderBottomWidth: 4,
     borderColor: "#E91E63",
   },
   cornerBR: {
     position: "absolute",
-    bottom: 20,
-    right: 20,
-    width: 30,
-    height: 30,
+    bottom: SCREEN_HEIGHT * 0.02,
+    right: SCREEN_HEIGHT * 0.02,
+    width: SCREEN_WIDTH * 0.1,
+    height: SCREEN_WIDTH * 0.1,
     borderRightWidth: 4,
     borderBottomWidth: 4,
     borderColor: "#E91E63",
   },
   shareText: {
-    fontSize: 16,
+    fontSize: SCREEN_WIDTH * 0.04,
     color: "#333",
-    marginBottom: 10,
+    marginBottom: SCREEN_HEIGHT * 0.01,
   },
   buttonContainer: {
-    flexDirection: "row", // Align buttons in a row
-    justifyContent: "space-between", // Distribute space between the buttons
-    paddingHorizontal: 20,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: SCREEN_WIDTH * 0.05,
   },
   button: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#fff",
     borderRadius: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    margin: 10, // Adjust margin to give spacing between buttons
+    borderColor: "#E91E63",
+    borderWidth: 1,
+    paddingVertical: SCREEN_HEIGHT * 0.015,
+    paddingHorizontal: SCREEN_WIDTH * 0.04,
+    margin: SCREEN_WIDTH * 0.03,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.25,
@@ -250,9 +235,9 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   buttonText: {
-    color: "#E91E63", // Set text color
-    fontSize: 14, // Ensure a readable font size
-    marginLeft: 10, // Space between the icon and the text
+    color: "#E91E63",
+    fontSize: SCREEN_WIDTH * 0.04,
+    marginLeft: SCREEN_WIDTH * 0.02,
   },
 });
 
