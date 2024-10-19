@@ -22,7 +22,7 @@ const SettingsScreen = ({ navigation }) => {
       <View style={styles.content}>
         <SettingItem
           icon={<Edit2 color="#E91E63" size={24} />}
-          title="Change Name"
+          title="Change Profile Info"
           onPress={() => navigation.navigate("ChangeName")}
         />
         <SettingItem

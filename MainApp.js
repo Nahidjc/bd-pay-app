@@ -38,6 +38,8 @@ import ProfileScreen from "./Screen/Profile/ProfileScreen";
 import ChangeNameScreen from "./Screen/Setting/ChangeNameScreen";
 import ChangePictureScreen from "./Screen/Setting/ChangeProfileScreen";
 import MyQrCodeScreen from "./Screen/QRCode/MyQrCodeScreen";
+import InitialCashOutScreen from "./Screen/CashOut/InitialCashOutScreen";
+import ScanQrCodeScreen from "./Screen/QRCode/ScanQrCodeScreen";
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 LogBox.ignoreAllLogs();
@@ -234,6 +236,22 @@ const AuthenticatedStack = () => {
           component={MyQrCodeScreen}
           options={{
             title: t("qrCode"),
+            headerStyle: { backgroundColor: "#E91E63" },
+          }}
+        />
+        <Stack.Screen
+          name="InitialCashOutScreen"
+          component={InitialCashOutScreen}
+          options={{
+            title: "Cash Out",
+            headerStyle: { backgroundColor: "#E91E63" },
+          }}
+        />
+        <Stack.Screen
+          name="ScanQrCodeScreen"
+          component={ScanQrCodeScreen}
+          options={{
+            title: "Scan QR",
             headerStyle: { backgroundColor: "#E91E63" },
           }}
         />

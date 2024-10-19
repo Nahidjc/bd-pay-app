@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   Image,
   ScrollView,
   Dimensions,
+  Alert,
 } from "react-native";
 import {
   Edit2,
@@ -19,14 +20,37 @@ import {
   ArrowRight,
 } from "lucide-react-native";
 import * as ImagePicker from "expo-image-picker";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  clearProfileState,
+  updateUserProfile,
+} from "../../state/reducers/authSlice";
+import LoadingScreen from "../../components/Loader/Loader";
 const defaultAvatar = require("../../assets/avatar.png");
 
 const { width, height } = Dimensions.get("window");
 
 const ProfileScreen = ({ navigation }) => {
-  const [profileImage, setProfileImage] = useState(null);
-  const [name, setName] = useState("Nahid Hasan");
-  const [bKashNumber, setBKashNumber] = useState("+8801311164248");
+  const dispatch = useDispatch();
+  const { user, token, updateError, updateSuccess, isUpdating } = useSelector(
+    (state) => state.auth
+  );
+  const { fullName, profilePic, accountNumber } = user;
+  const [profileImage, setProfileImage] = useState(profilePic || null);
+  useEffect(() => {
+    return () => {
+      dispatch(clearProfileState());
+    };
+  }, [dispatch]);
+  useEffect(() => {
+    if (updateSuccess) {
+      dispatch(clearProfileState());
+    }
+    if (updateError) {
+      Alert.alert("Error", updateError);
+      dispatch(clearProfileState());
+    }
+  }, [updateSuccess, updateError, dispatch]);
 
   const handleImageUpdate = async () => {
     const permissionResult =
@@ -45,7 +69,13 @@ const ProfileScreen = ({ navigation }) => {
 
     if (!pickerResult.canceled) {
       setProfileImage(pickerResult.assets[0].uri);
-      console.log("Image updated:", pickerResult.assets[0].uri);
+      const formData = new FormData();
+      formData.append("profilePic", {
+        uri: pickerResult.assets[0].uri,
+        type: "image/jpeg",
+        name: "profile.jpg",
+      });
+      dispatch(updateUserProfile({ data: formData, token }));
     }
   };
 
@@ -64,6 +94,7 @@ const ProfileScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <LoadingScreen visible={isUpdating} />
       <ScrollView style={styles.content}>
         <View style={styles.profileImageContainer}>
           <View
@@ -87,11 +118,11 @@ const ProfileScreen = ({ navigation }) => {
             </TouchableOpacity>
           </View>
         </View>
-        <Text style={styles.nameText}>{name}</Text>
+        <Text style={styles.nameText}>{fullName}</Text>
         <View style={styles.profileItems}>
           <ProfileItem
             icon={<Edit2 color="#E91E63" size={width * 0.05} />}
-            title="Change Name"
+            title="Change Profile Info"
             onPress={() => navigation.navigate("ChangeName")}
           />
           <ProfileItem
@@ -101,8 +132,8 @@ const ProfileScreen = ({ navigation }) => {
           />
           <ProfileItem
             icon={<User color="#E91E63" size={width * 0.05} />}
-            title="Update BD Pay Number"
-            subtitle={bKashNumber}
+            title="BD Pay Number"
+            subtitle={accountNumber}
             onPress={() => console.log("Update BD Pay Number")}
           />
           <ProfileItem

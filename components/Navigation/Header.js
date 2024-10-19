@@ -27,8 +27,8 @@ const Header = ({ navigation, route, options, tabName, user }) => {
     StyleSheet.flatten(options.headerStyle)?.backgroundColor ?? theme.white;
 
   useEffect(() => {
-    if (user?.shopLogo) {
-      setSecureImageUrl(user.shopLogo.replace("http://", "https://"));
+    if (user?.profilePic) {
+      setSecureImageUrl(user.profilePic);
     }
   }, [user]);
 
@@ -70,7 +70,7 @@ const Header = ({ navigation, route, options, tabName, user }) => {
         />
       )}
       <View style={styles.textContainer}>
-        <Text style={styles.greeting}>{user?.ownerName || t("user")}</Text>
+        <Text style={styles.greeting}>{user?.fullName || t("user")}</Text>
         <Text style={styles.subtitle}>{t("welcome")}</Text>
       </View>
     </Pressable>
