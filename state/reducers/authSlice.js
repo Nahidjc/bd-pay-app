@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { privatePost, publicPost } from "../../utilities/apiCaller";
+import { privatePostFile, publicPost } from "../../utilities/apiCaller";
 import { storage, StorageKeys } from "../storage";
 
 const saveAuthState = (isAuthenticated, user, token) => {
@@ -59,7 +59,7 @@ export const updateUserProfile = createAsyncThunk(
   "profile/update",
   async ({ data, token }, { rejectWithValue }) => {
     try {
-      const response = await privatePost("/user/update", token, data);
+      const response = await privatePostFile("/user/update", token, data);
       return response.data;
     } catch (err) {
       return rejectWithValue(err.response);
@@ -143,7 +143,7 @@ const authSlice = createSlice({
         state.isUpdating = false;
         state.updateError = null;
         state.updateSuccess = true;
-        updateUserInStorage(action.payload.user);
+        updateUserInStorage(action.payload);
       })
       .addCase(updateUserProfile.rejected, (state, action) => {
         state.isUpdating = false;

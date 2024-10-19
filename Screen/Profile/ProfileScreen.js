@@ -69,8 +69,13 @@ const ProfileScreen = ({ navigation }) => {
 
     if (!pickerResult.canceled) {
       setProfileImage(pickerResult.assets[0].uri);
-      const data = { profilePic: pickerResult.assets[0].uri };
-      dispatch(updateUserProfile({ data, token }));
+      const formData = new FormData();
+      formData.append("profilePic", {
+        uri: pickerResult.assets[0].uri,
+        type: "image/jpeg",
+        name: "profile.jpg",
+      });
+      dispatch(updateUserProfile({ data: formData, token }));
     }
   };
 
