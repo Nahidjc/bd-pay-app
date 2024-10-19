@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,24 +7,38 @@ import {
   StyleSheet,
   SafeAreaView,
   Dimensions,
+  Alert,
 } from "react-native";
 import { ArrowLeft, Edit2, ArrowRight } from "lucide-react-native";
 import * as ImagePicker from "expo-image-picker";
+import { useDispatch, useSelector } from "react-redux";
+import { updateUserProfile } from "./../../state/reducers/authSlice";
 
 const defaultAvatar = require("../../assets/avatar.png");
 
-const { width, height } = Dimensions.get("window"); // Get the screen dimensions
+const { width, height } = Dimensions.get("window");
 
 const ChangePictureScreen = ({ navigation, route }) => {
-  const initialProfileImage = route.params?.profileImage || defaultAvatar;
-  const [profileImage, setProfileImage] = useState(initialProfileImage);
+  const dispatch = useDispatch();
+  const { token, user } = useSelector((state) => state.auth);
+  const { profilePic } = user;
+  const [profileImage, setProfileImage] = useState(null);
   const [isChanged, setIsChanged] = useState(false);
+
+  useEffect(() => {
+    if (profilePic) {
+      setProfileImage({ uri: profilePic });
+    }
+  }, [profilePic]);
 
   const handleImagePicker = async () => {
     const permissionResult =
       await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (permissionResult.granted === false) {
-      alert("Permission to access camera roll is required!");
+      Alert.alert(
+        "Permission required",
+        "Permission to access camera roll is required!"
+      );
       return;
     }
 
@@ -36,15 +50,29 @@ const ChangePictureScreen = ({ navigation, route }) => {
     });
 
     if (!pickerResult.canceled) {
-      setProfileImage({ uri: pickerResult.assets[0].uri });
-      setIsChanged(pickerResult.assets[0].uri !== initialProfileImage.uri);
+      const newImage = { uri: pickerResult.assets[0].uri };
+      setProfileImage(newImage);
+      setIsChanged(true);
     }
   };
 
-  const handleSave = () => {
-    if (!isChanged) return;
-    console.log("Saving new profile picture:", profileImage);
-    navigation.goBack();
+  const handleSave = async () => {
+    if (!isChanged || !profileImage) return;
+
+    const formData = new FormData();
+    formData.append("profilePic", {
+      uri: profileImage.uri,
+      type: "image/jpeg",
+      name: "profile.jpg",
+    });
+
+    try {
+      await dispatch(updateUserProfile({ data: formData, token })).unwrap();
+      Alert.alert("Success", "Profile picture updated successfully");
+      navigation.goBack();
+    } catch (error) {
+      Alert.alert("Error", error.message || "Failed to update profile picture");
+    }
   };
 
   return (
@@ -55,7 +83,10 @@ const ChangePictureScreen = ({ navigation, route }) => {
         </Text>
 
         <View style={styles.imageContainer}>
-          <Image source={profileImage} style={styles.profileImage} />
+          <Image
+            source={profileImage || defaultAvatar}
+            style={styles.profileImage}
+          />
           <TouchableOpacity
             style={styles.editButton}
             onPress={handleImagePicker}
