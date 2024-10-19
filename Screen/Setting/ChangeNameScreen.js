@@ -37,7 +37,7 @@ const ChangeNameScreen = ({ navigation }) => {
 
     const updatedData = {
       fullName,
-      nid,
+      Nid: nid,
       address,
     };
 
