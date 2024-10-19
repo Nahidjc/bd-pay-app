@@ -13,6 +13,7 @@ import { ArrowLeft, Edit2, ArrowRight } from "lucide-react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useDispatch, useSelector } from "react-redux";
 import { updateUserProfile } from "./../../state/reducers/authSlice";
+import LoadingScreen from "../../components/Loader/Loader";
 
 const defaultAvatar = require("../../assets/avatar.png");
 
@@ -20,7 +21,7 @@ const { width, height } = Dimensions.get("window");
 
 const ChangePictureScreen = ({ navigation, route }) => {
   const dispatch = useDispatch();
-  const { token, user } = useSelector((state) => state.auth);
+  const { token, user, isUpdating } = useSelector((state) => state.auth);
   const { profilePic } = user;
   const [profileImage, setProfileImage] = useState(null);
   const [isChanged, setIsChanged] = useState(false);
@@ -68,8 +69,6 @@ const ChangePictureScreen = ({ navigation, route }) => {
 
     try {
       await dispatch(updateUserProfile({ data: formData, token })).unwrap();
-      Alert.alert("Success", "Profile picture updated successfully");
-      navigation.goBack();
     } catch (error) {
       Alert.alert("Error", error.message || "Failed to update profile picture");
     }
@@ -77,6 +76,7 @@ const ChangePictureScreen = ({ navigation, route }) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <LoadingScreen visible={isUpdating} />
       <View style={styles.content}>
         <Text style={styles.instructionText}>
           Tap on the Edit icon below to take a photo or upload your picture

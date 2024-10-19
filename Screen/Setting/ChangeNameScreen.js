@@ -9,62 +9,109 @@ import {
   KeyboardAvoidingView,
   Platform,
   Dimensions,
+  Alert,
 } from "react-native";
 import { ArrowRight } from "lucide-react-native";
+import { useDispatch, useSelector } from "react-redux";
+import { updateUserProfile } from "./../../state/reducers/authSlice";
+import LoadingScreen from "../../components/Loader/Loader";
 
 const { width } = Dimensions.get("window");
 
-const ChangeNameScreen = ({ route }) => {
-  const originalFirstName = route.params?.firstName || "Nirob";
-  const originalLastName = route.params?.lastName || "";
+const ChangeNameScreen = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const { token, user, isUpdating } = useSelector((state) => state.auth);
+  const {
+    fullName: originalFullName,
+    Nid: originalNid,
+    address: originalAddress,
+  } = user;
 
-  const [firstName, setFirstName] = useState(originalFirstName);
-  const [lastName, setLastName] = useState(originalLastName);
+  const [fullName, setFullName] = useState(originalFullName || "");
+  const [nid, setNid] = useState(originalNid || "");
+  const [address, setAddress] = useState(originalAddress || "");
   const [isUpdated, setIsUpdated] = useState(false);
 
-  const handleUpdate = () => {
-    console.log("Updating name:", firstName, lastName);
+  const handleUpdate = async () => {
+    if (!isUpdated) return;
+
+    const updatedData = {
+      fullName,
+      nid,
+      address,
+    };
+
+    try {
+      await dispatch(updateUserProfile({ data: updatedData, token })).unwrap();
+    } catch (error) {
+      Alert.alert("Error", error.message || "Failed to update profile");
+    }
   };
 
-  const onChangeFirstName = (value) => {
-    setFirstName(value);
-    setIsUpdated(value !== originalFirstName || lastName !== originalLastName);
+  const checkIfUpdated = (newFullName, newNid, newAddress) => {
+    return (
+      newFullName !== originalFullName ||
+      newNid !== originalNid ||
+      newAddress !== originalAddress
+    );
   };
 
-  const onChangeLastName = (value) => {
-    setLastName(value);
-    setIsUpdated(firstName !== originalFirstName || value !== originalLastName);
+  const onChangeFullName = (value) => {
+    setFullName(value);
+    setIsUpdated(checkIfUpdated(value, nid, address));
+  };
+
+  const onChangeNid = (value) => {
+    setNid(value);
+    setIsUpdated(checkIfUpdated(fullName, value, address));
+  };
+
+  const onChangeAddress = (value) => {
+    setAddress(value);
+    setIsUpdated(checkIfUpdated(fullName, nid, value));
   };
 
   return (
     <SafeAreaView style={styles.container}>
+      <LoadingScreen visible={isUpdating} />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.keyboardAvoidingView}
       >
         <View style={styles.content}>
           <Text style={styles.infoText}>
-            Your name will appear on your BD Pay App home screen. Only you can
-            see this.
+            Update your profile information below.
           </Text>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>First Name</Text>
+            <Text style={styles.label}>Full Name</Text>
             <TextInput
               style={styles.input}
-              value={firstName}
-              onChangeText={onChangeFirstName}
-              placeholder="Enter your first name"
+              value={fullName}
+              onChangeText={onChangeFullName}
+              placeholder="Enter your full name"
             />
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Last Name</Text>
+            <Text style={styles.label}>NID</Text>
             <TextInput
               style={styles.input}
-              value={lastName}
-              onChangeText={onChangeLastName}
-              placeholder="Enter your last name"
+              value={nid}
+              onChangeText={onChangeNid}
+              placeholder="Enter your NID number"
+              keyboardType="numeric"
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Address</Text>
+            <TextInput
+              style={styles.input}
+              value={address}
+              onChangeText={onChangeAddress}
+              placeholder="Enter your address"
+              multiline
             />
           </View>
 

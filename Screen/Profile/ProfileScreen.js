@@ -25,13 +25,14 @@ import {
   clearProfileState,
   updateUserProfile,
 } from "../../state/reducers/authSlice";
+import LoadingScreen from "../../components/Loader/Loader";
 const defaultAvatar = require("../../assets/avatar.png");
 
 const { width, height } = Dimensions.get("window");
 
 const ProfileScreen = ({ navigation }) => {
   const dispatch = useDispatch();
-  const { user, token, updateError, updateSuccess } = useSelector(
+  const { user, token, updateError, updateSuccess, isUpdating } = useSelector(
     (state) => state.auth
   );
   const { fullName, profilePic, accountNumber } = user;
@@ -43,7 +44,6 @@ const ProfileScreen = ({ navigation }) => {
   }, [dispatch]);
   useEffect(() => {
     if (updateSuccess) {
-      Alert.alert("Success", "Profile updated successfully");
       dispatch(clearProfileState());
     }
     if (updateError) {
@@ -94,6 +94,7 @@ const ProfileScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      <LoadingScreen visible={isUpdating} />
       <ScrollView style={styles.content}>
         <View style={styles.profileImageContainer}>
           <View
@@ -121,7 +122,7 @@ const ProfileScreen = ({ navigation }) => {
         <View style={styles.profileItems}>
           <ProfileItem
             icon={<Edit2 color="#E91E63" size={width * 0.05} />}
-            title="Change Name"
+            title="Change Profile Info"
             onPress={() => navigation.navigate("ChangeName")}
           />
           <ProfileItem
