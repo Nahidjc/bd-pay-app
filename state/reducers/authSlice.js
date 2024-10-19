@@ -29,7 +29,9 @@ const updateUserInStorage = (updatedUser) => {
     const user = JSON.parse(userString);
     const newUser = { ...user, ...updatedUser };
     storage.set(StorageKeys.User, JSON.stringify(newUser));
+    return newUser;
   }
+  return null;
 };
 
 export const createUserLogin = createAsyncThunk(
@@ -143,7 +145,10 @@ const authSlice = createSlice({
         state.isUpdating = false;
         state.updateError = null;
         state.updateSuccess = true;
-        updateUserInStorage(action.payload);
+        const updatedUser = updateUserInStorage(action.payload);
+        if (updatedUser) {
+          state.user = updatedUser;
+        }
       })
       .addCase(updateUserProfile.rejected, (state, action) => {
         state.isUpdating = false;
