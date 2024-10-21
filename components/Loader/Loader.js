@@ -11,7 +11,6 @@ const LoadingScreen = ({ visible }) => {
       onRequestClose={() => {}}
       statusBarTranslucent={true}
     >
-
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.loaderContainer}>
           <View style={styles.loaderBackground}>
@@ -39,8 +38,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   loaderBackground: {
-    width: 120,
-    height: 120,
+    width: 100,
+    height: 100,
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#fff",
@@ -48,8 +47,8 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   lottie: {
-    width: 100,
-    height: 100,
+    width: 80,
+    height: 80,
   },
 });
 
