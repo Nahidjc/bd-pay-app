@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from "react";
+import React from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -10,27 +10,20 @@ import OnboardingScreen from "./Screen/OnboardingScreen";
 import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, TouchableOpacity, View, LogBox } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-const SendMoneyScreen = lazy(() =>
-  import("./Screen/SendMoney/SendMoneyScreen")
-);
+import SendMoneyScreen from "./Screen/SendMoney/SendMoneyScreen";
 import ConfirmSendMoneyScreen from "./Screen/SendMoney/ConfirmSendMoney";
 import SendMoney from "./Screen/SendMoney/SendMoney";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Header from "./components/Navigation/Header";
 
 import { CustomDrawerContent } from "./components/Drawer/CustomDrawerContent";
-const TransactionLimitScreen = lazy(() =>
-  import("./Screen/TransactionLimit/TransactionLimit")
-);
+import TransactionLimitScreen from "./Screen/TransactionLimit/TransactionLimit";
 import { getOnboardingStatus } from "./state/storage";
-const TransactionSuccessScreen = lazy(() =>
-  import("./Screen/SendMoney/TransactionSuccessScreen")
-);
-const StatementScreen = lazy(() => import("./Screen/Transaction/Transaction"));
+import TransactionSuccessScreen from "./Screen/SendMoney/TransactionSuccessScreen";
+import StatementScreen from "./Screen/Transaction/Transaction";
 import "./utilities/i18n";
 import HelloWorldScreen from "./components/HelloWorld";
 import { useTranslation } from "react-i18next";
-import LoadingScreen from "./components/Loader/Loader";
 import RegistrationScreen from "./Screen/Auth/RegistrationScreen";
 import LoginScreen from "./Screen/Auth/LoginScreen";
 import SettingsScreen from "./Screen/Setting/Setting";
