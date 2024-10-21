@@ -2,22 +2,23 @@ import React, { useEffect } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { StyleSheet, View, TouchableOpacity, Dimensions } from "react-native";
 import { useSelector } from "react-redux";
+import { useNavigation } from "@react-navigation/native";
 import {
   Wallet,
   BarChart2,
   QrCode,
-  LayoutGrid,
   Settings,
+  House,
+  Bell,
 } from "lucide-react-native";
 import DashboardScreen from "../Screen/DashboardScreen";
 import StatementScreen from "../Screen/Transaction/Transaction";
 import Header from "../components/Navigation/Header";
 import HelloWorldScreen from "../components/HelloWorld";
 import SettingsScreen from "../Screen/Setting/Setting";
-import MyQrCodeScreen from "./../Screen/QRCode/MyQrCodeScreen";
 
 const Tab = createBottomTabNavigator();
-const { height } = Dimensions.get("window");
+const { height, width } = Dimensions.get("window");
 
 const shadowStyle = {
   shadowColor: "#7F5DF0",
@@ -30,51 +31,39 @@ const shadowStyle = {
   elevation: 5,
 };
 
-const CustomTabBarButton = ({ children, onPress }) => (
-  <TouchableOpacity
-    style={{
-      top: -30,
-      justifyContent: "center",
-      alignItems: "center",
-      ...shadowStyle,
-    }}
-    onPress={onPress}
-  >
-    <View
+const CustomTabBarButton = ({ children }) => {
+  const navigation = useNavigation();
+
+  return (
+    <TouchableOpacity
       style={{
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        backgroundColor: "#FFFFFF",
+        top: -30,
         justifyContent: "center",
         alignItems: "center",
-        borderWidth: 1,
-        borderColor: "#E6E6E6",
+        ...shadowStyle,
       }}
+      onPress={() => navigation.navigate("ScanQrCodeScreen")}
     >
-      {children}
-    </View>
-  </TouchableOpacity>
-);
+      <View
+        style={{
+          width: 60,
+          height: 60,
+          borderRadius: 30,
+          backgroundColor: "#FFFFFF",
+          justifyContent: "center",
+          alignItems: "center",
+          borderWidth: 1,
+          borderColor: "#E6E6E6",
+        }}
+      >
+        {children}
+      </View>
+    </TouchableOpacity>
+  );
+};
 
 const TabNavigator = () => {
   const { user } = useSelector((state) => state.auth);
-
-  useEffect(() => {
-    const screens = [
-      DashboardScreen,
-      StatementScreen,
-      MyQrCodeScreen,
-      HelloWorldScreen,
-      SettingsScreen,
-    ];
-    screens.forEach((screen) => {
-      if (typeof screen.preload === "function") {
-        screen.preload();
-      }
-    });
-  }, []);
-
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -82,32 +71,29 @@ const TabNavigator = () => {
           let Icon;
           switch (route.name) {
             case "Dashboard":
-              Icon = Wallet;
+              Icon = House;
               break;
             case "Statements":
               Icon = BarChart2;
               break;
-            case "QRCode":
-              Icon = QrCode;
-              break;
             case "HelloWorld":
-              Icon = LayoutGrid;
+              Icon = Bell;
               break;
             case "Settings":
               Icon = Settings;
               break;
+            default:
+              Icon = Wallet;
           }
           return (
             <Icon size={24} color={color} strokeWidth={focused ? 2.5 : 2} />
           );
         },
-        tabBarActiveTintColor: "#7F3DFF",
+        tabBarActiveTintColor: "#E91E63",
         tabBarInactiveTintColor: "#C6C6C6",
         tabBarStyle: styles.tabBar,
         tabBarShowLabel: false,
         headerShown: true,
-        lazy: false,
-        unmountOnBlur: false,
       })}
     >
       <Tab.Screen
@@ -130,13 +116,11 @@ const TabNavigator = () => {
       />
       <Tab.Screen
         name="QRCode"
-        component={MyQrCodeScreen}
+        component={EmptyComponent}
         options={{
-          headerStyle: { backgroundColor: "#E91E63" },
-          header: (props) => <Header {...props} tabName="QR Code" />,
           tabBarButton: (props) => (
             <CustomTabBarButton {...props}>
-              <QrCode size={30} color="#7F3DFF" strokeWidth={2.5} />
+              <QrCode size={30} color="#E91E63" strokeWidth={2.5} />
             </CustomTabBarButton>
           ),
         }}
@@ -161,6 +145,8 @@ const TabNavigator = () => {
   );
 };
 
+const EmptyComponent = () => null;
+
 const styles = StyleSheet.create({
   tabBar: {
     backgroundColor: "#ffffff",
@@ -171,7 +157,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginHorizontal: 10,
     justifyContent: "space-between",
-    paddingHorizontal: 30,
+    paddingHorizontal: 10,
     ...shadowStyle,
   },
 });
