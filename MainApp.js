@@ -130,34 +130,25 @@ const MainTabs = () => {
       />
       <Tab.Screen
         name="Statements"
+        component={StatementScreen}
         options={{
           headerStyle: {
             backgroundColor: "#E91E63",
           },
           header: (props) => <Header {...props} tabName="Statements" />,
         }}
-      >
-        {() => (
-          <Suspense fallback={<LoadingScreen />}>
-            <StatementScreen />
-          </Suspense>
-        )}
-      </Tab.Screen>
+      />
+
       <Tab.Screen
         name="HelloWorld"
+        component={HelloWorldScreen}
         options={{
           headerStyle: {
             backgroundColor: "#E91E63",
           },
           header: (props) => <Header {...props} tabName="HelloWorld" />,
         }}
-      >
-        {() => (
-          <Suspense fallback={<LoadingScreen />}>
-            <HelloWorldScreen />
-          </Suspense>
-        )}
-      </Tab.Screen>
+      />
     </Tab.Navigator>
   );
 };
