@@ -33,10 +33,7 @@ const shadowStyle = {
 const CustomTabBarButton = ({ children, onPress }) => (
   <TouchableOpacity
     style={{
-      position: "absolute",
-      top: -20,
-      left: "50%",
-      marginLeft: -25,
+      top: -30,
       justifyContent: "center",
       alignItems: "center",
       ...shadowStyle,
@@ -45,12 +42,14 @@ const CustomTabBarButton = ({ children, onPress }) => (
   >
     <View
       style={{
-        width: 50,
-        height: 50,
+        width: 60,
+        height: 60,
         borderRadius: 30,
-        backgroundColor: "#E91E63",
+        backgroundColor: "#FFFFFF",
         justifyContent: "center",
         alignItems: "center",
+        borderWidth: 1,
+        borderColor: "#E6E6E6",
       }}
     >
       {children}
@@ -137,7 +136,7 @@ const TabNavigator = () => {
           header: (props) => <Header {...props} tabName="QR Code" />,
           tabBarButton: (props) => (
             <CustomTabBarButton {...props}>
-              <QrCode size={30} color="#FFFFFF" strokeWidth={2.5} />
+              <QrCode size={30} color="#7F3DFF" strokeWidth={2.5} />
             </CustomTabBarButton>
           ),
         }}
@@ -166,11 +165,13 @@ const styles = StyleSheet.create({
   tabBar: {
     backgroundColor: "#ffffff",
     borderTopWidth: 0,
-    paddingTop: 10,
-    height: 60,
+    marginTop: 20,
+    height: 70,
     borderRadius: 20,
     marginBottom: 10,
     marginHorizontal: 10,
+    justifyContent: "space-between",
+    paddingHorizontal: 30,
     ...shadowStyle,
   },
 });
