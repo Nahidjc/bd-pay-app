@@ -40,6 +40,7 @@
     "react-dom": "18.2.0",
     "react-i18next": "^15.0.2",
     "react-native": "0.74.5",
+    "react-native-biometrics": "^3.0.1",
     "react-native-camera": "^4.2.1",
     "react-native-elements": "^3.4.3",
     "react-native-flash-message": "^0.4.2",

@@ -1,23 +1,26 @@
 import { MMKV } from "react-native-mmkv";
 import * as Application from "expo-application";
 
+// Define storage keys
 export const StorageKeys = {
   User: "user",
   IsAuthenticated: "isAuthenticated",
   Token: "token",
   Language: "language",
   Onboarding: "onboarded",
+  AccountNumber: "accountNumber",
 };
 
 const storageId = `${Application.applicationId}-mmkv`;
 export const storage = new MMKV({ id: storageId });
 
-export const saveUserData = (user, token) => {
+export const saveUserData = (user, token, accountNumber) => {
   try {
     storage.set(StorageKeys.User, JSON.stringify(user));
     storage.set(StorageKeys.Token, token);
+    storage.set(StorageKeys.AccountNumber, accountNumber);
     storage.set(StorageKeys.IsAuthenticated, "true");
-    console.log("User data, token, and authentication status saved");
+    console.log("User data, token, account number, and authentication status saved");
   } catch (e) {
     console.error("Error saving user data:", e);
   }
@@ -41,9 +44,9 @@ export const clearUserData = () => {
   storage.delete(StorageKeys.User);
   storage.delete(StorageKeys.IsAuthenticated);
   storage.delete(StorageKeys.Token);
+  storage.delete(StorageKeys.AccountNumber);
 };
 
-// New methods for onboarding status
 export const setOnboardingStatus = (status) => {
   storage.set(StorageKeys.Onboarding, status ? "true" : "false");
 };
@@ -65,6 +68,32 @@ export const getToken = () => {
     return storage.getString(StorageKeys.Token);
   } catch (e) {
     console.error("Error retrieving token:", e);
+    return null;
+  }
+};
+
+export const setAccountNumberStorage = (accountNumber) => {
+  try {
+    storage.set(StorageKeys.AccountNumber, accountNumber);
+    console.log("Account number saved successfully");
+  } catch (e) {
+    console.error("Error saving account number:", e);
+  }
+};
+
+export const getAccountNumberStorage = () => {
+  try {
+    return storage.getString(StorageKeys.AccountNumber);
+  } catch (e) {
+    console.error("Error retrieving account number:", e);
+    return null;
+  }
+};
+export const deleteAccountNumberStorage = () => {
+  try {
+    return  storage.delete(StorageKeys.AccountNumber);
+  } catch (e) {
+    console.error("Error retrieving account number:", e);
     return null;
   }
 };
