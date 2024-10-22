@@ -9,6 +9,7 @@ import {
   ScrollView,
   Dimensions,
   Alert,
+  Modal,
 } from "react-native";
 import {
   Edit2,
@@ -18,6 +19,7 @@ import {
   Info,
   Users,
   ArrowRight,
+  Fingerprint,
 } from "lucide-react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useDispatch, useSelector } from "react-redux";
@@ -27,6 +29,7 @@ import {
 } from "../../state/reducers/authSlice";
 import LoadingScreen from "../../components/Loader/Loader";
 const defaultAvatar = require("../../assets/avatar.png");
+import ReactNativeBiometrics from "react-native-biometrics";
 
 const { width, height } = Dimensions.get("window");
 
@@ -35,6 +38,28 @@ const ProfileScreen = ({ navigation }) => {
   const { user, token, updateError, updateSuccess, isUpdating } = useSelector(
     (state) => state.auth
   );
+  const [isModalVisible, setModalVisible] = useState(false);
+  const [biometricType, setBiometricType] = useState(true);
+
+  // ReactNativeBiometrics.isSensorAvailable().then(resultObject => {
+  //   const { available, biometryType } = resultObject;
+  //   if (available && biometryType === ReactNativeBiometrics.TouchID) {
+  //     setBiometricType('Touch ID');
+  //   } else if (available && biometryType === ReactNativeBiometrics.FaceID) {
+  //     setBiometricType('Face ID');
+  //   } else {
+  //     setBiometricType(null);
+  //   }
+  // });
+  const toggleModal = () => {
+    setModalVisible(!isModalVisible);
+  };
+
+  const disableBiometrics = () => {
+    console.log("Disabling Biometrics");
+    setModalVisible(false);
+  };
+
   const { fullName, profilePic, accountNumber } = user;
   const [profileImage, setProfileImage] = useState(profilePic || null);
   useEffect(() => {
@@ -151,6 +176,51 @@ const ProfileScreen = ({ navigation }) => {
             title="Nominee Update"
             onPress={() => console.log("Nominee Update")}
           />
+          {biometricType && (
+            <ProfileItem
+              icon={<Fingerprint color="#E91E63" size={width * 0.05} />}
+              title="Enable Touch/Face ID"
+              onPress={toggleModal}
+            />
+          )}
+
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={isModalVisible}
+            onRequestClose={toggleModal}
+          >
+            <View style={styles.modalBackground}>
+              <View style={styles.modalContent}>
+                <TouchableOpacity
+                  style={styles.closeButton}
+                  onPress={toggleModal}
+                >
+                  <Text style={styles.closeButtonText}>X</Text>
+                </TouchableOpacity>
+                <Text style={styles.modalTitle}>Disable Touch/Face ID</Text>
+                <Fingerprint color="#E91E63" size={50} />
+                <Text style={styles.modalText}>
+                  By disabling Touch/Face ID, you can log in with PIN only. Do
+                  you want to disable?
+                </Text>
+                <View style={styles.buttonContainer}>
+                  <TouchableOpacity
+                    style={styles.disableButton}
+                    onPress={disableBiometrics}
+                  >
+                    <Text style={styles.buttonText}>Yes, Disable</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.cancelButton}
+                    onPress={toggleModal}
+                  >
+                    <Text style={styles.buttonText}>No, Thanks</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Modal>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -219,6 +289,61 @@ const styles = StyleSheet.create({
     fontSize: width * 0.04,
     color: "#757575",
     marginTop: height * 0.005,
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: "flex-end",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    width: "100%",
+    backgroundColor: "white",
+    padding: 20,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    alignItems: "center",
+    paddingBottom: 30,
+  },
+  closeButton: {
+    alignSelf: "flex-end",
+  },
+  closeButtonText: {
+    fontSize: 18,
+    color: "#888",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginVertical: 10,
+  },
+  modalText: {
+    textAlign: "center",
+    marginVertical: 10,
+    fontSize: 16,
+    color: "#555",
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    marginTop: 20,
+  },
+  disableButton: {
+    backgroundColor: "#ff4081",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+    marginRight: 10,
+    borderWidth: 1,
+    borderColor: "#ff4081",
+  },
+  cancelButton: {
+    backgroundColor: "#ccc",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 25,
+  },
+  buttonText: {
+    color: "white",
+    fontSize: 16,
   },
 });
 
