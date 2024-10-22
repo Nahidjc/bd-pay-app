@@ -154,7 +154,16 @@ export default function MainApp() {
   const { isAuthenticated } = useSelector((state) => state.auth);
 
   return (
-    <SafeAreaProvider>
+    <SafeAreaProvider
+      initialMetrics={{
+        insets: {
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
+        },
+      }}
+    >
       <StatusBar
         style="auto"
         translucent

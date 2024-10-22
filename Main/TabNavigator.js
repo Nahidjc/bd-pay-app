@@ -20,14 +20,17 @@ import SettingsScreen from "../Screen/Setting/Setting";
 const Tab = createBottomTabNavigator();
 const { height, width } = Dimensions.get("window");
 
+const dynamicHeight = (percentage) => (height * percentage) / 100;
+const dynamicWidth = (percentage) => (width * percentage) / 100;
+
 const shadowStyle = {
   shadowColor: "#7F5DF0",
   shadowOffset: {
     width: 0,
-    height: 10,
+    height: dynamicHeight(1),
   },
   shadowOpacity: 0.25,
-  shadowRadius: 3.5,
+  shadowRadius: dynamicHeight(0.5),
   elevation: 5,
 };
 
@@ -37,7 +40,7 @@ const CustomTabBarButton = ({ children }) => {
   return (
     <TouchableOpacity
       style={{
-        top: -30,
+        top: -dynamicHeight(2),
         justifyContent: "center",
         alignItems: "center",
         ...shadowStyle,
@@ -46,9 +49,9 @@ const CustomTabBarButton = ({ children }) => {
     >
       <View
         style={{
-          width: 60,
-          height: 60,
-          borderRadius: 30,
+          width: dynamicWidth(12),
+          height: dynamicWidth(12),
+          borderRadius: dynamicWidth(6),
           backgroundColor: "#FFFFFF",
           justifyContent: "center",
           alignItems: "center",
@@ -86,11 +89,16 @@ const TabNavigator = () => {
               Icon = Wallet;
           }
           return (
-            <Icon size={24} color={color} strokeWidth={focused ? 2.5 : 2} />
+            <Icon
+              size={dynamicWidth(6)}
+              color={color}
+              strokeWidth={focused ? 2.5 : 2}
+            />
           );
         },
         tabBarActiveTintColor: "#E91E63",
         tabBarInactiveTintColor: "#C6C6C6",
+        tabBarHideOnKeyboard: true,
         tabBarStyle: styles.tabBar,
         tabBarShowLabel: false,
         headerShown: true,
@@ -120,7 +128,11 @@ const TabNavigator = () => {
         options={{
           tabBarButton: (props) => (
             <CustomTabBarButton {...props}>
-              <QrCode size={30} color="#E91E63" strokeWidth={2.5} />
+              <QrCode
+                size={dynamicWidth(6)}
+                color="#E91E63"
+                strokeWidth={2.5}
+              />
             </CustomTabBarButton>
           ),
         }}
@@ -151,13 +163,13 @@ const styles = StyleSheet.create({
   tabBar: {
     backgroundColor: "#ffffff",
     borderTopWidth: 0,
-    marginTop: 20,
-    height: 70,
-    borderRadius: 20,
-    marginBottom: 10,
-    marginHorizontal: 10,
+    marginTop: dynamicHeight(2),
+    height: dynamicHeight(6),
+    borderRadius: dynamicWidth(5),
+    marginBottom: dynamicHeight(1.5),
+    marginHorizontal: dynamicWidth(3),
     justifyContent: "space-between",
-    paddingHorizontal: 10,
+    paddingHorizontal: dynamicWidth(2),
     ...shadowStyle,
   },
 });

@@ -10,7 +10,7 @@ import LoadingScreen from "./components/Loader/Loader";
 export default function App() {
   useEffect(() => {
     const hideSplashScreen = async () => {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 300));
       SplashScreen.hide();
     };
 
