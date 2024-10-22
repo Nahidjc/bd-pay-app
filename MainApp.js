@@ -4,7 +4,7 @@ import { StatusBar } from "expo-status-bar";
 import { useSelector } from "react-redux";
 import WelcomeScreen from "./components/WelcomeScreen";
 import OnboardingScreen from "./Screen/OnboardingScreen";
-import { StyleSheet, LogBox } from "react-native";
+import { LogBox } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import SendMoneyScreen from "./Screen/SendMoney/SendMoneyScreen";
 import ConfirmSendMoneyScreen from "./Screen/SendMoney/ConfirmSendMoney";
@@ -24,6 +24,9 @@ import MyQrCodeScreen from "./Screen/QRCode/MyQrCodeScreen";
 import InitialCashOutScreen from "./Screen/CashOut/InitialCashOutScreen";
 import ScanQrCodeScreen from "./Screen/QRCode/ScanQrCodeScreen";
 import DrawerNavigator from "./Main/DrawerNavigator";
+import { enableScreens } from "react-native-screens";
+import { CardStyleInterpolators } from "@react-navigation/stack";
+enableScreens();
 const Stack = createNativeStackNavigator();
 LogBox.ignoreAllLogs();
 
@@ -42,13 +45,16 @@ const AuthenticatedStack = () => {
         component={DrawerNavigator}
         options={{ headerShown: false }}
       />
-      <Stack.Group>
+      <Stack.Group
+        screenOptions={{
+          headerStyle: { backgroundColor: "#E91E63" },
+        }}
+      >
         <Stack.Screen
           name="InitialSendMoney"
           component={SendMoneyScreen}
           options={{
             title: t("send"),
-            headerStyle: { backgroundColor: "#E91E63" },
           }}
         />
         <Stack.Screen
@@ -56,7 +62,6 @@ const AuthenticatedStack = () => {
           component={ConfirmSendMoneyScreen}
           options={{
             title: t("send"),
-            headerStyle: { backgroundColor: "#E91E63" },
           }}
         />
         <Stack.Screen
@@ -64,20 +69,21 @@ const AuthenticatedStack = () => {
           component={SendMoney}
           options={{
             title: t("send"),
-            headerStyle: { backgroundColor: "#E91E63" },
           }}
         />
         <Stack.Screen
           name="TransactionSuccess"
           component={TransactionSuccessScreen}
-          options={{ headerShown: false }}
+          options={{
+            headerShown: false,
+            cardStyleInterpolator: CardStyleInterpolators.forFadeFromCenter,
+          }}
         />
         <Stack.Screen
           name="Profile"
           component={ProfileScreen}
           options={{
             title: "Profile",
-            headerStyle: { backgroundColor: "#E91E63" },
           }}
         />
         <Stack.Screen
@@ -85,7 +91,6 @@ const AuthenticatedStack = () => {
           component={ChangeNameScreen}
           options={{
             title: t("change_name"),
-            headerStyle: { backgroundColor: "#E91E63" },
           }}
         />
         <Stack.Screen
@@ -93,7 +98,6 @@ const AuthenticatedStack = () => {
           component={ChangePictureScreen}
           options={{
             title: t("change_picture"),
-            headerStyle: { backgroundColor: "#E91E63" },
           }}
         />
         <Stack.Screen
@@ -101,7 +105,6 @@ const AuthenticatedStack = () => {
           component={MyQrCodeScreen}
           options={{
             title: t("qrCode"),
-            headerStyle: { backgroundColor: "#E91E63" },
           }}
         />
         <Stack.Screen
@@ -109,7 +112,6 @@ const AuthenticatedStack = () => {
           component={InitialCashOutScreen}
           options={{
             title: "Cash Out",
-            headerStyle: { backgroundColor: "#E91E63" },
           }}
         />
         <Stack.Screen
@@ -117,7 +119,8 @@ const AuthenticatedStack = () => {
           component={ScanQrCodeScreen}
           options={{
             title: "Scan QR",
-            headerStyle: { backgroundColor: "#E91E63" },
+            cardStyleInterpolator:
+              CardStyleInterpolators.forModalPresentationIOS,
           }}
         />
       </Stack.Group>
@@ -151,7 +154,16 @@ export default function MainApp() {
   const { isAuthenticated } = useSelector((state) => state.auth);
 
   return (
-    <SafeAreaProvider>
+    <SafeAreaProvider
+      initialMetrics={{
+        insets: {
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
+        },
+      }}
+    >
       <StatusBar
         style="auto"
         translucent

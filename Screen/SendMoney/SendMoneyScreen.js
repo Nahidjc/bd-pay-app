@@ -25,17 +25,22 @@ export default function SendMoneyScreen({ navigation }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadContacts() {
-      try {
-        const contactsData = await getContacts();
-        setContacts(contactsData || []);
-      } catch (error) {
-        setContacts([]);
-      } finally {
-        setLoading(false);
+    const timeoutId = setTimeout(() => {
+      async function loadContacts() {
+        try {
+          const contactsData = await getContacts();
+          setContacts(contactsData || []);
+        } catch (error) {
+          setContacts([]);
+        } finally {
+          setLoading(false);
+        }
       }
-    }
-    loadContacts();
+
+      loadContacts();
+    }, 500); // 500ms delay before loading contacts
+
+    return () => clearTimeout(timeoutId); // Cleanup if the component unmounts
   }, []);
 
   const formatPhoneNumber = (number) => {
