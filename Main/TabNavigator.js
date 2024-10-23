@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     borderTopWidth: 0,
     marginTop: dynamicHeight(2),
-    height: dynamicHeight(6),
+    height: dynamicHeight(7),
     borderRadius: dynamicWidth(5),
     marginBottom: dynamicHeight(1.5),
     marginHorizontal: dynamicWidth(3),
