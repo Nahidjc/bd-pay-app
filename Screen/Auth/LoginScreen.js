@@ -20,9 +20,8 @@ import { createUserLogin } from "../../state/reducers/authSlice";
 import LoadingScreen from "../../components/Loader/Loader";
 import {
   checkBiometricSupport,
-  handleBiometricAuth,
-  enableBiometrics,
   isBiometricsEnabled,
+  authenticateWithBiometrics,
 } from "../../utilities/biometrics/BiometricsUtils";
 import {
   deleteAccountNumberStorage,
@@ -34,6 +33,14 @@ const window = Dimensions.get("window");
 const { height } = Dimensions.get("window");
 const scale = (size) => (window.width / 375) * size;
 
+const BIOMETRIC_MESSAGES = {
+  NOT_ENABLED:
+    "Biometric login is not enabled. Would you like to enable it now?",
+  NO_ID: "Please save your User ID first to use biometric login",
+  SUCCESS: "Login successful!",
+  FAILED: "Biometric verification failed",
+  CANCELLED: "Authentication was cancelled",
+};
 export default function LoginScreen({ navigation }) {
   const dispatch = useDispatch();
   const { isLoading } = useSelector((state) => state.auth);
@@ -103,40 +110,32 @@ export default function LoginScreen({ navigation }) {
 
   const handleBiometricLogin = async () => {
     try {
-      if (!biometricStatus.isEnabled) {
+      if (!biometricStatus || !biometricStatus.isEnabled) {
         setShowBiometricModal(true);
         return;
       }
+      const authResult = await authenticateWithBiometrics(
+        "Verify your identity"
+      );
 
-      const { signature } = await handleBiometricAuth();
-      const savedId = await getAccountNumberStorage();
-
-      if (!savedId) {
-        showMessage({
-          message: "Please save your ID first",
-          type: "warning",
-          backgroundColor: "#ff9800",
-        });
-        return;
+      if (!authResult?.token) {
+        throw new Error(BIOMETRIC_MESSAGES.FAILED);
       }
-
-      await dispatch(
-        createUserLogin({
-          accountNumber: savedId,
-          biometricSignature: signature,
-        })
-      ).unwrap();
-
       showMessage({
-        message: "Login successful!",
+        message: BIOMETRIC_MESSAGES.SUCCESS,
         type: "success",
         backgroundColor: "#4BB543",
+        duration: 2000,
       });
     } catch (error) {
+      if (error.name === "BiometricError" && error.code === "USER_CANCELED") {
+        return;
+      }
       showMessage({
-        message: error.message || "Biometric login failed",
+        message: error.message || BIOMETRIC_MESSAGES.FAILED,
         type: "danger",
         backgroundColor: "#e2136e",
+        duration: 3000,
       });
     }
   };
