@@ -35,7 +35,7 @@ import {
   enableBiometrics,
   isBiometricsEnabled,
 } from "../../utilities/biometrics/BiometricsUtils";
-
+import { showMessage } from "react-native-flash-message";
 const defaultAvatar = require("../../assets/avatar.png");
 const { width, height } = Dimensions.get("window");
 
@@ -180,34 +180,47 @@ const ProfileScreen = ({ navigation }) => {
     setIsLoading(true);
     try {
       let response;
+      closeModal();
       if (modalConfig.isEnabling) {
-        response = await enableBiometrics(token);
+        response = await enableBiometrics(token, user._id);
       } else {
         response = await disableBiometrics(token);
       }
       if (response?.data?.success) {
-        Alert.alert(
-          "Success",
-          response?.data?.message || "Operation successful",
-          [{ text: "OK", style: "default" }]
-        );
+        showMessage({
+          message: "Success",
+          description:
+            response?.data?.message || "Biometric operation was successful",
+          type: "success",
+          backgroundColor: "#4BB543",
+          duration: 2000,
+        });
+
         setBiometricStatus((prev) => ({
           ...prev,
           isEnabled: modalConfig.isEnabling,
         }));
       } else {
-        Alert.alert("Error", response?.data?.message || "Operation failed", [
-          { text: "OK", style: "cancel" },
-        ]);
+        showMessage({
+          message: "Error",
+          description:
+            response?.data?.message ||
+            "Biometric operation failed. Please try again.",
+          type: "danger",
+          backgroundColor: "#e2136e",
+          duration: 3000,
+        });
       }
     } catch (error) {
-      Alert.alert(
-        "Error",
-        `Failed to ${
+      showMessage({
+        message: "Error",
+        description: `Failed to ${
           modalConfig.isEnabling ? "enable" : "disable"
         } biometrics. Please try again.`,
-        [{ text: "OK", style: "cancel" }]
-      );
+        type: "danger",
+        backgroundColor: "#e2136e",
+        duration: 3000,
+      });
     } finally {
       setIsLoading(false);
       setModalConfig((prev) => ({ ...prev, visible: false }));

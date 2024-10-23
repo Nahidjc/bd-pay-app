@@ -16,7 +16,10 @@ import { X } from "lucide-react-native";
 import { showMessage } from "react-native-flash-message";
 import { MaterialIcons, Feather } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
-import { createUserLogin } from "../../state/reducers/authSlice";
+import {
+  createUserLogin,
+  setBiometricUser,
+} from "../../state/reducers/authSlice";
 import LoadingScreen from "../../components/Loader/Loader";
 import {
   checkBiometricSupport,
@@ -44,6 +47,7 @@ const BIOMETRIC_MESSAGES = {
 export default function LoginScreen({ navigation }) {
   const dispatch = useDispatch();
   const { isLoading } = useSelector((state) => state.auth);
+  const [isBiometricLogin, setBiometricLoading] = useState(false);
   const [accountNumber, setAccountNumber] = useState("");
   const [pin, setPin] = useState("");
   const [biometricStatus, setBiometricStatus] = useState({
@@ -110,17 +114,18 @@ export default function LoginScreen({ navigation }) {
 
   const handleBiometricLogin = async () => {
     try {
-      if (!biometricStatus || !biometricStatus.isEnabled) {
+      setBiometricLoading(true);
+      if (!biometricStatus?.isEnabled) {
         setShowBiometricModal(true);
         return;
       }
-      const authResult = await authenticateWithBiometrics(
+      const { success, token, user } = await authenticateWithBiometrics(
         "Verify your identity"
       );
-
-      if (!authResult?.token) {
+      if (!success) {
         throw new Error(BIOMETRIC_MESSAGES.FAILED);
       }
+      dispatch(setBiometricUser({ token, user }));
       showMessage({
         message: BIOMETRIC_MESSAGES.SUCCESS,
         type: "success",
@@ -128,15 +133,16 @@ export default function LoginScreen({ navigation }) {
         duration: 2000,
       });
     } catch (error) {
-      if (error.name === "BiometricError" && error.code === "USER_CANCELED") {
-        return;
+      if (error.name !== "BiometricError" || error.code !== "USER_CANCELED") {
+        showMessage({
+          message: error.message || BIOMETRIC_MESSAGES.FAILED,
+          type: "danger",
+          backgroundColor: "#e2136e",
+          duration: 3000,
+        });
       }
-      showMessage({
-        message: error.message || BIOMETRIC_MESSAGES.FAILED,
-        type: "danger",
-        backgroundColor: "#e2136e",
-        duration: 3000,
-      });
+    } finally {
+      setBiometricLoading(false);
     }
   };
 
@@ -185,7 +191,7 @@ export default function LoginScreen({ navigation }) {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.content}>
-            <LoadingScreen visible={isLoading} />
+            <LoadingScreen visible={isLoading || isBiometricLogin} />
             <View style={styles.header}>
               <Text style={styles.title}>Log In</Text>
               <Text style={styles.subtitle}>BD Pay Mobile Banking</Text>

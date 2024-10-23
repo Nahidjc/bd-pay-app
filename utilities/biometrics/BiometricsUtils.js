@@ -13,7 +13,7 @@ import {
   setDeviceId,
   StorageKeys,
 } from "../../state/storage";
-import { privatePost } from "../apiCaller";
+import { privatePost, publicPost } from "../apiCaller";
 
 const CONSTANTS = {
   BIOMETRIC_USER: "biometric_user",
@@ -104,7 +104,21 @@ export const checkBiometricSupport = async () => {
   }
 };
 
-export const enableBiometrics = async (token) => {
+const confirmBiometricIdentity = async (
+  promptMessage = "Confirm your identity"
+) => {
+  const { success } = await rnBiometrics.simplePrompt({
+    promptMessage,
+    cancelButtonText: "Cancel",
+    fallbackPromptMessage: "Use device Passcode",
+  });
+
+  if (!success) {
+    throw new Error("Biometric authentication failed");
+  }
+};
+
+export const enableBiometrics = async (token, userId) => {
   try {
     if (!token) {
       throw new Error("Token is required");
@@ -113,15 +127,16 @@ export const enableBiometrics = async (token) => {
     if (await getBiometricsEnabled()) {
       return "Biometrics already enabled";
     }
+    await confirmBiometricIdentity("Confirm your identity to enable biometric");
     const { publicKey } = await rnBiometrics.createKeys();
     const biometricData = {
       publicKey,
       deviceId,
       biometryType,
+      userId,
     };
 
     validateBiometricData(biometricData);
-
     const response = await privatePost(
       "/user/biometrics/register",
       token,
@@ -157,7 +172,9 @@ export const disableBiometrics = async (token) => {
     if (!token) {
       throw new Error("Token is required");
     }
-
+    await confirmBiometricIdentity(
+      "Confirm your identity to disable biometric"
+    );
     const credentials = await Keychain.getGenericPassword();
     if (!credentials) {
       return "No biometric data found";
@@ -208,8 +225,7 @@ export const authenticateWithBiometrics = async (
 
   const attemptAuthentication = async () => {
     try {
-      const { available, biometryType } =
-        await rnBiometrics.isSensorAvailable();
+      const { available } = await rnBiometrics.isSensorAvailable();
       if (!available) {
         throw new Error(CONSTANTS.ERROR_MESSAGES.BIOMETRIC_NOT_AVAILABLE);
       }
@@ -224,117 +240,69 @@ export const authenticateWithBiometrics = async (
         await cleanup();
         throw new Error(CONSTANTS.ERROR_MESSAGES.VERIFICATION_FAILED);
       }
-      console.log("================passed==================");
-      let challengeResponse;
-      try {
-        challengeResponse = await fetch(
-          `${API_BASE_URL}/biometrics/challenge`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Device-ID": deviceId,
-              Platform: Platform.OS,
-            },
-            body: JSON.stringify({
-              userId: storedData.userId,
-              deviceId: deviceId,
-              biometryType,
-            }),
-          }
-        );
 
-        if (!challengeResponse.ok) {
-          throw new Error(CONSTANTS.ERROR_MESSAGES.NETWORK_ERROR);
-        }
-      } catch (error) {
+      const challengeResponse = await publicPost("/user/biometrics/challenge", {
+        userId: storedData.userId,
+        deviceId,
+      });
+
+      if (!challengeResponse?.data?.success) {
         throw new Error(CONSTANTS.ERROR_MESSAGES.NETWORK_ERROR);
       }
 
-      const { challenge } = await challengeResponse.json();
+      const { challenge } = challengeResponse.data;
       const { success, signature } = await rnBiometrics.createSignature({
         promptMessage: prompt,
         payload: challenge,
         cancelButtonText: "Cancel",
-        fallbackPromptMessage: "Use device Passcode",
+        fallbackPromptMessage: "Use device PassCode",
       });
 
       if (!success || !signature) {
         throw new Error(CONSTANTS.ERROR_MESSAGES.BIOMETRIC_ERROR);
       }
+      const verificationResponse = await publicPost("/user/biometrics/verify", {
+        userId: storedData.userId,
+        deviceId,
+        challenge,
+        signature,
+      });
 
-      let verificationResponse;
-      try {
-        verificationResponse = await fetch(
-          `${API_BASE_URL}/biometrics/verify`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Device-ID": deviceId,
-              Platform: Platform.OS,
-            },
-            body: JSON.stringify({
-              userId: storedData.userId,
-              deviceId: deviceId,
-              signature,
-              challenge,
-              biometryType,
-            }),
-          }
-        );
-
-        if (!verificationResponse.ok) {
-          throw new Error(CONSTANTS.ERROR_MESSAGES.VERIFICATION_FAILED);
-        }
-      } catch (error) {
-        throw new Error(CONSTANTS.ERROR_MESSAGES.NETWORK_ERROR);
-      }
-
-      const { token, success: verifySuccess } =
-        await verificationResponse.json();
-
-      if (!verifySuccess || !token) {
+      if (!verificationResponse?.data?.success) {
         throw new Error(CONSTANTS.ERROR_MESSAGES.VERIFICATION_FAILED);
       }
 
-      await Promise.all([
-        setStorageItem(StorageKeys.AUTH_TOKEN, token),
-        setStorageItem(StorageKeys.IS_AUTHENTICATED, "true"),
-        setStorageItem(StorageKeys.LAST_AUTH_TIME, Date.now().toString()),
-        setStorageItem(StorageKeys.BIOMETRIC_LAST_USED, Date.now().toString()),
-      ]);
-
       return {
-        success: true,
-        token,
-        biometryType,
+        success: verificationResponse.data.success,
+        data: verificationResponse.data,
       };
     } catch (error) {
       const biometricError = handleBiometricError(error);
+
       if (
-        biometricError.message === CONSTANTS.ERROR_MESSAGES.BIOMETRIC_CANCELLED
+        biometricError.message !== CONSTANTS.ERROR_MESSAGES.BIOMETRIC_CANCELLED
       ) {
-        throw biometricError;
+        attempts++;
+        if (attempts < CONSTANTS.MAX_RETRIES) {
+          return attemptAuthentication();
+        }
       }
-      attempts++;
-      if (attempts >= CONSTANTS.MAX_RETRIES) {
-        throw biometricError;
-      }
+
+      throw biometricError;
     }
   };
 
   try {
-    await attemptAuthentication();
+    const result = await attemptAuthentication();
+    return result.data;
   } catch (error) {
-    console.error("Biometric authentication failed:", error);
-    console.log("==================attempts================", attempts);
     if (attempts >= CONSTANTS.MAX_RETRIES) {
       await cleanup();
     }
     throw error;
   }
 };
+
 const cleanup = async () => {
   try {
     await Promise.all([
