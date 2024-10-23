@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -20,6 +20,7 @@ import {
   Users,
   ArrowRight,
   Fingerprint,
+  X,
 } from "lucide-react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useDispatch, useSelector } from "react-redux";
@@ -28,45 +29,108 @@ import {
   updateUserProfile,
 } from "../../state/reducers/authSlice";
 import LoadingScreen from "../../components/Loader/Loader";
-const defaultAvatar = require("../../assets/avatar.png");
-import ReactNativeBiometrics from "react-native-biometrics";
+import {
+  checkBiometricSupport,
+  disableBiometrics,
+  enableBiometrics,
+  isBiometricsEnabled,
+} from "../../utilities/biometrics/BiometricsUtils";
 
+const defaultAvatar = require("../../assets/avatar.png");
 const { width, height } = Dimensions.get("window");
+
+const BiometricModal = ({
+  visible,
+  onClose,
+  onConfirm,
+  isEnabling = false,
+}) => (
+  <Modal
+    animationType="slide"
+    transparent={true}
+    visible={visible}
+    onRequestClose={onClose}
+  >
+    <View style={styles.modalBackground}>
+      <View style={styles.modalContent}>
+        <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+          <X color="#888" size={24} />
+        </TouchableOpacity>
+        <Text style={styles.modalTitle}>
+          {isEnabling ? "Enable" : "Disable"} Touch/Face ID
+        </Text>
+        <Fingerprint color="#E91E63" size={50} />
+        <Text style={styles.modalText}>
+          {isEnabling
+            ? "Enable Touch/Face ID to use biometric login. Do you want to enable it?"
+            : "By disabling Touch/Face ID, you can log in with PIN only. Do you want to disable?"}
+        </Text>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={[
+              styles.actionButton,
+              { backgroundColor: isEnabling ? "#4CAF50" : "#ff4081" },
+            ]}
+            onPress={onConfirm}
+          >
+            <Text style={styles.buttonText}>
+              Yes, {isEnabling ? "Enable" : "Disable"}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
+            <Text style={styles.buttonText}>No, Thanks</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </View>
+  </Modal>
+);
+
+const ProfileItem = ({ icon, title, subtitle, onPress }) => (
+  <TouchableOpacity style={styles.profileItem} onPress={onPress}>
+    {icon}
+    <View style={styles.profileItemText}>
+      <Text style={styles.profileItemTitle}>{title}</Text>
+      {subtitle && <Text style={styles.profileItemSubtitle}>{subtitle}</Text>}
+    </View>
+    <ArrowRight color="#E91E63" size={width * 0.06} />
+  </TouchableOpacity>
+);
 
 const ProfileScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const { user, token, updateError, updateSuccess, isUpdating } = useSelector(
     (state) => state.auth
   );
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [biometricType, setBiometricType] = useState(true);
 
-  // ReactNativeBiometrics.isSensorAvailable().then(resultObject => {
-  //   const { available, biometryType } = resultObject;
-  //   if (available && biometryType === ReactNativeBiometrics.TouchID) {
-  //     setBiometricType('Touch ID');
-  //   } else if (available && biometryType === ReactNativeBiometrics.FaceID) {
-  //     setBiometricType('Face ID');
-  //   } else {
-  //     setBiometricType(null);
-  //   }
-  // });
-  const toggleModal = () => {
-    setModalVisible(!isModalVisible);
-  };
+  const [modalConfig, setModalConfig] = useState({
+    visible: false,
+    isEnabling: false,
+  });
+  const [biometricStatus, setBiometricStatus] = useState({
+    isAvailable: false,
+    isEnabled: false,
+  });
+  const [profileImage, setProfileImage] = useState(user.profilePic || null);
 
-  const disableBiometrics = () => {
-    console.log("Disabling Biometrics");
-    setModalVisible(false);
-  };
+  const initializeBiometrics = useCallback(async () => {
+    try {
+      const support = await checkBiometricSupport();
+      const enabled = await isBiometricsEnabled();
+      setBiometricStatus({
+        isAvailable: support.isAvailable,
+        isEnabled: enabled,
+      });
+    } catch (error) {
+      console.error("Error initializing biometrics:", error);
+    }
+  }, []);
 
-  const { fullName, profilePic, accountNumber } = user;
-  const [profileImage, setProfileImage] = useState(profilePic || null);
   useEffect(() => {
-    return () => {
-      dispatch(clearProfileState());
-    };
-  }, [dispatch]);
+    initializeBiometrics();
+    return () => dispatch(clearProfileState());
+  }, [dispatch, initializeBiometrics]);
+
   useEffect(() => {
     if (updateSuccess) {
       dispatch(clearProfileState());
@@ -78,42 +142,69 @@ const ProfileScreen = ({ navigation }) => {
   }, [updateSuccess, updateError, dispatch]);
 
   const handleImageUpdate = async () => {
-    const permissionResult =
-      await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (permissionResult.granted === false) {
-      alert("Permission to access camera roll is required!");
-      return;
-    }
+    try {
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          "Permission Required",
+          "Permission to access gallery is needed."
+        );
+        return;
+      }
 
-    const pickerResult = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
-
-    if (!pickerResult.canceled) {
-      setProfileImage(pickerResult.assets[0].uri);
-      const formData = new FormData();
-      formData.append("profilePic", {
-        uri: pickerResult.assets[0].uri,
-        type: "image/jpeg",
-        name: "profile.jpg",
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
       });
-      dispatch(updateUserProfile({ data: formData, token }));
+
+      if (!result.canceled && result.assets[0]) {
+        const formData = new FormData();
+        formData.append("profilePic", {
+          uri: result.assets[0].uri,
+          type: "image/jpeg",
+          name: "profile.jpg",
+        });
+        setProfileImage(result.assets[0].uri);
+        dispatch(updateUserProfile({ data: formData, token }));
+      }
+    } catch (error) {
+      Alert.alert("Error", "Failed to update profile picture");
     }
   };
 
-  const ProfileItem = ({ icon, title, subtitle, onPress }) => (
-    <TouchableOpacity style={styles.profileItem} onPress={onPress}>
-      {icon}
-      <View style={styles.profileItemText}>
-        <Text style={styles.profileItemTitle}>{title}</Text>
-        {subtitle && <Text style={styles.profileItemSubtitle}>{subtitle}</Text>}
-      </View>
-      <ArrowRight color="#E91E63" size={width * 0.06} />
-    </TouchableOpacity>
-  );
+  const handleBiometricAction = async () => {
+    try {
+      if (modalConfig.isEnabling) {
+        await enableBiometrics(token);
+        Alert.alert("Success", "Biometrics enabled successfully");
+      } else {
+        await disableBiometrics(token);
+        Alert.alert("Success", "Biometrics disabled successfully");
+      }
+      setBiometricStatus((prev) => ({
+        ...prev,
+        isEnabled: modalConfig.isEnabling,
+      }));
+    } catch (error) {
+      Alert.alert(
+        "Error",
+        `Failed to ${modalConfig.isEnabling ? "enable" : "disable"} biometrics`
+      );
+    } finally {
+      setModalConfig((prev) => ({ ...prev, visible: false }));
+    }
+  };
+
+  const toggleBiometricModal = (isEnabling) => {
+    setModalConfig({ visible: true, isEnabling });
+  };
+
+  const closeModal = () => {
+    setModalConfig((prev) => ({ ...prev, visible: false }));
+  };
 
   const PROFILE_IMAGE_SIZE = width * 0.28;
 
@@ -143,7 +234,9 @@ const ProfileScreen = ({ navigation }) => {
             </TouchableOpacity>
           </View>
         </View>
-        <Text style={styles.nameText}>{fullName}</Text>
+
+        <Text style={styles.nameText}>{user.fullName}</Text>
+
         <View style={styles.profileItems}>
           <ProfileItem
             icon={<Edit2 color="#E91E63" size={width * 0.05} />}
@@ -158,70 +251,41 @@ const ProfileScreen = ({ navigation }) => {
           <ProfileItem
             icon={<User color="#E91E63" size={width * 0.05} />}
             title="BD Pay Number"
-            subtitle={accountNumber}
-            onPress={() => console.log("Update BD Pay Number")}
+            subtitle={user.accountNumber}
           />
           <ProfileItem
             icon={<CreditCard color="#E91E63" size={width * 0.05} />}
             title="Saved cards"
-            onPress={() => console.log("Saved cards")}
+            onPress={() => navigation.navigate("SavedCards")}
           />
           <ProfileItem
             icon={<Info color="#E91E63" size={width * 0.05} />}
             title="Information Update"
-            onPress={() => console.log("Information Update")}
+            onPress={() => navigation.navigate("Information")}
           />
           <ProfileItem
             icon={<Users color="#E91E63" size={width * 0.05} />}
             title="Nominee Update"
-            onPress={() => console.log("Nominee Update")}
+            onPress={() => navigation.navigate("Nominee")}
           />
-          {biometricType && (
+
+          {biometricStatus.isAvailable && (
             <ProfileItem
               icon={<Fingerprint color="#E91E63" size={width * 0.05} />}
-              title="Enable Touch/Face ID"
-              onPress={toggleModal}
+              title={`${
+                biometricStatus.isEnabled ? "Disable" : "Enable"
+              } Touch/Face ID`}
+              onPress={() => toggleBiometricModal(!biometricStatus.isEnabled)}
             />
           )}
-
-          <Modal
-            animationType="slide"
-            transparent={true}
-            visible={isModalVisible}
-            onRequestClose={toggleModal}
-          >
-            <View style={styles.modalBackground}>
-              <View style={styles.modalContent}>
-                <TouchableOpacity
-                  style={styles.closeButton}
-                  onPress={toggleModal}
-                >
-                  <Text style={styles.closeButtonText}>X</Text>
-                </TouchableOpacity>
-                <Text style={styles.modalTitle}>Disable Touch/Face ID</Text>
-                <Fingerprint color="#E91E63" size={50} />
-                <Text style={styles.modalText}>
-                  By disabling Touch/Face ID, you can log in with PIN only. Do
-                  you want to disable?
-                </Text>
-                <View style={styles.buttonContainer}>
-                  <TouchableOpacity
-                    style={styles.disableButton}
-                    onPress={disableBiometrics}
-                  >
-                    <Text style={styles.buttonText}>Yes, Disable</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.cancelButton}
-                    onPress={toggleModal}
-                  >
-                    <Text style={styles.buttonText}>No, Thanks</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-          </Modal>
         </View>
+
+        <BiometricModal
+          visible={modalConfig.visible}
+          onClose={closeModal}
+          onConfirm={handleBiometricAction}
+          isEnabling={modalConfig.isEnabling}
+        />
       </ScrollView>
     </SafeAreaView>
   );
@@ -296,54 +360,50 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
-    width: "100%",
     backgroundColor: "white",
     padding: 20,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     alignItems: "center",
-    paddingBottom: 30,
   },
   closeButton: {
     alignSelf: "flex-end",
-  },
-  closeButtonText: {
-    fontSize: 18,
-    color: "#888",
+    padding: 10,
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
-    marginVertical: 10,
+    marginVertical: 15,
+    color: "#333",
   },
   modalText: {
     textAlign: "center",
-    marginVertical: 10,
+    marginVertical: 15,
     fontSize: 16,
-    color: "#555",
+    color: "#666",
+    paddingHorizontal: 20,
   },
   buttonContainer: {
     flexDirection: "row",
     marginTop: 20,
+    marginBottom: 10,
   },
-  disableButton: {
-    backgroundColor: "#ff4081",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+  actionButton: {
+    paddingVertical: 12,
+    paddingHorizontal: 25,
     borderRadius: 25,
     marginRight: 10,
-    borderWidth: 1,
-    borderColor: "#ff4081",
   },
   cancelButton: {
-    backgroundColor: "#ccc",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    backgroundColor: "#757575",
+    paddingVertical: 12,
+    paddingHorizontal: 25,
     borderRadius: 25,
   },
   buttonText: {
     color: "white",
     fontSize: 16,
+    fontWeight: "500",
   },
 });
 
