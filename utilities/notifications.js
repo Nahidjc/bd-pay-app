@@ -19,7 +19,6 @@ async function requestUserPermission() {
   }
 }
 
-// Get FCM Token
 export async function getFCMToken() {
   const token = await messaging().getToken();
   console.log("FCM Token:", token);

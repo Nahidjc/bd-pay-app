@@ -16,7 +16,10 @@ import { X } from "lucide-react-native";
 import { showMessage } from "react-native-flash-message";
 import { MaterialIcons, Feather } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
-import { createUserLogin } from "../../state/reducers/authSlice";
+import {
+  createUserLogin,
+  setBiometricUser,
+} from "../../state/reducers/authSlice";
 import LoadingScreen from "../../components/Loader/Loader";
 import {
   checkBiometricSupport,
@@ -114,13 +117,13 @@ export default function LoginScreen({ navigation }) {
         setShowBiometricModal(true);
         return;
       }
-      const authResult = await authenticateWithBiometrics(
+      const { success, token, user } = await authenticateWithBiometrics(
         "Verify your identity"
       );
-
-      if (!authResult?.token) {
+      if (!success) {
         throw new Error(BIOMETRIC_MESSAGES.FAILED);
       }
+      dispatch(setBiometricUser({ token, user }));
       showMessage({
         message: BIOMETRIC_MESSAGES.SUCCESS,
         type: "success",

@@ -181,7 +181,7 @@ const ProfileScreen = ({ navigation }) => {
     try {
       let response;
       if (modalConfig.isEnabling) {
-        response = await enableBiometrics(token);
+        response = await enableBiometrics(token, user._id);
       } else {
         response = await disableBiometrics(token);
       }

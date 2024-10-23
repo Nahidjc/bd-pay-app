@@ -98,6 +98,12 @@ const authSlice = createSlice({
       state.updateError = null;
       state.updateSuccess = false;
     },
+    setBiometricUser: (state, action) => {
+      state.isAuthenticated = true;
+      state.user = action.payload.user;
+      state.token = action.payload.token;
+      saveAuthState(true, action.payload.user, action.payload.token);
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -158,5 +164,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, clearProfileState } = authSlice.actions;
+export const { logout, clearProfileState, setBiometricUser } = authSlice.actions;
 export default authSlice.reducer;
