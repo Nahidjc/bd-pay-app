@@ -102,7 +102,7 @@ const ProfileScreen = ({ navigation }) => {
   const { user, token, updateError, updateSuccess, isUpdating } = useSelector(
     (state) => state.auth
   );
-
+  const [isLoading, setIsLoading] = useState(false);
   const [modalConfig, setModalConfig] = useState({
     visible: false,
     isEnabling: false,
@@ -115,11 +115,12 @@ const ProfileScreen = ({ navigation }) => {
 
   const initializeBiometrics = useCallback(async () => {
     try {
-      const support = await checkBiometricSupport();
-      const enabled = await isBiometricsEnabled();
+      const { isAvailable } = await checkBiometricSupport();
+      const { isEnabled } = await isBiometricsEnabled();
+
       setBiometricStatus({
-        isAvailable: support.isAvailable,
-        isEnabled: enabled,
+        isAvailable: isAvailable,
+        isEnabled: isEnabled,
       });
     } catch (error) {
       console.error("Error initializing biometrics:", error);
@@ -176,24 +177,39 @@ const ProfileScreen = ({ navigation }) => {
   };
 
   const handleBiometricAction = async () => {
+    setIsLoading(true);
     try {
+      let response;
       if (modalConfig.isEnabling) {
-        await enableBiometrics(token);
-        Alert.alert("Success", "Biometrics enabled successfully");
+        response = await enableBiometrics(token);
       } else {
-        await disableBiometrics(token);
-        Alert.alert("Success", "Biometrics disabled successfully");
+        response = await disableBiometrics(token);
       }
-      setBiometricStatus((prev) => ({
-        ...prev,
-        isEnabled: modalConfig.isEnabling,
-      }));
+      if (response?.data?.success) {
+        Alert.alert(
+          "Success",
+          response?.data?.message || "Operation successful",
+          [{ text: "OK", style: "default" }]
+        );
+        setBiometricStatus((prev) => ({
+          ...prev,
+          isEnabled: modalConfig.isEnabling,
+        }));
+      } else {
+        Alert.alert("Error", response?.data?.message || "Operation failed", [
+          { text: "OK", style: "cancel" },
+        ]);
+      }
     } catch (error) {
       Alert.alert(
         "Error",
-        `Failed to ${modalConfig.isEnabling ? "enable" : "disable"} biometrics`
+        `Failed to ${
+          modalConfig.isEnabling ? "enable" : "disable"
+        } biometrics. Please try again.`,
+        [{ text: "OK", style: "cancel" }]
       );
     } finally {
+      setIsLoading(false);
       setModalConfig((prev) => ({ ...prev, visible: false }));
     }
   };
@@ -210,7 +226,7 @@ const ProfileScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <LoadingScreen visible={isUpdating} />
+      <LoadingScreen visible={isUpdating || isLoading} />
       <ScrollView style={styles.content}>
         <View style={styles.profileImageContainer}>
           <View
