@@ -104,6 +104,20 @@ export const checkBiometricSupport = async () => {
   }
 };
 
+const confirmBiometricIdentity = async (
+  promptMessage = "Confirm your identity"
+) => {
+  const { success } = await rnBiometrics.simplePrompt({
+    promptMessage,
+    cancelButtonText: "Cancel",
+    fallbackPromptMessage: "Use device Passcode",
+  });
+
+  if (!success) {
+    throw new Error("Biometric authentication failed");
+  }
+};
+
 export const enableBiometrics = async (token, userId) => {
   try {
     if (!token) {
@@ -113,6 +127,7 @@ export const enableBiometrics = async (token, userId) => {
     if (await getBiometricsEnabled()) {
       return "Biometrics already enabled";
     }
+    await confirmBiometricIdentity("Confirm your identity to enable biometric");
     const { publicKey } = await rnBiometrics.createKeys();
     const biometricData = {
       publicKey,
@@ -157,7 +172,9 @@ export const disableBiometrics = async (token) => {
     if (!token) {
       throw new Error("Token is required");
     }
-
+    await confirmBiometricIdentity(
+      "Confirm your identity to disable biometric"
+    );
     const credentials = await Keychain.getGenericPassword();
     if (!credentials) {
       return "No biometric data found";
