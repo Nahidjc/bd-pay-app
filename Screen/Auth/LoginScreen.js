@@ -172,7 +172,7 @@ export default function LoginScreen({ navigation }) {
       });
     } catch (error) {
       showMessage({
-        message: error.message || "Login failed",
+        message: error.data?.error || error.data.message || "Login failed",
         type: "danger",
         backgroundColor: "#e2136e",
       });
