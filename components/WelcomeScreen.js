@@ -1,6 +1,5 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
-import Maintenance from "../assets/svgs/maintenance.svg";
 import { Dimensions } from "react-native";
 
 const { width, height } = Dimensions.get("window");
