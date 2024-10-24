@@ -124,17 +124,6 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "600",
   },
-  starBadge: {
-    position: "absolute",
-    top: -5,
-    right: -5,
-    backgroundColor: "#E91E63",
-    borderRadius: 10 * scale,
-    width: 20 * scale,
-    height: 20 * scale,
-    justifyContent: "center",
-    alignItems: "center",
-  },
   recipientInfo: {
     marginLeft: 15 * scale,
   },
