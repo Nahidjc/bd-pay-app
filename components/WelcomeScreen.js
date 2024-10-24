@@ -1,27 +1,27 @@
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import Maintenance from "../assets/svgs/maintenance.svg";
 import { Dimensions } from "react-native";
+
 const { width, height } = Dimensions.get("window");
+
 const WelcomeScreen = ({ navigation }) => {
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <View style={styles.container}>
       <View style={styles.textContainer}>
         <Text style={styles.welcomeText}>Welcome to</Text>
-        <Text style={styles.brandText}>Real Life IQ</Text>
+        <Text style={styles.brandText}>BD Pay Mobile Banking</Text>
         <Text style={styles.descriptionText}>
-          Get access to the tools you need to invest, spend, and put your money
-          in motion.
+          Empowering your financial journey with seamless banking, secure
+          transactions, and investment opportunities.
         </Text>
         <Text style={styles.swipeText}>Swipe to learn more →</Text>
       </View>
-      <Maintenance width={width * 0.8} height={height * 0.5} />
+      <Image
+        source={require("../assets/FinTech.png")}
+        style={styles.image}
+        resizeMode="contain"
+      />
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.loginButton}
@@ -36,13 +36,13 @@ const WelcomeScreen = ({ navigation }) => {
           <Text style={styles.signUpButtonText}>Sign up</Text>
         </TouchableOpacity>
       </View>
-    </ScrollView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
+    flex: 1,
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 20,
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
   brandText: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "red",
+    color: "#e2136e",
   },
   descriptionText: {
     fontSize: 16,
@@ -71,32 +71,13 @@ const styles = StyleSheet.create({
   },
   swipeText: {
     fontSize: 14,
-    color: "red",
+    color: "#e2136e",
     marginTop: 10,
   },
   image: {
-    width: "100%",
-    height: 200,
+    width: width * 0.8,
+    height: height * 0.5,
     marginVertical: 20,
-  },
-  paginationContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "#ccc",
-    marginHorizontal: 4,
-  },
-  activeDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "red",
-    marginHorizontal: 4,
   },
   buttonContainer: {
     flexDirection: "row",
@@ -105,26 +86,26 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   loginButton: {
-    backgroundColor: "#fff",
-    borderColor: "red",
-    borderWidth: 2,
+    backgroundColor: "#e2136e",
     paddingVertical: 10,
     paddingHorizontal: 40,
     borderRadius: 25,
   },
   loginButtonText: {
-    color: "red",
+    color: "#fff",
     fontWeight: "bold",
     fontSize: 16,
   },
   signUpButton: {
-    backgroundColor: "red",
+    backgroundColor: "#fff",
+    borderColor: "#e2136e",
+    borderWidth: 2,
     paddingVertical: 10,
     paddingHorizontal: 40,
     borderRadius: 25,
   },
   signUpButtonText: {
-    color: "#fff",
+    color: "#e2136e",
     fontWeight: "bold",
     fontSize: 16,
   },
