@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,18 +6,19 @@ import {
   StyleSheet,
   Dimensions,
   Platform,
+  Animated,
+  Image,
 } from "react-native";
 import Swiper from "react-native-swiper";
-import OnboardingImage3 from "../assets/onboard/onb3.svg";
-import OnboardingImage2 from "../assets/onboard/onb2.svg";
-import OnboardingImage1 from "../assets/onboard/onb1.svg";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import { setOnboardingStatus } from "../state/storage";
+
 const { width, height } = Dimensions.get("window");
 
 const OnboardingScreen = ({ navigation }) => {
   const swiperRef = useRef(null);
   const [index, setIndex] = useState(0);
+  const opacityAnim = useRef(new Animated.Value(1)).current;
 
   const handleSkip = () => {
     setOnboardingStatus(true);
@@ -39,6 +40,20 @@ const OnboardingScreen = ({ navigation }) => {
     }
   };
 
+  useEffect(() => {
+    Animated.timing(opacityAnim, {
+      toValue: 0,
+      duration: 300,
+      useNativeDriver: true,
+    }).start(() => {
+      Animated.timing(opacityAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    });
+  }, [index]);
+
   return (
     <View style={{ flex: 1 }}>
       <Swiper
@@ -49,39 +64,55 @@ const OnboardingScreen = ({ navigation }) => {
         paginationStyle={styles.paginationStyle}
         dotStyle={styles.dot}
         activeDotStyle={styles.activeDot}
-        onIndexChanged={(i) => setIndex(i)}
+        onIndexChanged={(i) => {
+          setIndex(i);
+        }}
+        scrollEnabled={true}
+        removeClippedSubviews={false}
       >
-        <View style={styles.slide}>
-          <OnboardingImage3 width={width * 0.8} height={height * 0.5} />
-          <Text style={styles.title}>Homework Easily</Text>
+        <Animated.View style={[styles.slide, { opacity: opacityAnim }]}>
+          <Image
+            source={require("../assets/onboard/Authentication.png")}
+            style={styles.image}
+            resizeMode="contain"
+          />
+          <Text style={styles.title}>Secure Authentication</Text>
           <Text style={styles.text}>
-            It is recommended that you complete assignments to improve your
-            skills for beginner languages.
+            Access your account with ease using advanced biometrics or manual
+            entry. Enjoy peace of mind knowing your data is secure.
           </Text>
-        </View>
+        </Animated.View>
 
-        <View style={styles.slide}>
-          <OnboardingImage1 width={width * 0.8} height={height * 0.5} />
-          <Text style={styles.title}>Fun Events</Text>
+        <Animated.View style={[styles.slide, { opacity: opacityAnim }]}>
+          <Image
+            source={require("../assets/FinTech.png")}
+            style={styles.image}
+            resizeMode="contain"
+          />
+          <Text style={styles.title}>FinTech Services</Text>
           <Text style={styles.text}>
-            Thanks to fun events, you will follow your progress better and you
-            will be able to socialize.
+            Effortlessly send money, cash out, cash in, and make payments at
+            your convenience. Experience seamless transactions in real-time.
           </Text>
-        </View>
-
-        <View style={styles.slide}>
-          <OnboardingImage2 width={width * 0.8} height={height * 0.5} />
-          <Text style={styles.title}>Timely Notifications</Text>
+        </Animated.View>
+        <Animated.View style={[styles.slide, { opacity: opacityAnim }]}>
+          <Image
+            source={require("../assets/onboard/Transaction.png")}
+            style={styles.image}
+            resizeMode="contain"
+          />
+          <Text style={styles.title}>Transaction Management</Text>
           <Text style={styles.text}>
-            With timely notifications, you won't miss your lessons and homework,
-            and you won't have to worry.
+            Keep track of all your transactions and view detailed statements
+            anytime, anywhere. Stay on top of your finances effortlessly.
           </Text>
-        </View>
+        </Animated.View>
       </Swiper>
 
       <TouchableOpacity style={styles.skipContainer} onPress={handleSkip}>
         <Text style={styles.skipText}>Skip</Text>
       </TouchableOpacity>
+
       <View style={styles.navigationContainer}>
         <TouchableOpacity
           onPress={handlePrev}
@@ -108,16 +139,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#F7F8FA",
     paddingHorizontal: width * 0.05,
   },
-  image: {
-    width: width * 0.8,
-    height: height * 0.5,
-    marginBottom: height * 0.05,
-  },
   title: {
     fontSize: width * 0.07,
     fontWeight: "bold",
     marginBottom: height * 0.015,
-    color: "#343765",
+    color: "#e2136e",
+    textAlign: "center",
   },
   text: {
     fontSize: width * 0.04,
@@ -133,8 +160,14 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   skipText: {
-    color: "#FF6E4E",
-    fontSize: width * 0.045,
+    color: "#e2136e",
+    fontSize: width * 0.05,
+    fontWeight: "bold",
+  },
+  image: {
+    width: width * 0.8,
+    height: height * 0.4,
+    marginVertical: 20,
   },
   navigationContainer: {
     position: "absolute",
@@ -156,14 +189,14 @@ const styles = StyleSheet.create({
     marginHorizontal: width * 0.01,
   },
   activeDot: {
-    backgroundColor: "#2D2D2D",
+    backgroundColor: "#e2136e", // Brand color
     width: width * 0.025,
     height: width * 0.025,
     borderRadius: width * 0.0125,
     marginHorizontal: width * 0.01,
   },
   arrowButton: {
-    backgroundColor: "#32357C",
+    backgroundColor: "#e2136e", // Brand color
     width: width * 0.1,
     height: width * 0.1,
     borderRadius: width * 0.05,

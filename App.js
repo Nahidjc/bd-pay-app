@@ -7,6 +7,7 @@ import SplashScreen from "react-native-splash-screen";
 import messaging from "@react-native-firebase/messaging";
 import { registerPushNotifications } from "./utilities/notifications";
 import LoadingScreen from "./components/Loader/Loader";
+import { ThemeProvider } from "./context/ThemeProvider";
 export default function App() {
   useEffect(() => {
     const hideSplashScreen = async () => {
@@ -39,10 +40,12 @@ export default function App() {
 
   return (
     <Provider store={store}>
-      <Suspense fallback={<LoadingScreen />}>
-        <MainApp />
-        <FlashMessage position="bottom" />
-      </Suspense>
+      <ThemeProvider>
+        <Suspense fallback={<LoadingScreen />}>
+          <MainApp />
+          <FlashMessage position="bottom" />
+        </Suspense>
+      </ThemeProvider>
     </Provider>
   );
 }
