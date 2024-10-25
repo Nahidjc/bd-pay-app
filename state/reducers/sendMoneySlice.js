@@ -15,10 +15,30 @@ export const checkSendMoney = createAsyncThunk(
   }
 );
 
+export const transferSendMoney = createAsyncThunk(
+  "sendMoney/sendMoney",
+  async (
+    { token, receiverAccountNumber, amount, referenceText },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await privatePost("/transfer/send-money", token, {
+        receiverAccountNumber,
+        amount,
+        referenceText,
+      });
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response);
+    }
+  }
+);
+
 const sendMoneySlice = createSlice({
   name: "sendMoney",
   initialState: {
     sendMoneyStatus: null,
+    sendMoneyResponse: null,
     isLoading: false,
     error: null,
     errorMessage: "",
@@ -26,6 +46,7 @@ const sendMoneySlice = createSlice({
   reducers: {
     clearSendMoneyStatus: (state) => {
       state.sendMoneyStatus = null;
+      state.sendMoneyResponse = null;
       state.error = null;
       state.errorMessage = "";
     },
@@ -47,6 +68,21 @@ const sendMoneySlice = createSlice({
         state.errorMessage =
           action.payload?.data?.message ||
           "Failed to validate send money request";
+      })
+      .addCase(sendMoney.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(sendMoney.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.sendMoneyResponse = action.payload;
+        state.error = null;
+      })
+      .addCase(sendMoney.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = true;
+        state.errorMessage =
+          action.payload?.data?.message || "Failed to send money";
       });
   },
 });

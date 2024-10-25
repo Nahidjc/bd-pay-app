@@ -19,6 +19,7 @@ import { showMessage } from "react-native-flash-message";
 import SendMoneyModal from "./SendMoneyModal";
 import { verifyPin } from "../../state/reducers/verifyPinSlice";
 import LoadingScreen from "../../components/Loader/Loader";
+import { transferSendMoney } from "../../state/reducers/sendMoneySlice";
 
 const { width } = Dimensions.get("window");
 const baseWidth = 375;
@@ -40,15 +41,14 @@ const formatCurrency = (amount) => {
 const generateTransactionId = () =>
   `TXN${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
-const formatDateTime = () => {
-  const now = new Date();
+const formatDateTime = (date = new Date()) => {
   return {
-    time: now.toLocaleTimeString("en-US", {
+    time: date.toLocaleTimeString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
       hour12: true,
     }),
-    date: now.toLocaleDateString("en-US", {
+    date: date.toLocaleDateString("en-US", {
       day: "2-digit",
       month: "2-digit",
       year: "2-digit",
@@ -117,7 +117,6 @@ export default function SendMoney({ route, navigation }) {
     };
   }, [isPressed, progress]);
 
-  // Handlers
   const handlePinChange = useCallback((text) => {
     const numericText = text.replace(/[^0-9]/g, "");
     setPin(numericText.slice(0, CONSTANTS.PIN_LENGTH));
@@ -170,28 +169,45 @@ export default function SendMoney({ route, navigation }) {
         return;
       }
 
-      const { time, date } = formatDateTime();
-      const transactionId = generateTransactionId();
+      const sendMoneyResponse = await dispatch(
+        sendMoney({
+          token,
+          receiverAccountNumber: recipient.number,
+          amount: totalAmount,
+          referenceText: reference,
+        })
+      ).unwrap();
 
-      navigation.navigate("TransactionSuccess", {
-        message: t("send_money_success"),
-        name: recipient.name,
-        phoneNumber: recipient.number,
-        time,
-        date,
-        transactionId,
-        amount: totalAmount,
-        newBalance,
-        reference,
-        onAutoPayPress: handleAutoPayPress,
-        onHomePress: handleNavigateToHome,
-      });
+      if (sendMoneyResponse?.data?.transaction) {
+        const { transaction, senderAccount } = sendMoneyResponse.data;
+
+        const { time, date } = formatDateTime(transaction.transactionDate);
+        const transactionId = transaction.transactionId;
+        navigation.navigate("TransactionSuccess", {
+          message: t("send_money_success"),
+          name: recipient.name,
+          phoneNumber: recipient.number,
+          time,
+          date,
+          transactionId,
+          amount: transaction.amount,
+          newBalance: senderAccount.balance,
+          reference: transaction.referenceText,
+          onAutoPayPress: handleAutoPayPress,
+          onHomePress: handleNavigateToHome,
+        });
+      } else {
+        showErrorMessage(
+          "Transaction Failed",
+          sendMoneyResponse?.message ||
+            "Failed to send money. Please try again."
+        );
+      }
     } catch (error) {
       showErrorMessage(
         "Transaction Failed",
         "An error occurred during the transaction. Please try again later."
       );
-      console.error("SendMoney Error:", error);
     } finally {
       setProgress(0);
       setIsPressed(false);
