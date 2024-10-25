@@ -38,22 +38,44 @@ const formatCurrency = (amount) => {
   return `৳ ${parseFloat(amount).toFixed(2)}`;
 };
 
-const generateTransactionId = () =>
-  `TXN${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+const formatDateTime = (dateString) => {
+  try {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      throw new Error("Invalid date");
+    }
 
-const formatDateTime = (date = new Date()) => {
-  return {
-    time: date.toLocaleTimeString("en-US", {
+    const time = date.toLocaleTimeString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
       hour12: true,
-    }),
-    date: date.toLocaleDateString("en-US", {
+    });
+
+    const formattedDate = date.toLocaleDateString("en-US", {
       day: "2-digit",
       month: "2-digit",
       year: "2-digit",
-    }),
-  };
+    });
+
+    return {
+      time,
+      date: formattedDate,
+    };
+  } catch (error) {
+    const currentDate = new Date();
+    return {
+      time: currentDate.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      }),
+      date: currentDate.toLocaleDateString("en-US", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "2-digit",
+      }),
+    };
+  }
 };
 
 export default function SendMoney({ route, navigation }) {
@@ -61,6 +83,9 @@ export default function SendMoney({ route, navigation }) {
   const { t } = useTranslation();
 
   const { isLoading } = useSelector((state) => state.verifyPin);
+  const { isLoading: isSendMoneyLoading } = useSelector(
+    (state) => state.sendMoney
+  );
   const { token } = useSelector((state) => state.auth);
   const { recipient, amount, availableBalance } = route.params;
 
@@ -69,8 +94,6 @@ export default function SendMoney({ route, navigation }) {
   const [isModalVisible, setModalVisible] = useState(false);
   const [progress, setProgress] = useState(0);
   const [isPressed, setIsPressed] = useState(false);
-
-  // Memoized calculations
   const totalAmount = useMemo(() => parseFloat(amount), [amount]);
   const newBalance = useMemo(
     () => availableBalance - totalAmount,
@@ -138,13 +161,13 @@ export default function SendMoney({ route, navigation }) {
     setIsPressed(false);
   }, []);
 
-  const handleNavigateToHome = useCallback(() => {
-    navigation.navigate("Dashboard");
-  }, [navigation]);
+  // const handleNavigateToHome = useCallback(() => {
+  //   navigation.navigate("Dashboard");
+  // }, [navigation]);
 
-  const handleAutoPayPress = useCallback(() => {
-    console.log("Auto Pay Pressed");
-  }, []);
+  // const handleAutoPayPress = useCallback(() => {
+  //   console.log("Auto Pay Pressed");
+  // }, []);
 
   const showErrorMessage = useCallback((message, description) => {
     showMessage({
@@ -158,7 +181,6 @@ export default function SendMoney({ route, navigation }) {
 
   const handleSendMoney = async () => {
     setModalVisible(false);
-
     try {
       const response = await dispatch(verifyPin({ token, pin })).unwrap();
       if (!response?.data?.isPinCorrect) {
@@ -168,19 +190,16 @@ export default function SendMoney({ route, navigation }) {
         );
         return;
       }
-
       const sendMoneyResponse = await dispatch(
-        sendMoney({
+        transferSendMoney({
           token,
           receiverAccountNumber: recipient.number,
           amount: totalAmount,
           referenceText: reference,
         })
       ).unwrap();
-
-      if (sendMoneyResponse?.data?.transaction) {
-        const { transaction, senderAccount } = sendMoneyResponse.data;
-
+      if (sendMoneyResponse?.transaction) {
+        const { transaction, senderAccount } = sendMoneyResponse;
         const { time, date } = formatDateTime(transaction.transactionDate);
         const transactionId = transaction.transactionId;
         navigation.navigate("TransactionSuccess", {
@@ -214,6 +233,21 @@ export default function SendMoney({ route, navigation }) {
     }
   };
 
+  // Helper functions for navigation
+  const handleNavigateToHome = () => {
+    navigation.reset({
+      index: 0,
+      routes: [{ name: "Home" }],
+    });
+  };
+
+  const handleAutoPayPress = () => {
+    navigation.reset({
+      index: 0,
+      routes: [{ name: "Home" }, { name: "AutoPay", params: { recipient } }],
+    });
+  };
+
   const isPinComplete = pin.length === CONSTANTS.PIN_LENGTH;
 
   return (
@@ -222,7 +256,7 @@ export default function SendMoney({ route, navigation }) {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.container}
       >
-        <LoadingScreen visible={isLoading} />
+        <LoadingScreen visible={isLoading || isSendMoneyLoading} />
 
         <SendMoneyModal
           visible={isModalVisible}

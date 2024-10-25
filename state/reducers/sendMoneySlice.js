@@ -35,7 +35,7 @@ export const transferSendMoney = createAsyncThunk(
 );
 
 const sendMoneySlice = createSlice({
-  name: "sendMoney",
+  name: "transferSendMoney",
   initialState: {
     sendMoneyStatus: null,
     sendMoneyResponse: null,
@@ -69,16 +69,16 @@ const sendMoneySlice = createSlice({
           action.payload?.data?.message ||
           "Failed to validate send money request";
       })
-      .addCase(sendMoney.pending, (state) => {
+      .addCase(transferSendMoney.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(sendMoney.fulfilled, (state, action) => {
+      .addCase(transferSendMoney.fulfilled, (state, action) => {
         state.isLoading = false;
         state.sendMoneyResponse = action.payload;
         state.error = null;
       })
-      .addCase(sendMoney.rejected, (state, action) => {
+      .addCase(transferSendMoney.rejected, (state, action) => {
         state.isLoading = false;
         state.error = true;
         state.errorMessage =
