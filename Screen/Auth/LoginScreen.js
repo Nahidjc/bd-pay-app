@@ -207,7 +207,7 @@ export default function LoginScreen({ navigation }) {
                 />
                 <TextInput
                   style={styles.input}
-                  placeholder="Enter User ID"
+                  placeholder="Enter Account Number"
                   value={accountNumber}
                   onChangeText={setAccountNumber}
                   autoCapitalize="none"
@@ -236,11 +236,12 @@ export default function LoginScreen({ navigation }) {
                 />
                 <TextInput
                   style={styles.input}
-                  placeholder="Enter Password"
+                  placeholder="Enter Pin"
                   value={pin}
                   onChangeText={setPin}
                   secureTextEntry={!showPassword}
                   maxLength={6}
+                  keyboardType="numeric"
                 />
                 <TouchableOpacity
                   style={styles.visibilityButton}

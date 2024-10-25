@@ -2,17 +2,26 @@ import React, { useState } from "react";
 import {
   View,
   Text,
-  Image,
   TouchableOpacity,
   StyleSheet,
   Dimensions,
+  Image,
   ToastAndroid,
   Clipboard,
 } from "react-native";
 import { useRoute } from "@react-navigation/native";
 import { useTranslation } from "react-i18next";
-
 const { width, height } = Dimensions.get("window");
+
+const scale = {
+  base: width * 0.04,
+  small: width * 0.035,
+  xsmall: width * 0.03,
+  large: width * 0.05,
+  icon: width * 0.05,
+  spacing: width * 0.04,
+  radius: width * 0.02,
+};
 
 const TransactionSuccessScreen = () => {
   const route = useRoute();
@@ -30,42 +39,48 @@ const TransactionSuccessScreen = () => {
     onAutoPayPress,
     onHomePress,
   } = route.params;
+  const [showBalance, setShowBalance] = useState(false);
+
   const copyTransactionId = () => {
     Clipboard.setString(transactionId);
-    ToastAndroid.show(t('copy_transaction_id'), ToastAndroid.SHORT);
+    ToastAndroid.show("Transaction ID copied to clipboard", ToastAndroid.SHORT);
   };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerText}>{message}</Text>
-        <Image
-          source={require("../../assets/check-icon.png")}
-          style={styles.checkIcon}
-        />
+        <View style={styles.checkIconContainer}>
+          <Image
+            source={require("../../assets/check-icon.png")}
+            style={styles.checkIcon}
+            resizeMode="contain"
+          />
+        </View>
       </View>
 
       <View style={styles.userInfo}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>{name[0]}</Text>
         </View>
-        <View style={styles.namePhone}>
-          <Text style={styles.name}>{name}</Text>
-          <Text style={styles.phone}>{phoneNumber}</Text>
+        <View style={styles.userDetails}>
+          <Text style={styles.userName}>{name}</Text>
+          <Text style={styles.userPhone}>{phoneNumber}</Text>
         </View>
         <TouchableOpacity style={styles.callButton}>
-          <Text style={styles.callButtonText}>কল</Text>
+          <Text style={styles.callButtonText}>Call</Text>
         </TouchableOpacity>
       </View>
 
-      <View style={styles.detailsContainer}>
-        <View style={styles.row}>
-          <View style={[styles.cell, styles.rightBorder]}>
-          <Text style={styles.detailLabel}>{t('time')}</Text>
+      <View style={styles.detailsCard}>
+        <View style={styles.detailsRow}>
+          <View style={[styles.detailsColumn, styles.borderRight]}>
+            <Text style={styles.detailLabel}>Time</Text>
             <Text style={styles.detailValue}>{`${time} ${date}`}</Text>
           </View>
-          <View style={styles.cell}>
-          <Text style={styles.detailLabel}>{t('transaction_id')}</Text>
-            <View style={styles.valueWithIcon}>
+          <View style={styles.detailsColumn}>
+            <Text style={styles.detailLabel}>Transaction ID</Text>
+            <View style={styles.rowWithIcon}>
               <Text style={styles.detailValue}>{transactionId}</Text>
               <TouchableOpacity onPress={copyTransactionId}>
                 <Image
@@ -76,36 +91,43 @@ const TransactionSuccessScreen = () => {
             </View>
           </View>
         </View>
-
-        <View style={styles.row}>
-          <View style={[styles.cell, styles.rightBorder]}>
-          <Text style={styles.detailLabel}>{t('total')}</Text>
-            <Text style={styles.detailValue}>৳{amount}</Text>
+        <View style={styles.detailsRow}>
+          <View style={[styles.detailsColumn, styles.borderRight]}>
+            <Text style={styles.detailLabel}>Total</Text>
+            <Text style={styles.amountValue}>৳ {amount}</Text>
           </View>
-          <View style={styles.cell}>
-          <Text style={styles.detailLabel}>{t('new_balance')}</Text>
-            <View style={styles.valueWithIcon}>
-              <Text style={styles.detailValue}>৳{newBalance}</Text>
-              <Image
-                source={require("../../assets/icon/show.png")}
-                style={styles.eyeIcon}
-              />
+          <View style={styles.detailsColumn}>
+            <Text style={styles.detailLabel}>New Balance</Text>
+            <View style={styles.rowWithIcon}>
+              <Text style={styles.amountValue}>
+                ৳ {showBalance ? newBalance : "•••••"}
+              </Text>
+              <TouchableOpacity onPress={() => setShowBalance(!showBalance)}>
+                <Image
+                  source={
+                    showBalance
+                      ? require("../../assets/icon/hide.png")
+                      : require("../../assets/icon/show.png")
+                  }
+                  style={styles.eyeIcon}
+                />
+              </TouchableOpacity>
             </View>
           </View>
         </View>
-
-        <View style={[styles.row, styles.lastRow]}>
-          <View style={styles.fullWidthCell}>
-          <Text style={styles.detailLabel}>{t('reference')}</Text>
+        <View style={[styles.detailsRow, styles.noBorder]}>
+          <View style={styles.fullWidthColumn}>
+            <Text style={styles.detailLabel}>Reference</Text>
             <Text style={styles.detailValue}>{reference}</Text>
           </View>
         </View>
       </View>
-      <TouchableOpacity style={styles.autoPay} onPress={onAutoPayPress}>
-      <Text style={styles.autoPayText}>{t('auto_pay')}</Text>
+      <TouchableOpacity style={styles.autoPayButton} onPress={onAutoPayPress}>
+        <Text style={styles.autoPayText}>{t("auto_pay")}</Text>
       </TouchableOpacity>
+
       <TouchableOpacity style={styles.homeButton} onPress={onHomePress}>
-      <Text style={styles.homeButtonText}>{t('home_button')}</Text>
+        <Text style={styles.homeButtonText}>{t("home_button")}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -115,24 +137,31 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    paddingHorizontal: width * 0.05,
-    paddingTop: height * 0.03,
+    paddingHorizontal: scale.spacing,
+    paddingTop: height * 0.05,
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: height * 0.02,
-    marginTop: height * 0.08,
+    marginVertical: height * 0.03,
   },
   headerText: {
-    fontSize: width * 0.05,
+    fontSize: scale.large,
     fontWeight: "bold",
-    color: "#027e02",
+    color: "#27AE60",
+  },
+  checkIconContainer: {
+    width: width * 0.1,
+    height: width * 0.1,
+    backgroundColor: "#E8F5E9",
+    borderRadius: width * 0.05,
+    justifyContent: "center",
+    alignItems: "center",
   },
   checkIcon: {
-    width: width * 0.15,
-    height: width * 0.15,
+    width: width * 0.1,
+    height: width * 0.1,
   },
   userInfo: {
     flexDirection: "row",
@@ -143,116 +172,122 @@ const styles = StyleSheet.create({
     width: width * 0.12,
     height: width * 0.12,
     borderRadius: width * 0.06,
-    backgroundColor: "#e91e63",
+    backgroundColor: "#E91E63",
     justifyContent: "center",
     alignItems: "center",
   },
   avatarText: {
     color: "#fff",
-    fontSize: width * 0.06,
+    fontSize: scale.large,
     fontWeight: "bold",
   },
-  namePhone: {
-    marginLeft: width * 0.03,
+  userDetails: {
     flex: 1,
+    marginLeft: scale.spacing,
   },
-  name: {
-    fontSize: width * 0.045,
+  userName: {
+    fontSize: scale.base,
     fontWeight: "bold",
+    color: "#333",
   },
-  phone: {
-    fontSize: width * 0.035,
+  userPhone: {
+    fontSize: scale.small,
     color: "#666",
   },
   callButton: {
-    backgroundColor: "#fff",
-    borderColor: "#e91e63",
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: scale.spacing,
+    paddingVertical: scale.spacing * 0.5,
+    borderRadius: scale.radius,
     borderWidth: 1,
-    paddingVertical: height * 0.01,
-    paddingHorizontal: width * 0.04,
-    borderRadius: width * 0.02,
+    borderColor: "#E91E63",
+  },
+  phoneIcon: {
+    width: scale.icon,
+    height: scale.icon,
+    marginRight: scale.spacing * 0.5,
   },
   callButtonText: {
-    color: "#e91e63",
-    fontSize: width * 0.035,
+    color: "#E91E63",
+    fontSize: scale.small,
   },
-
-  detailsContainer: {
-    borderRadius: width * 0.02,
+  detailsCard: {
+    borderRadius: scale.radius,
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: "#E0E0E0",
     marginBottom: height * 0.03,
   },
-  row: {
+  detailsRow: {
     flexDirection: "row",
     borderBottomWidth: 1,
-    borderBottomColor: "#ddd",
+    borderBottomColor: "#E0E0E0",
   },
-  lastRow: {
+  noBorder: {
     borderBottomWidth: 0,
   },
-  cell: {
-    flex: 0.5,
-    paddingVertical: height * 0.02,
-    paddingHorizontal: width * 0.04,
-  },
-  rightBorder: {
-    borderRightWidth: 1,
-    borderRightColor: "#ddd",
-  },
-  fullWidthCell: {
+  detailsColumn: {
     flex: 1,
-    paddingVertical: height * 0.015,
-    paddingHorizontal: width * 0.04,
+    padding: scale.spacing,
+  },
+  borderRight: {
+    borderRightWidth: 1,
+    borderRightColor: "#E0E0E0",
+  },
+  fullWidthColumn: {
+    padding: scale.spacing,
   },
   detailLabel: {
-    fontSize: width * 0.035,
+    fontSize: scale.small,
     color: "#666",
+    marginBottom: scale.spacing * 0.25,
   },
   detailValue: {
-    fontSize: width * 0.035,
+    fontSize: scale.small,
     fontWeight: "bold",
-    marginTop: height * 0.005,
+    color: "#333",
+  },
+  amountValue: {
+    fontSize: scale.small,
+    fontWeight: "bold",
+    color: "#333",
+  },
+  rowWithIcon: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   copyIcon: {
-    width: width * 0.04,
-    height: width * 0.04,
-    marginLeft: width * 0.03,
-    marginTop: width * 0.01,
-  },
-  valueWithIcon: {
-    flexDirection: "row",
-  alignItems: "center",
+    width: scale.icon,
+    height: scale.icon,
+    marginLeft: scale.spacing,
   },
   eyeIcon: {
-    width: width * 0.04,
-    height: width * 0.04,
-    marginLeft: width * 0.02,
+    width: scale.icon,
+    height: scale.icon,
+    marginLeft: scale.spacing,
   },
-
-  autoPay: {
-    backgroundColor: "#fff",
-    borderColor: "#e91e63",
-    borderWidth: 1,
+  autoPayButton: {
     paddingVertical: height * 0.02,
-    borderRadius: width * 0.02,
+    borderRadius: scale.radius,
+    borderWidth: 1,
+    borderColor: "#E91E63",
     marginBottom: height * 0.02,
   },
   autoPayText: {
     textAlign: "center",
-    color: "#e91e63",
-    fontSize: width * 0.04,
+    color: "#E91E63",
+    fontSize: scale.base,
     fontWeight: "bold",
   },
   homeButton: {
-    backgroundColor: "#e91e63",
+    backgroundColor: "#E91E63",
     paddingVertical: height * 0.02,
-    borderRadius: width * 0.02,
+    borderRadius: scale.radius,
   },
   homeButtonText: {
     textAlign: "center",
     color: "#fff",
-    fontSize: width * 0.04,
+    fontSize: scale.base,
     fontWeight: "bold",
   },
 });

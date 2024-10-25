@@ -6,29 +6,37 @@ import {
   TouchableOpacity,
   TextInput,
   Dimensions,
-  KeyboardAvoidingView,
+  Animated,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { Avatar } from "react-native-elements";
 import { useTranslation } from "react-i18next";
+
 const { width } = Dimensions.get("window");
 const baseWidth = 375;
 const scale = width / baseWidth;
 
 export default function ConfirmSendMoneyScreen({ route, navigation }) {
-  const [amount, setAmount] = useState("");
+  const [amount, setAmount] = useState(0);
+  const buttonOpacity = new Animated.Value(1);
   const { t } = useTranslation();
-  const { recipient } = route.params;
+  const { recipient, availableBalance } = route.params || {};
 
   const handleAmountChange = (value) => {
     const numericValue = parseInt(value, 10);
-    if (value === "" || (!isNaN(numericValue) && numericValue >= 1)) {
+    if (value === "" || (!isNaN(numericValue) && numericValue >= 0)) {
       setAmount(value);
+      Animated.timing(buttonOpacity, {
+        toValue: value ? 1 : 0.5,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
     }
   };
   const isEnglishLetter = (char) => /^[A-Za-z]$/.test(char);
   return (
     <View style={styles.container}>
+      <Text style={styles.sectionTitle}>Recipient</Text>
       <View style={styles.recipientContainer}>
         <View style={styles.avatar}>
           {isEnglishLetter(recipient.name[0]) ? (
@@ -48,27 +56,36 @@ export default function ConfirmSendMoneyScreen({ route, navigation }) {
         </View>
       </View>
 
-      <KeyboardAvoidingView behavior="padding" style={styles.amountContainer}>
+      <Text style={styles.amountTitle}>Amount</Text>
+
+      <View style={styles.amountContainer}>
+        <Text style={styles.currencySymbol}>৳</Text>
         <TextInput
           style={styles.amount}
           value={amount}
           onChangeText={handleAmountChange}
           keyboardType="numeric"
-          placeholder={t("amount_placeholder")}
+          placeholder="0"
           placeholderTextColor="#999"
         />
-      </KeyboardAvoidingView>
+      </View>
 
-      <Text style={styles.balanceText}>  {t("available_balance")}: ৳10000.15</Text>
+      <Text style={styles.balanceText}>
+        Available Balance: ৳ {availableBalance}
+      </Text>
 
       <TouchableOpacity
-        style={styles.confirmButton}
+        style={[styles.confirmButton, !amount && styles.buttonDisabled]}
         onPress={() => {
-          navigation.navigate("SendMoney", {
-            recipient,
-            amount,
-          });
+          if (amount) {
+            navigation.navigate("SendMoney", {
+              recipient,
+              amount,
+              availableBalance
+            });
+          }
         }}
+        activeOpacity={0.8}
       >
         <Text style={styles.confirmButtonText}>{t("proceed")}</Text>
         <Ionicons name="arrow-forward" size={24 * scale} color="#fff" />
@@ -80,96 +97,100 @@ export default function ConfirmSendMoneyScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#fff",
+    paddingHorizontal: 15 * scale,
   },
-  header: {
-    backgroundColor: "#E91E63",
-    height: 56 * scale,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 16 * scale,
-  },
-  backIcon: {
-    position: "absolute",
-    left: 16 * scale,
-    top: "50%",
-    transform: [{ translateY: -12 * scale }],
-  },
-  headerTitle: {
-    fontSize: 20 * scale,
-    color: "#fff",
-    fontWeight: "bold",
-    textAlign: "center",
+  sectionTitle: {
+    fontSize: 18 * scale,
+    color: "#666",
+    marginTop: 20 * scale,
+    marginBottom: 15 * scale,
   },
   recipientContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 20 * scale,
-    paddingHorizontal: 16 * scale,
+    marginBottom: 30 * scale,
   },
   avatar: {
-    width: 50 * scale,
-    height: 50 * scale,
-    borderRadius: 25 * scale,
+    width: 56 * scale,
+    height: 56 * scale,
+    borderRadius: 28 * scale,
     backgroundColor: "#E1BEE7",
     justifyContent: "center",
     alignItems: "center",
     position: "relative",
   },
   avatarText: {
-    fontSize: 18 * scale,
+    fontSize: 24 * scale,
     color: "#fff",
+    fontWeight: "600",
   },
   recipientInfo: {
-    marginLeft: 10 * scale,
+    marginLeft: 15 * scale,
   },
   recipientName: {
-    fontSize: 16 * scale,
-    fontWeight: "bold",
+    fontSize: 18 * scale,
+    fontWeight: "500",
     color: "#333",
+    marginBottom: 4 * scale,
   },
   recipientNumber: {
-    fontSize: 14 * scale,
+    fontSize: 16 * scale,
     color: "#666",
   },
+  amountTitle: {
+    fontSize: 18 * scale,
+    color: "#666",
+    marginBottom: 15 * scale,
+  },
   amountContainer: {
+    flexDirection: "row",
     alignItems: "center",
-    marginTop: 40 * scale,
+    justifyContent: "center",
+    marginBottom: 10 * scale,
+  },
+  currencySymbol: {
+    fontSize: 40 * scale,
+    color: "#E91E63",
+    marginRight: 8 * scale,
   },
   amount: {
     fontSize: 40 * scale,
-    fontWeight: "bold",
     color: "#E91E63",
+    fontWeight: "500",
+    minWidth: 120 * scale,
+    textAlign: "left",
+    padding: 0,
   },
   balanceText: {
-    textAlign: "center",
+    fontSize: 16 * scale,
     color: "#666",
-    marginTop: 10 * scale,
-    fontSize: 14 * scale,
-  },
-  keyboardContainer: {
-    marginVertical: 20 * scale,
-  },
-  amountInput: {
-    borderBottomWidth: 1,
-    borderBottomColor: "#E91E63",
-    fontSize: 32 * scale,
-    color: "#333",
     textAlign: "center",
-    paddingVertical: 10 * scale,
+    marginBottom: 30 * scale,
   },
   confirmButton: {
-    backgroundColor: "#E91E63",
-    height: 50 * scale,
     flexDirection: "row",
-    justifyContent: "center",
+    justifyContent: "space-between",
     alignItems: "center",
-    borderRadius: 25 * scale,
-    marginVertical: 20 * scale,
+    backgroundColor: "#E91E63",
+    borderTopLeftRadius: 12 * scale,
+    borderTopRightRadius: 12 * scale,
+    height: 54 * scale,
+    paddingHorizontal: 24 * scale,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  buttonDisabled: {
+    backgroundColor: "#E0E0E0",
+    shadowOpacity: 0.15,
+    elevation: 2,
   },
   confirmButtonText: {
     fontSize: 18 * scale,
     color: "#fff",
-    marginRight: 10 * scale,
+    fontWeight: "500",
   },
 });
