@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
     marginVertical: height * 0.03,
   },
   headerText: {
-    fontSize: scale.base,
+    fontSize: scale.large,
     fontWeight: "bold",
     color: "#27AE60",
   },
