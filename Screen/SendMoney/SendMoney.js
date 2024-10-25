@@ -19,24 +19,18 @@ const baseWidth = 375;
 const scale = width / baseWidth;
 
 export default function SendMoney({ route, navigation }) {
-  const { recipient, amount } = route.params;
+  const { recipient, amount, availableBalance } = route.params;
   const { t } = useTranslation();
   const [pin, setPin] = useState("");
   const [reference, setReference] = useState("");
   const [isModalVisible, setModalVisible] = useState(false);
   const [currentBalance, setCurrentBalance] = useState(20);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [isPressed, setIsPressed] = useState(false);
   const maxChars = 50;
   const pinLength = 4;
   const maxReferenceChars = 50;
-
-  useEffect(() => {
-    fetchCurrentBalance();
-  }, []);
-
   useEffect(() => {
     let interval;
     if (isPressed && progress < 1) {
@@ -57,21 +51,6 @@ export default function SendMoney({ route, navigation }) {
     return () => clearInterval(interval);
   }, [isPressed, progress]);
 
-  const fetchCurrentBalance = async () => {
-    setIsLoading(true);
-    try {
-      const response = await new Promise((resolve) =>
-        setTimeout(() => resolve({ balance: 25000 }), 1000)
-      );
-      setCurrentBalance(response.balance);
-      setError(null);
-    } catch (err) {
-      setError(t("transaction_failure_msg")); 
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handlePinChange = useCallback(
     (text) => {
       setPin(text.slice(0, pinLength));
@@ -90,41 +69,31 @@ export default function SendMoney({ route, navigation }) {
     setModalVisible(false);
   };
 
-  const validateInputs = useCallback(() => {
-    if (!amount || parseFloat(amount) <= 0) {
-      Alert.alert(t("invalid_amount"), t("enter_valid_amount"));
-      return false;
-    }
-    if (parseFloat(amount) > currentBalance) {
-      Alert.alert(
-        t("insufficient_balance"),
-        t("not_enough_balance")
-      );
-      return false;
-    }
-    if (pin.length !== pinLength) {
-      Alert.alert(t("enter_valid_pin")); 
-      return false;
-    }
-    return true;
-  }, [amount, currentBalance, pin, pinLength]);
-
   const handleSendMoney = useCallback(async () => {
     setModalVisible(false);
     setIsLoading(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      const newBalance = currentBalance - parseFloat(amount);
+      const newBalance = availableBalance - parseFloat(amount);
       setCurrentBalance(newBalance);
-      
-      const transactionId = 'TXN' + Math.random().toString(36).substr(2, 9).toUpperCase();
-      
+
+      const transactionId =
+        "TXN" + Math.random().toString(36).substr(2, 9).toUpperCase();
+
       const now = new Date();
-      const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
-      const date = now.toLocaleDateString('en-US', { day: '2-digit', month: '2-digit', year: '2-digit' });
+      const time = now.toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+      const date = now.toLocaleDateString("en-US", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "2-digit",
+      });
 
       navigation.navigate("TransactionSuccess", {
-        message: t('send_money_success'),
+        message: t("send_money_success"),
         name: recipient.name,
         phoneNumber: recipient.number,
         time,
@@ -137,14 +106,11 @@ export default function SendMoney({ route, navigation }) {
           console.log("Auto Pay Pressed");
         },
         onHomePress: () => {
-          navigation.navigate("Dashboard"); 
-        }
+          navigation.navigate("Dashboard");
+        },
       });
     } catch (err) {
-      Alert.alert(
-        t("transaction_failed"),
-        t("transaction_failure_msg")
-      );
+      Alert.alert(t("transaction_failed"), t("transaction_failure_msg"));
     } finally {
       setIsLoading(false);
       setProgress(0);
@@ -159,19 +125,6 @@ export default function SendMoney({ route, navigation }) {
     setIsPressed(false);
   }, []);
   const isEnglishLetter = (char) => /^[A-Za-z]$/.test(char);
-  if (error) {
-    return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>{error}</Text>
-        <TouchableOpacity
-          style={styles.retryButton}
-          onPress={fetchCurrentBalance}
-        >
-          <Text style={styles.retryButtonText}>{t("retry")}</Text>
-        </TouchableOpacity>
-      </View>
-    );
-  }
   return (
     <View style={styles.container}>
       <LoadingScreen visible={isLoading} />
@@ -182,14 +135,14 @@ export default function SendMoney({ route, navigation }) {
         recipientPhone={recipient.number}
         amount={parseFloat(amount)}
         charge={0}
-        newBalance={currentBalance - parseFloat(amount)}
+        newBalance={availableBalance - parseFloat(amount)}
         reference={reference}
         progress={progress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
       />
       <View style={styles.recipientCard}>
-      <Text style={styles.toText}>{t("recipient")}</Text>  
+        <Text style={styles.toText}>{t("recipient")}</Text>
         <View style={styles.recipientContainer}>
           <View style={styles.avatar}>
             {isEnglishLetter(recipient.name[0]) ? (
@@ -250,7 +203,7 @@ export default function SendMoney({ route, navigation }) {
           />
           <TextInput
             style={styles.pinInput}
-            placeholder={t("pin_placeholder")} 
+            placeholder={t("pin_placeholder")}
             placeholderTextColor="#999"
             value={pin}
             keyboardType="number-pad"

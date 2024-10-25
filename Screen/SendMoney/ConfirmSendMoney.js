@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   TextInput,
   Dimensions,
-  KeyboardAvoidingView,
   Animated,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -18,11 +17,10 @@ const baseWidth = 375;
 const scale = width / baseWidth;
 
 export default function ConfirmSendMoneyScreen({ route, navigation }) {
-  const [amount, setAmount] = useState("555");
+  const [amount, setAmount] = useState(0);
   const buttonOpacity = new Animated.Value(1);
   const { t } = useTranslation();
-  const { recipient = { name: "Nahid Hasan", number: "01910125428" } } =
-    route.params || {};
+  const { recipient, availableBalance } = route.params || {};
 
   const handleAmountChange = (value) => {
     const numericValue = parseInt(value, 10);
@@ -72,7 +70,9 @@ export default function ConfirmSendMoneyScreen({ route, navigation }) {
         />
       </View>
 
-      <Text style={styles.balanceText}>Available Balance: ৳ 0.15</Text>
+      <Text style={styles.balanceText}>
+        Available Balance: ৳ {availableBalance}
+      </Text>
 
       <TouchableOpacity
         style={[styles.confirmButton, !amount && styles.buttonDisabled]}
@@ -81,6 +81,7 @@ export default function ConfirmSendMoneyScreen({ route, navigation }) {
             navigation.navigate("SendMoney", {
               recipient,
               amount,
+              availableBalance
             });
           }
         }}

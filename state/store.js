@@ -1,10 +1,12 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authSlice from "./reducers/authSlice";
 import accountReducer from "./reducers/accountSlice";
+import sendMoneyReducer from "./reducers/sendMoneySlice";
 
 const combinedReducer = {
   auth: authSlice,
   account: accountReducer,
+  sendMoney: sendMoneyReducer,
 };
 const middlewares = [];
 export const store = configureStore({

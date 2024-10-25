@@ -13,12 +13,18 @@ import { getContacts } from "../../utilities/contactsHelpers";
 import { Ionicons } from "@expo/vector-icons";
 import { useTranslation } from "react-i18next";
 import LoadingScreen from "../../components/Loader/Loader";
+import { useDispatch, useSelector } from "react-redux";
+import { checkSendMoney } from "../../state/reducers/sendMoneySlice";
+import { showMessage } from "react-native-flash-message";
 
 const { width } = Dimensions.get("window");
 const baseWidth = 375;
 const scale = width / baseWidth;
 
 export default function SendMoneyScreen({ navigation }) {
+  const dispatch = useDispatch();
+  const { isLoading } = useSelector((state) => state.sendMoney);
+  const { token } = useSelector((state) => state.auth);
   const [contacts, setContacts] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const { t } = useTranslation();
@@ -38,9 +44,9 @@ export default function SendMoneyScreen({ navigation }) {
       }
 
       loadContacts();
-    }, 500); // 500ms delay before loading contacts
+    }, 500);
 
-    return () => clearTimeout(timeoutId); // Cleanup if the component unmounts
+    return () => clearTimeout(timeoutId);
   }, []);
 
   const formatPhoneNumber = (number) => {
@@ -63,26 +69,56 @@ export default function SendMoneyScreen({ navigation }) {
       );
     });
 
+  const handleSendMoneyCheck = async (recipient) => {
+    const formattedNumber = formatPhoneNumber(recipient.number);
+    if (formattedNumber) {
+      try {
+        const response = await dispatch(
+          checkSendMoney({
+            token,
+            accountNumber: formattedNumber,
+          })
+        ).unwrap();
+        if (response.isAvailable && response.isPersonalAccountNumber) {
+          navigation.navigate("ConfirmSendMoney", {
+            recipient,
+            availableBalance: response.balance,
+          });
+        } else {
+          showMessage({
+            message: "Unable to proceed. Account not eligible.",
+            type: "danger",
+            backgroundColor: "#e2136e",
+          });
+        }
+      } catch (error) {
+        showMessage({
+          message:
+            error.data?.error || error.data?.message || "An error occurred",
+          type: "danger",
+          backgroundColor: "#e2136e",
+        });
+      }
+    }
+  };
+
   const handleContactPress = (contact) => {
-    const formattedNumber = formatPhoneNumber(contact.phoneNumbers[0].number);
-    navigation.navigate("ConfirmSendMoney", {
-      recipient: {
-        name: contact.name,
-        number: formattedNumber,
-        avatar: contact.name[0],
-      },
-    });
+    const recipient = {
+      name: contact.name,
+      number: formatPhoneNumber(contact.phoneNumbers[0].number),
+      avatar: contact.name[0],
+    };
+    handleSendMoneyCheck(recipient);
   };
 
   const handleManualEntryPress = () => {
     if (searchQuery) {
-      navigation.navigate("ConfirmSendMoney", {
-        recipient: {
-          name: searchQuery,
-          number: searchQuery,
-          avatar: searchQuery[0],
-        },
-      });
+      const recipient = {
+        name: searchQuery,
+        number: searchQuery,
+        avatar: searchQuery[0],
+      };
+      handleSendMoneyCheck(recipient);
     }
   };
 
@@ -90,7 +126,7 @@ export default function SendMoneyScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <LoadingScreen visible={loading} />
+      <LoadingScreen visible={loading || isLoading} />
       <View style={styles.searchContainer}>
         <Ionicons
           name="search"
