@@ -56,7 +56,7 @@ const resources = {
       copy_transaction_id: "Transaction ID Copied",
       auto_pay: "Enable Auto Pay",
       home_button: "Go to Home",
-      send_money_success: "Your Send Money transaction was successful!",
+      send_money_success: "Your transaction was successful!",
       change_name: "Change Name",
       change_picture: "Change Picture",
       manage_account: "Manage Account",

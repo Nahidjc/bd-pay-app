@@ -9,7 +9,8 @@ import {
   ToastAndroid,
   Clipboard,
 } from "react-native";
-
+import { useRoute } from "@react-navigation/native";
+import { useTranslation } from "react-i18next";
 const { width, height } = Dimensions.get("window");
 
 const scale = {
@@ -22,19 +23,22 @@ const scale = {
   radius: width * 0.02,
 };
 
-const TransactionSuccessScreen = ({
-  message = "Payment Successful!",
-  name = "John Doe",
-  phoneNumber = "+1234567890",
-  time = "10:30 AM",
-  date = "2024-10-26",
-  transactionId = "TXN123456789",
-  amount = "5,000",
-  newBalance = "95,000",
-  reference = "Bill Payment",
-  onAutoPayPress,
-  onHomePress,
-}) => {
+const TransactionSuccessScreen = () => {
+  const route = useRoute();
+  const { t } = useTranslation();
+  const {
+    message,
+    name,
+    phoneNumber,
+    time,
+    date,
+    transactionId,
+    amount,
+    newBalance,
+    reference,
+    onAutoPayPress,
+    onHomePress,
+  } = route.params;
   const [showBalance, setShowBalance] = useState(false);
 
   const copyTransactionId = () => {
@@ -119,11 +123,11 @@ const TransactionSuccessScreen = ({
         </View>
       </View>
       <TouchableOpacity style={styles.autoPayButton} onPress={onAutoPayPress}>
-        <Text style={styles.autoPayText}>Set Up Auto Pay</Text>
+        <Text style={styles.autoPayText}>{t("auto_pay")}</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.homeButton} onPress={onHomePress}>
-        <Text style={styles.homeButtonText}>Back to Home</Text>
+        <Text style={styles.homeButtonText}>{t("home_button")}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -239,7 +243,7 @@ const styles = StyleSheet.create({
     marginBottom: scale.spacing * 0.25,
   },
   detailValue: {
-    fontSize: scale.xsmall,
+    fontSize: scale.small,
     fontWeight: "bold",
     color: "#333",
   },
