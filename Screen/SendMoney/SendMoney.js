@@ -161,6 +161,19 @@ export default function SendMoney({ route, navigation }) {
     setIsPressed(false);
   }, []);
 
+  const handlePinConfirmation = async () => {
+    const response = await dispatch(verifyPin({ token, pin })).unwrap();
+    if (!response?.data?.isPinCorrect) {
+      showErrorMessage(
+        "PIN Verification Failed",
+        "Please check your PIN and try again."
+      );
+      return;
+    } else {
+      toggleModal();
+    }
+  };
+
   // const handleNavigateToHome = useCallback(() => {
   //   navigation.navigate("Dashboard");
   // }, [navigation]);
@@ -182,14 +195,6 @@ export default function SendMoney({ route, navigation }) {
   const handleSendMoney = async () => {
     setModalVisible(false);
     try {
-      const response = await dispatch(verifyPin({ token, pin })).unwrap();
-      if (!response?.data?.isPinCorrect) {
-        showErrorMessage(
-          "PIN Verification Failed",
-          "Please check your PIN and try again."
-        );
-        return;
-      }
       const sendMoneyResponse = await dispatch(
         transferSendMoney({
           token,
@@ -233,19 +238,12 @@ export default function SendMoney({ route, navigation }) {
     }
   };
 
-  // Helper functions for navigation
   const handleNavigateToHome = () => {
-    navigation.reset({
-      index: 0,
-      routes: [{ name: "Home" }],
-    });
+    navigation.navigate("Dashboard");
   };
 
   const handleAutoPayPress = () => {
-    navigation.reset({
-      index: 0,
-      routes: [{ name: "Home" }, { name: "AutoPay", params: { recipient } }],
-    });
+    navigation.navigate("AutoPay", { recipient });
   };
 
   const isPinComplete = pin.length === CONSTANTS.PIN_LENGTH;
@@ -344,7 +342,7 @@ export default function SendMoney({ route, navigation }) {
               isPinComplete && styles.activeConfirmButton,
             ]}
             disabled={!isPinComplete}
-            onPress={toggleModal}
+            onPress={handlePinConfirmation}
           >
             <Text style={styles.confirmButtonText}>{t("confirm_pin")}</Text>
             <Ionicons name="arrow-forward" size={24 * scale} color="#fff" />

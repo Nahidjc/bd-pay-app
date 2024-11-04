@@ -122,9 +122,9 @@ const TransactionSuccessScreen = () => {
           </View>
         </View>
       </View>
-      <TouchableOpacity style={styles.autoPayButton} onPress={onAutoPayPress}>
+      {/* <TouchableOpacity style={styles.autoPayButton} onPress={onAutoPayPress}>
         <Text style={styles.autoPayText}>{t("auto_pay")}</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       <TouchableOpacity style={styles.homeButton} onPress={onHomePress}>
         <Text style={styles.homeButtonText}>{t("home_button")}</Text>
