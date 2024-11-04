@@ -2,13 +2,13 @@ name: React Native Android Release
 on:
   push:
     branches:
-      - master  # or 'main' depending on your default branch name
-  workflow_dispatch:  # Allow manual trigger
+      - master
+  workflow_dispatch:
 
 env:
-  JAVA_VERSION: '11'
-  NODE_VERSION: '18'
-  GRADLE_VERSION: '7.5.1'
+  JAVA_VERSION: "17.0.9"
+  NODE_VERSION: "18"
+  GRADLE_VERSION: "8.2"
 
 jobs:
   validate-and-build:
@@ -17,30 +17,30 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fetch all history for proper versioning
+          fetch-depth: 0 # Fetch all history for proper versioning
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Get version info
         id: get_version
         run: |
           # Get version from package.json
           VERSION=$(node -p "require('./package.json').version")
-          
+
           # Calculate version code (MAJOR * 10000 + MINOR * 100 + PATCH)
           VERSION_CODE=$(echo $VERSION | awk -F. '{printf "%d%02d%02d", $1,$2,$3}')
-          
+
           # Get commit hash
           COMMIT_HASH=$(git rev-parse --short HEAD)
-          
+
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
           echo "commit_hash=$COMMIT_HASH" >> $GITHUB_OUTPUT
-          
+
           # Check if this version already exists as a tag
           if git rev-parse "v$VERSION" >/dev/null 2>&1; then
             echo "::error::Version v$VERSION already exists as a tag"
@@ -50,8 +50,11 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: "temurin"
           java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Set JAVA_HOME
+        run: echo "JAVA_HOME=${{ steps.setup-java.outputs.path }}" >> $GITHUB_ENV
 
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
@@ -68,14 +71,14 @@ jobs:
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
           VERSION_CODE="${{ steps.get_version.outputs.version_code }}"
-          
+
           # Backup build.gradle
           cp app/build.gradle app/build.gradle.bak
-          
+
           # Update version code and name
           sed -i -E "s/(versionCode[[:space:]]+)[0-9]+/\1$VERSION_CODE/" app/build.gradle
           sed -i -E "s/(versionName[[:space:]]+)\"[^\"]+\"/\1\"$VERSION\"/" app/build.gradle
-          
+
           # Verify changes
           if ! grep -q "versionCode $VERSION_CODE" app/build.gradle || \
              ! grep -q "versionName \"$VERSION\"" app/build.gradle; then
@@ -97,6 +100,8 @@ jobs:
 
       - name: Build Release APK
         working-directory: android
+        env:
+          JAVA_HOME: ${{ steps.setup-java.outputs.path }}
         run: |
           chmod +x gradlew
           ./gradlew clean assembleRelease --no-daemon
@@ -109,7 +114,7 @@ jobs:
             echo "APK not found at $APK_PATH"
             exit 1
           fi
-          
+
           # Verify APK size
           APK_SIZE=$(stat -f%z "$APK_PATH" 2>/dev/null || stat -c%s "$APK_PATH")
           if [ "$APK_SIZE" -lt 1000000 ]; then  # 1MB minimum size check
@@ -131,11 +136,13 @@ jobs:
           } > RELEASE_NOTES.md
 
       - name: Create Git Tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.PUBLISH_SECRET_TOKEN }}
         run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
+          git config --global user.name "Nahidjc"
+          git config --global user.email "nahidjc80@gmail.com"
           git tag -a "v${{ steps.get_version.outputs.version }}" -m "Release v${{ steps.get_version.outputs.version }}"
-          git push origin "v${{ steps.get_version.outputs.version }}"
+          git push https://${GITHUB_TOKEN}@github.com/${{ github.repository }} "v${{ steps.get_version.outputs.version }}"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
@@ -147,7 +154,7 @@ jobs:
           draft: false
           prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.SECRET_TOKEN }}  # Changed to default GITHUB_TOKEN
+          GITHUB_TOKEN: ${{ secrets.PUBLISH_SECRET_TOKEN }}
 
       - name: Rename and Upload Build Artifacts
         uses: actions/upload-artifact@v3
