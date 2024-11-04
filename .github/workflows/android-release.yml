@@ -23,7 +23,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'yarn'
+          cache: 'npm'
 
       - name: Get version info
         id: get_version
@@ -60,8 +60,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          yarn install --frozen-lockfile
-          yarn cache clean
+          npm ci
+          npm cache clean --force
 
       - name: Update Android version
         working-directory: android
@@ -147,7 +147,7 @@ jobs:
           draft: false
           prerelease: false
         env:
-          GITHUB_TOKEN: ${{ secrets.SECRET_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.SECRET_TOKEN }}  # Changed to default GITHUB_TOKEN
 
       - name: Rename and Upload Build Artifacts
         uses: actions/upload-artifact@v3
@@ -156,7 +156,7 @@ jobs:
           path: |
             android/app/build/outputs/apk/release/app-release.apk
             RELEASE_NOTES.md
-          retention-days: 300
+          retention-days: 30
 
       - name: Notify on Success
         if: success()
@@ -167,4 +167,4 @@ jobs:
         if: always()
         run: |
           rm -rf ~/.gradle/caches/
-          yarn cache clean
+          npm cache clean --force
