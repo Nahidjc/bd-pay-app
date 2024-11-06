@@ -1,4 +1,10 @@
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   View,
   Text,
@@ -15,6 +21,9 @@ import BottomSheet, {
   BottomSheetBackdrop,
 } from "@gorhom/bottom-sheet";
 import { Bell } from "lucide-react-native";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchNotifications } from "../../state/reducers/notificationSlice";
+import LoadingScreen from "../../components/Loader/Loader";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -112,70 +121,32 @@ const NotificationDetails = ({ notification }) => {
 };
 
 const NotificationScreen = () => {
+  const dispatch = useDispatch();
+  const { isLoading, notifications } = useSelector(
+    (state) => state.notificationsReducer
+  );
+  const { token } = useSelector((state) => state.auth);
+
   const [selectedNotification, setSelectedNotification] = useState(null);
   const bottomSheetRef = useRef(null);
 
-  const snapPoints = useMemo(() => {
-    if (!selectedNotification) return ["20%"];
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      dispatch(fetchNotifications(token));
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [dispatch, token]);
 
-    const { body, notificationImage } = selectedNotification;
-    const bodyLengthSnap = body.length > 100 ? "30%" : "20%";
-    const imageSnap = notificationImage ? "60%" : bodyLengthSnap;
-
-    return [imageSnap, "60%"];
-  }, [selectedNotification]);
-
-  const notifications = [
-    {
-      _id: "67287e3333264fb8f8b7dd14",
-      userId: "671e75e0d9d903d95e0e8a6f",
-      title: "Money Transfer Received",
-      body: "You have received BDT 200.00 from 01910125428. Fee BDT 0.00. Balance BDT 37,580.00. TrxID BIBC07BE5K at 2024-11-04T07:56:27.572Z",
-      type: "Money Received",
-      createdAt: "2024-11-04T07:56:35.236Z",
-      notificationImage:
-        "https://www.bkash.com/uploaded_contents/cms/Website-Banner-1400x700_1678022840404.jpg",
-      __v: 0,
-    },
-    {
-      _id: "6720a96606d484f1b9cf9c4f",
-      userId: "671e75e0d9d903d95e0e8a6f",
-      title: "Money Transfer Received",
-      body: "You have received BDT 100.00 from 01910125428. Fee BDT 0.00. Balance BDT 44,700.00. TrxID BIBH8YGC3Z at 2024-10-29T09:22:45.049Z",
-      type: "Money Received",
-      createdAt: "2024-10-29T09:22:46.585Z",
-      notificationImage:
-        "https://www.bkash.com/uploaded_contents/cms/1400x700-5_1698818648437.jpg",
-      __v: 0,
-    },
-    {
-      _id: "6720a87406d484f1b9cf9c4c",
-      userId: "671e75e0d9d903d95e0e8a6f",
-      title: "Money Transfer Received",
-      body: "You have received BDT 100.00 from 01910125428. Fee BDT 0.00. Balance BDT 44,600.00. TrxID BIBN2LS7JC at 2024-10-29T09:18:42.594Z",
-      type: "Money Received",
-      createdAt: "2024-10-29T09:18:44.282Z",
-      __v: 0,
-    },
-    {
-      _id: "671e8026c699c879eb93f4db",
-      userId: "671e75e0d9d903d95e0e8a6f",
-      title: "Money Transfer Received",
-      body: "You have received BDT 500.00 from 01981256456. Fee BDT 0.00. Balance BDT 49,000.00. TrxID BIBD7UR8U4 at 2024-10-27T18:02:09.435Z",
-      type: "Money Received",
-      createdAt: "2024-10-27T18:02:14.181Z",
-      __v: 0,
-    },
-    {
-      _id: "671e75e865664a825b5c1fc9",
-      userId: "671e75e0d9d903d95e0e8a6f",
-      title: "Registration Successful",
-      body: "Thank you for registering! You can now access all features of the app.",
-      type: "Registration",
-      createdAt: "2024-10-27T17:18:32.465Z",
-      __v: 0,
-    },
-  ];
+  const snapPoints = selectedNotification
+    ? [
+        selectedNotification.notificationImage
+          ? "60%"
+          : selectedNotification.body.length > 100
+          ? "30%"
+          : "20%",
+        "60%",
+      ]
+    : ["20%"];
 
   const handleNotificationPress = useCallback((notification) => {
     setSelectedNotification(notification);
@@ -200,6 +171,7 @@ const NotificationScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      {isLoading && <LoadingScreen visible={isLoading} />}
       <FlatList
         data={notifications}
         keyExtractor={(item) => item._id}
