@@ -6,6 +6,7 @@ import {
   FlatList,
   StyleSheet,
   Dimensions,
+  TextInput,
 } from "react-native";
 import BottomSheet, {
   BottomSheetBackdrop,
@@ -18,47 +19,54 @@ import { formatNotificationDate } from "../../utilities/helper/useCurrencyFormat
 
 const { width } = Dimensions.get("window");
 
-const FilterButtons = React.memo(({ onFilterPress, currentFilter }) => (
-  <View style={styles.filterContainer}>
-    <Text style={styles.filterLabel}>Filter By</Text>
-    <View style={styles.filterButtonGroup}>
-      <TouchableOpacity
-        style={[
-          styles.filterButton,
-          styles.filterButtonIn,
-          currentFilter === true && styles.filterButtonInActive,
-        ]}
-        onPress={() => onFilterPress(true)}
-      >
-        <Text
+const FilterButtons = React.memo(
+  ({ onFilterPress, currentFilter, searchTerm, setSearchTerm }) => (
+    <View style={styles.filterContainer}>
+      <TextInput
+        style={[styles.filterLabel, styles.searchInput]}
+        placeholder="Search by TrxID or number"
+        value={searchTerm}
+        onChangeText={setSearchTerm}
+      />
+      <View style={styles.filterButtonGroup}>
+        <TouchableOpacity
           style={[
-            styles.filterButtonTextIn,
-            currentFilter === true && styles.filterButtonTextActive,
+            styles.filterButton,
+            styles.filterButtonIn,
+            currentFilter === true && styles.filterButtonInActive,
           ]}
+          onPress={() => onFilterPress(true)}
         >
-          + IN
-        </Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        style={[
-          styles.filterButton,
-          styles.filterButtonOut,
-          currentFilter === false && styles.filterButtonOutActive,
-        ]}
-        onPress={() => onFilterPress(false)}
-      >
-        <Text
+          <Text
+            style={[
+              styles.filterButtonTextIn,
+              currentFilter === true && styles.filterButtonTextActive,
+            ]}
+          >
+            + IN
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
           style={[
-            styles.filterButtonTextOut,
-            currentFilter === false && styles.filterButtonTextActive,
+            styles.filterButton,
+            styles.filterButtonOut,
+            currentFilter === false && styles.filterButtonOutActive,
           ]}
+          onPress={() => onFilterPress(false)}
         >
-          - OUT
-        </Text>
-      </TouchableOpacity>
+          <Text
+            style={[
+              styles.filterButtonTextOut,
+              currentFilter === false && styles.filterButtonTextActive,
+            ]}
+          >
+            - OUT
+          </Text>
+        </TouchableOpacity>
+      </View>
     </View>
-  </View>
-));
+  )
+);
 
 const TransactionItem = React.memo(({ item, onPress }) => (
   <TouchableOpacity
@@ -100,6 +108,7 @@ const TransactionHistory = ({
   onFilterPress,
   isLoading,
 }) => {
+  const [searchTerm, setSearchTerm] = useState("");
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const bottomSheetRef = useRef(null);
   const snapPoints = useMemo(() => ["60%", "60%"], []);
@@ -130,15 +139,31 @@ const TransactionHistory = ({
 
   const filteredTransactions = useMemo(
     () =>
-      transactions.filter((transaction) =>
-        filter === null ? true : transaction.isCredited === filter
-      ),
-    [transactions, filter]
+      transactions
+        .filter((transaction) =>
+          filter === null ? true : transaction.isCredited === filter
+        )
+        .filter((transaction) => {
+          const searchLower = searchTerm.toLowerCase();
+          return (
+            transaction.transactionId.toLowerCase().includes(searchLower) ||
+            transaction.receiverAccountNumber
+              ?.toLowerCase()
+              .includes(searchLower) ||
+            transaction.senderAccountNumber?.toLowerCase().includes(searchLower)
+          );
+        }),
+    [transactions, filter, searchTerm]
   );
 
   return (
     <View style={styles.container}>
-      <FilterButtons onFilterPress={onFilterPress} currentFilter={filter} />
+      <FilterButtons
+        onFilterPress={onFilterPress}
+        currentFilter={filter}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+      />
       <LoadingScreen visible={isLoading} />
       <FlatList
         data={filteredTransactions}
@@ -217,6 +242,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
     marginRight: 10,
+  },
+  searchInput: {
+    flex: 1,
+    marginRight: width * 0.01,
+    paddingVertical: width * 0.02,
+    paddingHorizontal: width * 0.03,
+    borderColor: "#ddd",
+    borderWidth: 1,
+    borderRadius: 6,
+    backgroundColor: "#f5f5f5",
   },
   filterButtonGroup: {
     flexDirection: "row",
@@ -302,39 +337,20 @@ const styles = StyleSheet.create({
   },
   transactionCharge: {
     color: "#999",
-    fontSize: width * 0.034,
+    fontSize: width * 0.03,
   },
-  tabIndicator: {
-    backgroundColor: "red",
+  emptyContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+    flex: 1,
   },
-  tabBar: {
-    backgroundColor: "white",
-  },
-  tabLabel: {
-    fontSize: width * 0.028,
-  },
-  handleIndicator: {
-    backgroundColor: "#ccc",
-    width: 40,
-  },
-  bottomSheetBackground: {
-    backgroundColor: "#fff",
-    borderTopLeftRadius: 15,
-    borderTopRightRadius: 15,
+  emptyMessage: {
+    fontSize: 16,
+    color: "#999",
+    textAlign: "center",
   },
   bottomSheetContent: {
     padding: 20,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 20,
-  },
-  emptyMessage: {
-    textAlign: "center",
-    color: "#999",
-    fontSize: 16,
   },
 });
 
