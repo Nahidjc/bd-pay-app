@@ -16,6 +16,7 @@ import StatementScreen from "../Screen/Transaction/Transaction";
 import Header from "../components/Navigation/Header";
 import HelloWorldScreen from "../components/HelloWorld";
 import SettingsScreen from "../Screen/Setting/Setting";
+import NotificationScreen from "../Screen/Notification/NotificationScreen";
 
 const Tab = createBottomTabNavigator();
 const { height, width } = Dimensions.get("window");
@@ -79,7 +80,7 @@ const TabNavigator = () => {
             case "Statements":
               Icon = BarChart2;
               break;
-            case "HelloWorld":
+            case "Notifications":
               Icon = Bell;
               break;
             case "Settings":
@@ -138,8 +139,8 @@ const TabNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="HelloWorld"
-        component={HelloWorldScreen}
+        name="Notifications"
+        component={NotificationScreen}
         options={{
           headerStyle: { backgroundColor: "#E91E63" },
           header: (props) => <Header {...props} tabName="HelloWorld" />,
