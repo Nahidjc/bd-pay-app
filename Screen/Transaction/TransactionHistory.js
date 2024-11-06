@@ -85,6 +85,15 @@ const TransactionItem = React.memo(({ item, onPress }) => (
   </TouchableOpacity>
 ));
 
+const EmptyTransactionMessage = () => (
+  <View style={styles.emptyContainer}>
+    <Text style={styles.emptyMessage}>
+      No transactions available. Please try a different filter or check back
+      later.
+    </Text>
+  </View>
+);
+
 const TransactionHistory = ({
   transactions,
   filter,
@@ -138,8 +147,16 @@ const TransactionHistory = ({
           <TransactionItem item={item} onPress={handlePress} />
         )}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContainer}
+        contentContainerStyle={[
+          styles.listContainer,
+          filteredTransactions.length === 0 && {
+            flex: 1,
+            justifyContent: "center",
+          },
+        ]}
+        ListEmptyComponent={EmptyTransactionMessage}
       />
+
       <BottomSheet
         ref={bottomSheetRef}
         index={-1}
@@ -307,6 +324,17 @@ const styles = StyleSheet.create({
   },
   bottomSheetContent: {
     padding: 20,
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 20,
+  },
+  emptyMessage: {
+    textAlign: "center",
+    color: "#999",
+    fontSize: 16,
   },
 });
 
