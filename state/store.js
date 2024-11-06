@@ -3,12 +3,14 @@ import authSlice from "./reducers/authSlice";
 import accountReducer from "./reducers/accountSlice";
 import sendMoneyReducer from "./reducers/sendMoneySlice";
 import verifyPinReducer from "./reducers/verifyPinSlice";
+import notificationsReducer from "./reducers/notificationSlice";
 
 const combinedReducer = {
   auth: authSlice,
   account: accountReducer,
   sendMoney: sendMoneyReducer,
   verifyPin: verifyPinReducer,
+  notificationsReducer: notificationsReducer,
 };
 const middlewares = [];
 export const store = configureStore({
