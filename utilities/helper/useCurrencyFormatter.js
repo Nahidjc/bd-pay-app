@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 
 export const useCurrencyFormatter = () => {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
 
   const formatCurrency = (amount) => {
     const isEnglish = i18n.language === "en";
@@ -12,4 +12,17 @@ export const useCurrencyFormatter = () => {
   };
 
   return formatCurrency;
+};
+
+export const formatNotificationDate = (dateString) => {
+  if (!dateString) return "";
+
+  return new Date(dateString).toLocaleString("en-US", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
 };

@@ -1,4 +1,10 @@
-import React, { useState, useCallback, useMemo } from "react";
+import React, {
+  useState,
+  useCallback,
+  useMemo,
+  useRef,
+  useEffect,
+} from "react";
 import {
   View,
   Text,
@@ -8,122 +14,18 @@ import {
   Dimensions,
 } from "react-native";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
-import { Ionicons } from "@expo/vector-icons";
-const { width } = Dimensions.get("window");
+import BottomSheet, {
+  BottomSheetBackdrop,
+  BottomSheetScrollView,
+} from "@gorhom/bottom-sheet";
+import { CircleUser } from "lucide-react-native";
+import TransactionDetails from "./TransactionDetails";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchTransactions } from "../../state/reducers/transactionsSlice";
+import { formatNotificationDate } from "../../utilities/helper/useCurrencyFormatter";
+import LoadingScreen from "./../../components/Loader/Loader";
 
-const transactions = [
-  {
-    id: "1",
-    type: "Mobile Recharge",
-    name: "Gp",
-    transId: "BIE9L0QOJ3",
-    date: "07:11pm 14/09/24",
-    amount: "120.00",
-    charge: "0.00",
-    isCredited: false,
-  },
-  {
-    id: "2",
-    type: "Send Money",
-    name: "Hamim",
-    transId: "BIB0I8OO88",
-    date: "06:44pm 11/09/24",
-    amount: "2,700.00",
-    charge: "0.00",
-    isCredited: false,
-  },
-  {
-    id: "3",
-    type: "Bank to bKash",
-    name: "DHAKA BANK LIMITED",
-    transId: "BIB7I8LTTR",
-    date: "06:43pm 11/09/24",
-    ref: "Self purpose",
-    amount: "500.00",
-    charge: "0.00",
-    isCredited: true,
-  },
-  {
-    id: "4",
-    type: "Payment",
-    name: "Utilities",
-    transId: "BIK9J8UU2O",
-    date: "03:25pm 10/09/24",
-    amount: "1,550.00",
-    charge: "0.00",
-    isCredited: false,
-  },
-  {
-    id: "5",
-    type: "Add Money",
-    name: "From Bank",
-    transId: "BIX1H8ZZ99",
-    date: "12:00pm 09/09/24",
-    amount: "2,000.00",
-    charge: "0.00",
-    isCredited: true,
-  },
-  {
-    id: "6",
-    type: "Pay Bill",
-    name: "Internet",
-    transId: "BIR4F8LL4P",
-    date: "10:47am 07/09/24",
-    amount: "850.00",
-    charge: "0.00",
-    isCredited: false,
-  },
-  {
-    id: "7",
-    type: "Donation",
-    name: "Charity",
-    transId: "BIM2J8SSQ1",
-    date: "05:30pm 05/09/24",
-    amount: "300.00",
-    charge: "0.00",
-    isCredited: false,
-  },
-  {
-    id: "8",
-    type: "Cash Out",
-    name: "ATM Withdrawal",
-    transId: "BIJ8O8LLK2",
-    date: "02:15pm 04/09/24",
-    amount: "5,000.00",
-    charge: "10.00",
-    isCredited: false,
-  },
-  {
-    id: "9",
-    type: "Loan",
-    name: "Loan Disbursement",
-    transId: "BIP6Y8PPJ7",
-    date: "11:00am 02/09/24",
-    amount: "10,000.00",
-    charge: "0.00",
-    isCredited: true,
-  },
-  {
-    id: "10",
-    type: "Remittance",
-    name: "Overseas Income",
-    transId: "BIL3F8HHN3",
-    date: "09:16am 01/09/24",
-    amount: "15,000.00",
-    charge: "0.00",
-    isCredited: true,
-  },
-  {
-    id: "11",
-    type: "Education Fee",
-    name: "School Fees",
-    transId: "BIG1Q8ZZX4",
-    date: "08:30am 31/08/24",
-    amount: "3,200.00",
-    charge: "0.00",
-    isCredited: false,
-  },
-];
+const { width } = Dimensions.get("window");
 
 const FilterButtons = React.memo(({ onFilterPress, currentFilter }) => (
   <View style={styles.filterContainer}>
@@ -167,19 +69,19 @@ const FilterButtons = React.memo(({ onFilterPress, currentFilter }) => (
   </View>
 ));
 
-const TransactionItem = React.memo(({ item }) => (
-  <View style={styles.transactionContainer}>
-    <Ionicons
-      name="person-circle-outline"
-      size={40}
-      color="#E1BEE7"
-      style={styles.avatar}
-    />
+const TransactionItem = React.memo(({ item, onPress }) => (
+  <TouchableOpacity
+    onPress={() => onPress(item)}
+    style={styles.transactionContainer}
+  >
+    <CircleUser size={width * 0.1} color="#E1BEE7" style={styles.avatar} />
     <View style={styles.transactionDetails}>
-      <Text style={styles.transactionType}>{item.type}</Text>
-      <Text style={styles.transactionName}>{item.name}</Text>
-      <Text style={styles.transactionInfo}>Trans ID: {item.transId}</Text>
-      <Text style={styles.transactionInfo}>{item.date}</Text>
+      <Text style={styles.transactionType}>{item.transactionType}</Text>
+      <Text style={styles.transactionName}>{item.receiverAccountNumber}</Text>
+      <Text style={styles.transactionInfo}>Trans ID: {item.transactionId}</Text>
+      <Text style={styles.transactionInfo}>
+        {formatNotificationDate(item.transactionDate)}
+      </Text>
     </View>
     <View style={styles.transactionAmountContainer}>
       <Text
@@ -189,35 +91,91 @@ const TransactionItem = React.memo(({ item }) => (
       </Text>
       <Text style={styles.transactionCharge}>Charge ৳{item.charge}</Text>
     </View>
-  </View>
+  </TouchableOpacity>
 ));
 
-const TransactionHistory = React.memo(
-  ({ transactions, filter, onFilterPress }) => {
-    const filteredTransactions = useMemo(
-      () =>
-        transactions.filter((transaction) =>
-          filter === null ? true : transaction.isCredited === filter
-        ),
-      [transactions, filter]
-    );
+const TransactionHistory = ({
+  transactions,
+  filter,
+  onFilterPress,
+  isLoading,
+}) => {
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const bottomSheetRef = useRef(null);
+  const snapPoints = useMemo(() => ["60%", "60%"], []);
 
-    return (
-      <View style={{ flex: 1 }}>
-        <FilterButtons onFilterPress={onFilterPress} currentFilter={filter} />
-        <FlatList
-          data={filteredTransactions}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <TransactionItem item={item} />}
-          showsVerticalScrollIndicator={false}
-        />
-      </View>
-    );
-  }
-);
+  const handlePress = useCallback((transaction) => {
+    setSelectedTransaction(transaction);
+    bottomSheetRef.current?.snapToIndex(0);
+  }, []);
+
+  const handleSheetChanges = useCallback((index) => {
+    if (index === -1) {
+      setSelectedTransaction(null);
+    }
+  }, []);
+
+  const renderBackdrop = useCallback(
+    (props) => (
+      <BottomSheetBackdrop
+        {...props}
+        disappearsOnIndex={-1}
+        appearsOnIndex={0}
+        opacity={0.5}
+        pressBehavior="close"
+      />
+    ),
+    []
+  );
+
+  const filteredTransactions = useMemo(
+    () =>
+      transactions.filter((transaction) =>
+        filter === null ? true : transaction.isCredited === filter
+      ),
+    [transactions, filter]
+  );
+
+  return (
+    <View style={styles.container}>
+      <FilterButtons onFilterPress={onFilterPress} currentFilter={filter} />
+      <LoadingScreen visible={isLoading} />
+      <FlatList
+        data={filteredTransactions}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <TransactionItem item={item} onPress={handlePress} />
+        )}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.listContainer}
+      />
+      <BottomSheet
+        ref={bottomSheetRef}
+        index={-1}
+        snapPoints={snapPoints}
+        enablePanDownToClose
+        onChange={handleSheetChanges}
+        backdropComponent={renderBackdrop}
+        handleIndicatorStyle={styles.handleIndicator}
+        backgroundStyle={styles.bottomSheetBackground}
+        enableContentPanningGesture={true}
+        enableHandlePanningGesture={true}
+        android_keyboardInputMode="adjustResize"
+      >
+        <BottomSheetScrollView
+          contentContainerStyle={styles.bottomSheetContent}
+        >
+          {selectedTransaction && (
+            <TransactionDetails transaction={selectedTransaction} />
+          )}
+        </BottomSheetScrollView>
+      </BottomSheet>
+    </View>
+  );
+};
 
 const TransactionSummary = React.memo(() => (
-  <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+  <View style={styles.summaryContainer}>
     <Text>Transaction Summary Content</Text>
   </View>
 ));
@@ -225,6 +183,17 @@ const TransactionSummary = React.memo(() => (
 const StatementScreen = () => {
   const [index, setIndex] = useState(0);
   const [filter, setFilter] = useState(null);
+  const dispatch = useDispatch();
+  const { isLoading, transactions } = useSelector(
+    (state) => state.transactionsReducer
+  );
+  const { token } = useSelector((state) => state.auth);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      dispatch(fetchTransactions(token));
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [dispatch, token]);
 
   const routes = useMemo(
     () => [
@@ -241,6 +210,7 @@ const StatementScreen = () => {
           transactions={transactions}
           filter={filter}
           onFilterPress={setFilter}
+          isLoading={isLoading}
         />
       ),
       summary: TransactionSummary,
@@ -270,20 +240,24 @@ const StatementScreen = () => {
           renderScene={renderScene}
           onIndexChange={setIndex}
           renderTabBar={renderTabBar}
+          initialLayout={{ width }}
         />
       </View>
     </View>
   );
 };
 
-// Styles
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  listContainer: {
+    paddingHorizontal: 2,
+    paddingBottom: 20,
+  },
   screenContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
     backgroundColor: "#F5F5F5",
-    padding: width * 0.04,
   },
   paperContainer: {
     flex: 1,
@@ -296,6 +270,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 5,
     shadowOffset: { width: 0, height: 3 },
+  },
+  summaryContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
   filterContainer: {
     flexDirection: "row",
@@ -364,15 +343,18 @@ const styles = StyleSheet.create({
   },
   transactionType: {
     fontWeight: "bold",
-    fontSize: width * 0.04,
+    fontSize: width * 0.035,
+    marginBottom: width * 0.005,
   },
   transactionName: {
     color: "#666",
-    fontSize: width * 0.03,
+    marginBottom: width * 0.005,
+    fontSize: width * 0.028,
   },
   transactionInfo: {
     color: "#999",
-    fontSize: width * 0.03,
+    marginBottom: width * 0.005,
+    fontSize: width * 0.028,
   },
   transactionAmountContainer: {
     justifyContent: "center",
@@ -400,6 +382,18 @@ const styles = StyleSheet.create({
   },
   tabLabel: {
     fontSize: width * 0.028,
+  },
+  handleIndicator: {
+    backgroundColor: "#ccc",
+    width: 40,
+  },
+  bottomSheetBackground: {
+    backgroundColor: "#fff",
+    borderTopLeftRadius: 15,
+    borderTopRightRadius: 15,
+  },
+  bottomSheetContent: {
+    padding: 20,
   },
 });
 
