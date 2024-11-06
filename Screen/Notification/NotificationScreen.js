@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -7,19 +7,116 @@ import {
   FlatList,
   Platform,
   SafeAreaView,
-  StatusBar,
   TouchableOpacity,
-  Modal,
   Dimensions,
-  ScrollView,
 } from "react-native";
+import BottomSheet, {
+  BottomSheetView,
+  BottomSheetBackdrop,
+} from "@gorhom/bottom-sheet";
 import { Bell } from "lucide-react-native";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
+const NotificationItem = ({ item, onPress }) => {
+  const formattedDate = useMemo(
+    () =>
+      new Date(item.createdAt).toLocaleString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      }),
+    [item.createdAt]
+  );
+
+  return (
+    <TouchableOpacity
+      style={styles.notificationItem}
+      onPress={() => onPress(item)}
+      activeOpacity={0.7}
+    >
+      <View style={styles.notificationContent}>
+        <View style={styles.iconContainer}>
+          <Bell size={20} color="#E91E63" strokeWidth={2.5} />
+        </View>
+        <View style={styles.textContent}>
+          <Text style={styles.title} numberOfLines={1}>
+            {item.title}
+          </Text>
+          <Text style={styles.body} numberOfLines={2}>
+            {item.body}
+          </Text>
+          <Text style={styles.date}>{formattedDate}</Text>
+        </View>
+        {item.notificationImage && (
+          <Image
+            source={{ uri: item.notificationImage }}
+            style={styles.thumbnail}
+            resizeMode="cover"
+          />
+        )}
+      </View>
+    </TouchableOpacity>
+  );
+};
+
+const EmptyState = () => (
+  <View style={styles.emptyContainer}>
+    <View style={styles.emptyIconContainer}>
+      <Bell size={48} color="#E0E0E0" strokeWidth={1.5} />
+    </View>
+    <Text style={styles.emptyTitle}>No Notifications Yet</Text>
+    <Text style={styles.emptySubtitle}>
+      We'll notify you when something important happens
+    </Text>
+  </View>
+);
+
+const NotificationDetails = ({ notification }) => {
+  const formattedDate = useMemo(
+    () =>
+      notification
+        ? new Date(notification.createdAt).toLocaleString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          })
+        : "",
+    [notification]
+  );
+
+  if (!notification) return null;
+
+  return (
+    <BottomSheetView style={styles.detailsContainer}>
+      {notification.notificationImage && (
+        <Image
+          source={{ uri: notification.notificationImage }}
+          style={styles.detailImage}
+          resizeMode="cover"
+        />
+      )}
+      <View style={styles.detailsContent}>
+        <Text style={styles.detailTitle}>{notification.title}</Text>
+        <Text style={styles.detailBody}>{notification.body}</Text>
+        <Text style={styles.detailDate}>{formattedDate}</Text>
+      </View>
+    </BottomSheetView>
+  );
+};
+
 const NotificationScreen = () => {
   const [selectedNotification, setSelectedNotification] = useState(null);
-  const [modalVisible, setModalVisible] = useState(false);
+  const bottomSheetRef = useRef(null);
+
+  // Define fixed snap points
+  const snapPoints = useMemo(() => ["20%", "55%"], []);
 
   const notifications = [
     {
@@ -73,115 +170,57 @@ const NotificationScreen = () => {
     },
   ];
 
-  const formatDateTime = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleString("en-US", {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
-  };
-
-  const handleNotificationPress = (notification) => {
+  const handleNotificationPress = useCallback((notification) => {
     setSelectedNotification(notification);
-    setModalVisible(true);
-  };
+    bottomSheetRef.current?.expand();
+  }, []);
 
-  const NotificationModal = () => (
-    <Modal
-      animationType="slide"
-      transparent={true}
-      visible={modalVisible}
-      onRequestClose={() => setModalVisible(false)}
-    >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Notification Details</Text>
-            <TouchableOpacity
-              onPress={() => setModalVisible(false)}
-              style={styles.closeButton}
-            >
-              <Text style={styles.closeButtonText}>✕</Text>
-            </TouchableOpacity>
-          </View>
-
-          <ScrollView style={styles.modalContent}>
-            {selectedNotification?.notificationImage && (
-              <Image
-                source={{ uri: selectedNotification.notificationImage }}
-                style={styles.modalImage}
-                resizeMode="cover"
-              />
-            )}
-            <View style={styles.modalTextContent}>
-              <Text style={styles.modalNotificationTitle}>
-                {selectedNotification?.title}
-              </Text>
-              <Text style={styles.modalNotificationBody}>
-                {selectedNotification?.body}
-              </Text>
-              <Text style={styles.modalNotificationDate}>
-                {selectedNotification &&
-                  formatDateTime(selectedNotification.createdAt)}
-              </Text>
-            </View>
-          </ScrollView>
-        </View>
-      </View>
-    </Modal>
+  const renderBackdrop = useCallback(
+    (props) => (
+      <BottomSheetBackdrop
+        {...props}
+        disappearsOnIndex={-1}
+        appearsOnIndex={0}
+        opacity={0.5}
+      />
+    ),
+    []
   );
 
-  const renderNotificationItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.notificationContainer}
-      onPress={() => handleNotificationPress(item)}
-    >
-      <View style={styles.notificationContent}>
-        <View style={styles.iconContainer}>
-          <Bell size={20} color="#E91E63" />
-        </View>
-        <View style={styles.textContent}>
-          <Text style={styles.title} numberOfLines={1}>
-            {item.title}
-          </Text>
-          <Text style={styles.body} numberOfLines={2}>
-            {item.body}
-          </Text>
-          <Text style={styles.date}>{formatDateTime(item.createdAt)}</Text>
-        </View>
-        {item.notificationImage && (
-          <Image
-            source={{ uri: item.notificationImage }}
-            style={styles.thumbnail}
-            resizeMode="cover"
-          />
-        )}
-      </View>
-    </TouchableOpacity>
-  );
-
-  const ListEmptyComponent = () => (
-    <View style={styles.emptyContainer}>
-      <Bell size={40} color="#999999" />
-      <Text style={styles.emptyText}>No notifications yet</Text>
-    </View>
-  );
+  const handleSheetChanges = useCallback((index) => {
+    if (index === -1) {
+      setSelectedNotification(null);
+    }
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
         data={notifications}
         keyExtractor={(item) => item._id}
-        renderItem={renderNotificationItem}
-        contentContainerStyle={styles.listContainer}
+        renderItem={({ item }) => (
+          <NotificationItem item={item} onPress={handleNotificationPress} />
+        )}
+        contentContainerStyle={[
+          styles.listContainer,
+          notifications.length === 0 && styles.emptyListContainer,
+        ]}
         showsVerticalScrollIndicator={false}
-        ListEmptyComponent={ListEmptyComponent}
+        ListEmptyComponent={EmptyState}
       />
-      <NotificationModal />
+
+      <BottomSheet
+        ref={bottomSheetRef}
+        index={-1}
+        snapPoints={snapPoints}
+        enablePanDownToClose
+        onChange={handleSheetChanges}
+        backdropComponent={renderBackdrop}
+        handleIndicatorStyle={styles.handleIndicator}
+        backgroundStyle={styles.bottomSheetBackground}
+      >
+        <NotificationDetails notification={selectedNotification} />
+      </BottomSheet>
     </SafeAreaView>
   );
 };
@@ -189,17 +228,20 @@ const NotificationScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#F8F9FA",
   },
   listContainer: {
-    padding: 12,
+    padding: 16,
   },
-  notificationContainer: {
+  emptyListContainer: {
+    flexGrow: 1,
+  },
+  notificationItem: {
     marginBottom: 12,
   },
   notificationContent: {
-    backgroundColor: "#ffffff",
-    borderRadius: 12,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
     flexDirection: "row",
     alignItems: "center",
     padding: 16,
@@ -207,8 +249,8 @@ const styles = StyleSheet.create({
       ios: {
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
       },
       android: {
         elevation: 3,
@@ -216,101 +258,111 @@ const styles = StyleSheet.create({
     }),
   },
   iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#FFF2F6",
+    justifyContent: "center",
+    alignItems: "center",
     marginRight: 12,
   },
   textContent: {
     flex: 1,
+    marginRight: 8,
   },
   title: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1a1a1a",
+    color: "#1A1A1A",
     marginBottom: 4,
+    letterSpacing: -0.3,
   },
   body: {
     fontSize: 14,
     color: "#666666",
-    marginBottom: 4,
+    marginBottom: 6,
+    lineHeight: 20,
   },
   date: {
     fontSize: 12,
     color: "#999999",
+    letterSpacing: -0.2,
   },
   thumbnail: {
-    width: 50,
-    height: 50,
-    borderRadius: 8,
-    marginLeft: 10,
+    width: 56,
+    height: 56,
+    borderRadius: 12,
   },
+  // Empty State Styles
   emptyContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    paddingHorizontal: 32,
   },
-  emptyText: {
-    fontSize: 16,
-    color: "#666666",
-    marginTop: 12,
-  },
-  // Modal Styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "flex-end",
-  },
-  modalContainer: {
-    backgroundColor: "#ffffff",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    maxHeight: "80%",
-  },
-  modalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+  emptyIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "#F5F5F5",
+    justifyContent: "center",
     alignItems: "center",
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#eeeeee",
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#1a1a1a",
-  },
-  closeButton: {
-    padding: 4,
-  },
-  closeButtonText: {
-    fontSize: 20,
-    color: "#666666",
-  },
-  modalContent: {
-    padding: 16,
-  },
-  modalImage: {
-    width: SCREEN_WIDTH - 32,
-    height: 200,
-    borderRadius: 12,
     marginBottom: 16,
   },
-  modalTextContent: {
-    paddingBottom: 20,
-  },
-  modalNotificationTitle: {
-    fontSize: 18,
+  emptyTitle: {
+    fontSize: 20,
     fontWeight: "600",
-    color: "#1a1a1a",
+    color: "#1A1A1A",
     marginBottom: 8,
+    letterSpacing: -0.5,
   },
-  modalNotificationBody: {
+  emptySubtitle: {
     fontSize: 16,
     color: "#666666",
+    textAlign: "center",
+    lineHeight: 22,
+  },
+  // Bottom Sheet Styles
+  bottomSheetBackground: {
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+  },
+  handleIndicator: {
+    width: 40,
+    height: 4,
+    backgroundColor: "#E0E0E0",
+    borderRadius: 2,
+  },
+  detailsContainer: {
+    padding: 16,
+  },
+  detailImage: {
+    width: SCREEN_WIDTH - 32,
+    height: 200,
+    borderRadius: 16,
+    marginBottom: 16,
+  },
+  detailsContent: {
+    paddingBottom: 32,
+  },
+  detailTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#1A1A1A",
+    marginBottom: 8,
+    letterSpacing: -0.5,
+  },
+  detailBody: {
+    fontSize: 16,
+    color: "#4A4A4A",
+    lineHeight: 24,
     marginBottom: 12,
   },
-  modalNotificationDate: {
+  detailDate: {
     fontSize: 14,
     color: "#999999",
+    letterSpacing: -0.2,
   },
 });
 
