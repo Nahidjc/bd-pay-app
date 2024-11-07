@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    height: dynamicHeight(7),
+    height: dynamicHeight(6),
     paddingHorizontal: dynamicWidth(4),
     paddingVertical: dynamicHeight(1),
   },

@@ -19,7 +19,7 @@ const DashboardScreen = ({ navigation }) => {
 
   return (
     <ImageBackground
-      source={require("../assets/bg.jpg")} // Set your background image here
+      source={require("../assets/bg.jpg")}
       style={styles.container}
       resizeMode="cover"
     >
