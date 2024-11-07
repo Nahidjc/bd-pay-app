@@ -40,21 +40,10 @@ const shadowStyle = {
   elevation: 5,
 };
 
-const CustomTabBarButton = ({ children }) => {
-  const navigation = useNavigation();
-
-  return (
-    <TouchableOpacity
-      style={styles.customTabButton}
-      onPress={() => navigation.navigate("ScanQrCodeScreen")}
-    >
-      <View style={styles.qrButton}>{children}</View>
-    </TouchableOpacity>
-  );
-};
-
 const TabNavigator = () => {
   const { user } = useSelector((state) => state.auth);
+  const navigation = useNavigation();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -69,6 +58,10 @@ const TabNavigator = () => {
             case "Statements":
               Icon = BarChart2;
               label = "Statements";
+              break;
+            case "QRCode":
+              Icon = QrCode;
+              label = "Scan QR";
               break;
             case "Notifications":
               Icon = Bell;
@@ -87,7 +80,7 @@ const TabNavigator = () => {
               <Text
                 style={[
                   styles.iconLabel,
-                  { color: focused ? "#6c5ce7" : "#C6C6C6" },
+                  { color: focused ? "#E91E63" : "#C6C6C6" },
                 ]}
               >
                 {label}
@@ -124,16 +117,15 @@ const TabNavigator = () => {
       <Tab.Screen
         name="QRCode"
         component={EmptyComponent}
+        listeners={{
+          tabPress: (e) => {
+            e.preventDefault();
+            navigation.navigate("ScanQrCodeScreen");
+          },
+        }}
         options={{
-          tabBarButton: (props) => (
-            <CustomTabBarButton {...props}>
-              <QrCode
-                size={dynamicWidth(6)}
-                color="#FFFFFF"
-                strokeWidth={2.5}
-              />
-            </CustomTabBarButton>
-          ),
+          headerStyle: { backgroundColor: "#E91E63" },
+          header: (props) => <Header {...props} tabName="Scan QR" />,
         }}
       />
       <Tab.Screen
@@ -141,7 +133,7 @@ const TabNavigator = () => {
         component={NotificationScreen}
         options={{
           headerStyle: { backgroundColor: "#E91E63" },
-          header: (props) => <Header {...props} tabName="HelloWorld" />,
+          header: (props) => <Header {...props} tabName="Notifications" />,
         }}
       />
       <Tab.Screen
@@ -160,26 +152,13 @@ const EmptyComponent = () => null;
 
 const styles = StyleSheet.create({
   tabBar: {
-    position: "absolute",
     backgroundColor: "#FFFFFF",
     height: dynamicHeight(8),
     borderTopWidth: 1,
     borderTopColor: "#F0F0F0",
+    borderTopEndRadius: dynamicHeight(3),
+    borderTopStartRadius: dynamicHeight(3),
     ...shadowStyle,
-  },
-  customTabButton: {
-    top: -dynamicHeight(3),
-    justifyContent: "center",
-    alignItems: "center",
-    ...shadowStyle,
-  },
-  qrButton: {
-    width: dynamicWidth(14),
-    height: dynamicWidth(14),
-    borderRadius: dynamicWidth(7),
-    backgroundColor: "#E91E63",
-    justifyContent: "center",
-    alignItems: "center",
   },
   iconContainer: {
     alignItems: "center",
