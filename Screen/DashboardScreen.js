@@ -57,12 +57,15 @@ const DashboardScreen = ({ navigation }) => {
           </View>
 
           <View style={styles.gridItemContainer}>
-            <View style={styles.iconBox}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("AddMoneyScreen")}
+              style={styles.iconBox}
+            >
               <Image
                 source={require("../assets/icon/add-money.png")}
                 style={styles.iconImage}
               />
-            </View>
+            </TouchableOpacity>
             <Text style={styles.gridText}>{t("addMoney")}</Text>
           </View>
         </View>

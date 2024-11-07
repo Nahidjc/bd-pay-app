@@ -14,7 +14,6 @@ import {
 import DashboardScreen from "../Screen/DashboardScreen";
 import StatementScreen from "../Screen/Transaction/Transaction";
 import Header from "../components/Navigation/Header";
-import HelloWorldScreen from "../components/HelloWorld";
 import SettingsScreen from "../Screen/Setting/Setting";
 import NotificationScreen from "../Screen/Notification/NotificationScreen";
 
