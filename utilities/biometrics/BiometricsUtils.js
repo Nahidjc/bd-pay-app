@@ -1,6 +1,5 @@
 import ReactNativeBiometrics, { BiometryTypes } from "react-native-biometrics";
 import * as Keychain from "react-native-keychain";
-import * as Application from "expo-application";
 import DeviceInfo from "react-native-device-info";
 import {
   clearBiometricData,
@@ -11,7 +10,6 @@ import {
   setBiometricStatus,
   setBiometricType,
   setDeviceId,
-  StorageKeys,
 } from "../../state/storage";
 import { privatePost, publicPost } from "../apiCaller";
 

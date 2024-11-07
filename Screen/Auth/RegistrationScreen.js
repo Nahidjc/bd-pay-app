@@ -14,6 +14,7 @@ import {
 import { MaterialIcons, Feather } from "@expo/vector-icons";
 import { showMessage } from "react-native-flash-message";
 import { getDeviceType, getFCMToken } from "./../../utilities/notifications";
+import DeviceInfo from "react-native-device-info";
 import { createUserRegistration } from "../../state/reducers/authSlice";
 import { useDispatch, useSelector } from "react-redux";
 import LoadingScreen from "./../../components/Loader/Loader";
@@ -45,6 +46,7 @@ export default function RegistrationScreen({ navigation }) {
   const handleRegister = async () => {
     const deviceToken = await getFCMToken();
     const deviceType = getDeviceType();
+    const deviceId = DeviceInfo.getDeviceId();
     const validationError = validateForm();
 
     if (validationError) {
@@ -64,6 +66,7 @@ export default function RegistrationScreen({ navigation }) {
           pin: password,
           deviceToken,
           deviceType,
+          deviceId
         })
       ).unwrap();
       showMessage({
