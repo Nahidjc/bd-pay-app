@@ -35,7 +35,7 @@ const GlobalWalletScreen = () => {
         <Text style={styles.bankName}>{item.name}</Text>
       </View>
       <View style={styles.linkContainer}>
-        <Link2 size={width * 0.05} color="#d81b60" />
+        <Link2 size={width * 0.05} color="#e2136e" />
         {item.isLinked && <View style={styles.dot} />}
       </View>
     </TouchableOpacity>
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
     width: width * 0.02,
     height: width * 0.02,
     borderRadius: width * 0.01,
-    backgroundColor: "#d81b60",
+    backgroundColor: "#e2136e",
     marginLeft: width * 0.02,
   },
   separator: {

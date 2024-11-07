@@ -8,7 +8,7 @@ import {
   StyleSheet,
   Dimensions,
 } from "react-native";
-import { ChevronRight, Link2 } from "lucide-react-native";
+import { ChevronRight, Link } from "lucide-react-native";
 
 import ABBankLogo from "../../assets/banks/ab-bank.svg";
 import EBLLogo from "../../assets/banks/ebl.svg";
@@ -53,9 +53,14 @@ const BankScreen = () => {
         <Text style={styles.bankName}>{item.name}</Text>
       </View>
       <View style={styles.linkContainer}>
-        <Link2 size={width * 0.06} color="#d81b60" />
         {item.isLinked && <View style={styles.dot} />}
-        <ChevronRight size={width * 0.05} color="#666" style={styles.chevron} />
+        <Link size={width * 0.06} color="#e2136e" />
+        <ChevronRight
+          width={width * 0.06}
+          height={width * 0.06}
+          color="#e2136e"
+          style={styles.chevron}
+        />
       </View>
     </TouchableOpacity>
   );
@@ -155,17 +160,21 @@ const styles = StyleSheet.create({
     fontSize: width * 0.04,
     color: "#333",
     flex: 1,
+    marginLeft: width * 0.03,
   },
   linkContainer: {
     flexDirection: "row",
     alignItems: "center",
+    position: "relative",
   },
   dot: {
+    position: "absolute",
+    top: -width * 0.02,
+    right: width * 0.04,
     width: width * 0.02,
     height: width * 0.02,
     borderRadius: width * 0.01,
-    backgroundColor: "#d81b60",
-    marginHorizontal: width * 0.02,
+    backgroundColor: "#e2136e",
   },
   chevron: {
     marginLeft: width * 0.02,
