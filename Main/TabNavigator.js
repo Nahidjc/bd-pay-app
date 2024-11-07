@@ -1,6 +1,12 @@
 import React, { useEffect } from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { StyleSheet, View, TouchableOpacity, Dimensions } from "react-native";
+import {
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  Dimensions,
+  Text,
+} from "react-native";
 import { useSelector } from "react-redux";
 import { useNavigation } from "@react-navigation/native";
 import {
@@ -27,10 +33,10 @@ const shadowStyle = {
   shadowColor: "#7F5DF0",
   shadowOffset: {
     width: 0,
-    height: dynamicHeight(1),
+    height: 4,
   },
-  shadowOpacity: 0.25,
-  shadowRadius: dynamicHeight(0.5),
+  shadowOpacity: 0.3,
+  shadowRadius: 5,
   elevation: 5,
 };
 
@@ -39,28 +45,10 @@ const CustomTabBarButton = ({ children }) => {
 
   return (
     <TouchableOpacity
-      style={{
-        top: -dynamicHeight(2),
-        justifyContent: "center",
-        alignItems: "center",
-        ...shadowStyle,
-      }}
+      style={styles.customTabButton}
       onPress={() => navigation.navigate("ScanQrCodeScreen")}
     >
-      <View
-        style={{
-          width: dynamicWidth(12),
-          height: dynamicWidth(12),
-          borderRadius: dynamicWidth(6),
-          backgroundColor: "#FFFFFF",
-          justifyContent: "center",
-          alignItems: "center",
-          borderWidth: 1,
-          borderColor: "#E6E6E6",
-        }}
-      >
-        {children}
-      </View>
+      <View style={styles.qrButton}>{children}</View>
     </TouchableOpacity>
   );
 };
@@ -70,30 +58,41 @@ const TabNavigator = () => {
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
-        tabBarIcon: ({ focused, color, size }) => {
+        tabBarIcon: ({ focused, color }) => {
           let Icon;
+          let label;
           switch (route.name) {
             case "Dashboard":
               Icon = House;
+              label = "Home";
               break;
             case "Statements":
               Icon = BarChart2;
+              label = "Statements";
               break;
             case "Notifications":
               Icon = Bell;
+              label = "Notifications";
               break;
             case "Settings":
               Icon = Settings;
+              label = "Settings";
               break;
             default:
               Icon = Wallet;
           }
           return (
-            <Icon
-              size={dynamicWidth(6)}
-              color={color}
-              strokeWidth={focused ? 2.5 : 2}
-            />
+            <View style={styles.iconContainer}>
+              <Icon size={24} color={color} strokeWidth={focused ? 2.5 : 2} />
+              <Text
+                style={[
+                  styles.iconLabel,
+                  { color: focused ? "#6c5ce7" : "#C6C6C6" },
+                ]}
+              >
+                {label}
+              </Text>
+            </View>
           );
         },
         tabBarActiveTintColor: "#E91E63",
@@ -130,7 +129,7 @@ const TabNavigator = () => {
             <CustomTabBarButton {...props}>
               <QrCode
                 size={dynamicWidth(6)}
-                color="#E91E63"
+                color="#FFFFFF"
                 strokeWidth={2.5}
               />
             </CustomTabBarButton>
@@ -161,16 +160,33 @@ const EmptyComponent = () => null;
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: "#ffffff",
-    borderTopWidth: 0,
-    marginTop: dynamicHeight(2),
-    height: dynamicHeight(7),
-    borderRadius: dynamicWidth(5),
-    marginBottom: dynamicHeight(1.5),
-    marginHorizontal: dynamicWidth(3),
-    justifyContent: "space-between",
-    paddingHorizontal: dynamicWidth(2),
+    position: "absolute",
+    backgroundColor: "#FFFFFF",
+    height: dynamicHeight(8),
+    borderTopWidth: 1,
+    borderTopColor: "#F0F0F0",
     ...shadowStyle,
+  },
+  customTabButton: {
+    top: -dynamicHeight(3),
+    justifyContent: "center",
+    alignItems: "center",
+    ...shadowStyle,
+  },
+  qrButton: {
+    width: dynamicWidth(14),
+    height: dynamicWidth(14),
+    borderRadius: dynamicWidth(7),
+    backgroundColor: "#E91E63",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  iconContainer: {
+    alignItems: "center",
+  },
+  iconLabel: {
+    fontSize: 12,
+    marginTop: 4,
   },
 });
 
