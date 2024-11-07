@@ -68,7 +68,9 @@ const TransactionDetails = ({ transaction }) => {
           </View>
           <View style={styles.cell}>
             <Text style={styles.label}>Reference</Text>
-            <Text style={styles.value}>{transaction.reference || "N/A"}</Text>
+            <Text style={styles.value}>
+              {transaction.referenceText || "N/A"}
+            </Text>
           </View>
         </View>
       </View>

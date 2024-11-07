@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   iconBox: {
-    backgroundColor: "#F1E6FE",
+    backgroundColor: "white",
     padding: width * 0.04,
     borderRadius: 10,
     alignItems: "center",
