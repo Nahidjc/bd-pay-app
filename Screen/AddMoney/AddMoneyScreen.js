@@ -15,7 +15,6 @@ import {
 } from "lucide-react-native";
 
 const { width, height } = Dimensions.get("window");
-const ITEM_HEIGHT = height * 0.1;
 
 const DATA = [
   {
@@ -23,21 +22,18 @@ const DATA = [
     title: "Bank to bKash",
     icon: Landmark,
     link: "BankScreen",
-    dot: true,
   },
   {
     id: "2",
     title: "Card to bKash",
     icon: CreditCard,
     link: "CardScreen",
-    dot: false,
   },
   {
     id: "3",
     title: "Global Wallets",
     icon: Wallet,
     link: "GlobalWalletScreen",
-    dot: false,
   },
 ];
 
@@ -46,16 +42,16 @@ const AddMoneyScreen = ({ navigation }) => {
     <TouchableOpacity
       style={styles.item}
       onPress={() => navigation.navigate(item.link)}
+      activeOpacity={0.7}
     >
       <View style={styles.iconContainer}>
         <item.icon color="#E91E63" size={width * 0.075} />
       </View>
       <View style={styles.textContainer}>
         <Text style={styles.title}>{item.title}</Text>
-        {item.dot && <View style={styles.dot} />}
       </View>
       <View style={styles.arrowContainer}>
-        <ChevronRight color="#E91E63" size={width * 0.075} />
+        <ChevronRight color="#E91E63" size={width * 0.06} />
       </View>
     </TouchableOpacity>
   );
@@ -79,12 +75,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
-    paddingHorizontal: width * 0.03,
-    paddingTop: width * 0.1,
+    paddingHorizontal: width * 0.001,
+    paddingTop: width * 0.05,
   },
   headerText: {
-    fontSize: width * 0.04,
+    fontSize: width * 0.045,
+    fontWeight: "bold",
     color: "#333",
+    textAlign: "center",
   },
   divider: {
     height: 1,
@@ -92,36 +90,34 @@ const styles = StyleSheet.create({
     marginVertical: width * 0.03,
   },
   listContainer: {
-    paddingVertical: width * 0.02,
+    paddingVertical: width * 0.009,
   },
   item: {
     flexDirection: "row",
     alignItems: "center",
-    height: ITEM_HEIGHT * 0.8,
+    paddingHorizontal: width * 0.04,
+    paddingVertical: width * 0.03,
+    borderRadius: width * 0.02,
+    backgroundColor: "#f9f9f9",
+    marginVertical: width * 0.015,
   },
   iconContainer: {
     width: width * 0.15,
     justifyContent: "center",
     alignItems: "center",
+    position: "relative",
   },
   textContainer: {
     flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
+    justifyContent: "center",
   },
   title: {
-    fontSize: width * 0.04,
+    fontSize: width * 0.045,
     color: "#333",
-  },
-  dot: {
-    width: width * 0.015,
-    height: width * 0.015,
-    borderRadius: width * 0.0075,
-    backgroundColor: "#E91E63",
-    marginLeft: width * 0.02,
+    fontWeight: "500",
   },
   arrowContainer: {
-    width: width * 0.1,
+    width: width * 0.08,
     justifyContent: "center",
     alignItems: "center",
   },
