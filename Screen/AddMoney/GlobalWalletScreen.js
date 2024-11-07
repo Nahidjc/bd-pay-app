@@ -8,7 +8,7 @@ import {
   StyleSheet,
   Dimensions,
 } from "react-native";
-import { ChevronRight, Link2 } from "lucide-react-native";
+import { ChevronRight, Link } from "lucide-react-native";
 import PaypalLogo from "../../assets/svgs/paypal.svg";
 import StripeLogo from "../../assets/svgs/stripe.svg";
 import ApexLogo from "../../assets/svgs/apex.svg";
@@ -17,7 +17,7 @@ const { width, height } = Dimensions.get("window");
 
 const BANK_DATA = [
   { id: "1", name: "PayPal", logo: PaypalLogo, isLinked: false },
-  { id: "2", name: "Stripe", logo: StripeLogo, isLinked: false },
+  { id: "2", name: "Stripe", logo: StripeLogo, isLinked: true },
   { id: "3", name: "Apex", logo: ApexLogo, isLinked: false },
 ];
 
@@ -35,8 +35,14 @@ const GlobalWalletScreen = () => {
         <Text style={styles.bankName}>{item.name}</Text>
       </View>
       <View style={styles.linkContainer}>
-        <Link2 size={width * 0.05} color="#e2136e" />
         {item.isLinked && <View style={styles.dot} />}
+        <Link size={width * 0.06} color="#e2136e" />
+        <ChevronRight
+          width={width * 0.06}
+          height={width * 0.06}
+          color="#e2136e"
+          style={styles.chevron}
+        />
       </View>
     </TouchableOpacity>
   );
@@ -53,7 +59,11 @@ const GlobalWalletScreen = () => {
             onChangeText={setSearchQuery}
             placeholderTextColor="#999"
           />
-          <ChevronRight size={width * 0.05} color="#666" />
+          <ChevronRight
+            width={width * 0.05}
+            height={width * 0.05}
+            color="#666"
+          />
         </View>
       </View>
 
@@ -139,12 +149,18 @@ const styles = StyleSheet.create({
   linkContainer: {
     flexDirection: "row",
     alignItems: "center",
+    position: "relative",
   },
   dot: {
+    position: "absolute",
+    top: -width * 0.03,
+    right: width * 0.06,
     width: width * 0.02,
     height: width * 0.02,
     borderRadius: width * 0.01,
     backgroundColor: "#e2136e",
+  },
+  chevron: {
     marginLeft: width * 0.02,
   },
   separator: {
