@@ -6,18 +6,24 @@ import {
   Image,
   Dimensions,
   TouchableOpacity,
+  ImageBackground,
 } from "react-native";
 import Card from "../components/Card";
 import TransactionList from "../components/TransactionList";
-import { LinearGradient } from "expo-linear-gradient";
 import { useTranslation } from "react-i18next";
+
 const { width, height } = Dimensions.get("window");
 
 const DashboardScreen = ({ navigation }) => {
   const { t } = useTranslation();
+
   return (
-    <View style={styles.container}>
-      <LinearGradient colors={["#CBF2FD", "#F4FAFB"]} style={styles.header}>
+    <ImageBackground
+      source={require("../assets/bg.jpg")} // Set your background image here
+      style={styles.container}
+      resizeMode="cover"
+    >
+      <View style={styles.header}>
         <Card />
         <View style={styles.gridContainer}>
           <View style={styles.gridItemContainer}>
@@ -47,12 +53,12 @@ const DashboardScreen = ({ navigation }) => {
           </View>
 
           <View style={styles.gridItemContainer}>
-            <View style={styles.iconBox}>
+            <TouchableOpacity style={styles.iconBox}>
               <Image
                 source={require("../assets/icon/payment.png")}
                 style={styles.iconImage}
               />
-            </View>
+            </TouchableOpacity>
             <Text style={styles.gridText}>{t("payment")}</Text>
           </View>
 
@@ -69,33 +75,22 @@ const DashboardScreen = ({ navigation }) => {
             <Text style={styles.gridText}>{t("addMoney")}</Text>
           </View>
         </View>
-      </LinearGradient>
+      </View>
       <View style={styles.scrollableSection}>
         <TransactionList />
       </View>
-    </View>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
   },
   header: {
-    height: height * 0.3,
-    paddingBottom: height * 0.04,
     borderBottomLeftRadius: width * 0.08,
     borderBottomRightRadius: width * 0.08,
-  },
-  greeting: {
-    color: "black",
-    fontWeight: "bold",
-    fontSize: width * 0.04,
-  },
-  subtitle: {
-    color: "black",
-    fontSize: width * 0.03,
+    backgroundColor: "transparent",
   },
   gridContainer: {
     flexDirection: "row",
@@ -118,20 +113,26 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: width * 0.15,
     height: width * 0.15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
   },
   iconImage: {
     width: width * 0.08,
     height: width * 0.08,
   },
   gridText: {
-    color: "#6c5ce7",
-    fontSize: width * 0.03,
+    color: "#e2136e",
+    fontSize: width * 0.035,
     fontWeight: "500",
     marginTop: height * 0.01,
   },
   scrollableSection: {
     flex: 1,
-    marginTop: height * 0.02,
+    paddingTop: height * 0.02,
+    backgroundColor: "transparent",
   },
 });
 
