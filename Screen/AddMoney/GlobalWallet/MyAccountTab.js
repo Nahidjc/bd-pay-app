@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
-  Alert,
+  ToastAndroid,
   ActivityIndicator,
   SafeAreaView,
   ScrollView,
@@ -47,9 +47,9 @@ const MyAccountTab = () => {
 
   const handleAddMoney = useCallback(async () => {
     if (!isProceedEnabled) {
-      Alert.alert(
-        "Invalid Amount",
-        `Please enter an amount of at least ${CURRENCY}${MIN_AMOUNT}.`
+      ToastAndroid.show(
+        `Invalid Amount: Please enter an amount of at least ${CURRENCY}${MIN_AMOUNT}.`,
+        ToastAndroid.LONG
       );
       return;
     }
@@ -66,11 +66,10 @@ const MyAccountTab = () => {
         throw new Error("No checkout URL received");
       }
     } catch (error) {
-      console.error("Payment initiation error:", error);
-      Alert.alert(
-        "Error",
+      ToastAndroid.show(
         error.response?.data?.message ||
-          "Failed to start payment. Please try again."
+          "Failed to start payment. Please try again.",
+        ToastAndroid.LONG
       );
     } finally {
       setLoading(false);
@@ -79,42 +78,27 @@ const MyAccountTab = () => {
 
   const handleNavigationStateChange = useCallback((event) => {
     if (event.url.includes("payment-success")) {
-      Alert.alert(
-        "Payment Successful",
-        "Your payment was processed successfully.",
-        [
-          {
-            text: "OK",
-            onPress: () => {
-              setCheckoutUrl(null);
-              setAmount("");
-            },
-          },
-        ]
+      ToastAndroid.show(
+        "Payment Successful: Your payment was processed successfully.",
+        ToastAndroid.LONG
       );
+      setCheckoutUrl(null);
+      setAmount("");
     } else if (event.url.includes("payment-cancel")) {
-      Alert.alert("Payment Cancelled", "The payment process was cancelled.", [
-        {
-          text: "OK",
-          onPress: () => {
-            setCheckoutUrl(null);
-          },
-        },
-      ]);
+      ToastAndroid.show(
+        "Payment Cancelled: The payment process was cancelled.",
+        ToastAndroid.LONG
+      );
+      setCheckoutUrl(null);
     }
   }, []);
 
   const handleWebViewError = useCallback(() => {
-    Alert.alert(
-      "Connection Error",
-      "Failed to load payment page. Please try again.",
-      [
-        {
-          text: "OK",
-          onPress: () => setCheckoutUrl(null),
-        },
-      ]
+    ToastAndroid.show(
+      "Connection Error: Failed to load payment page. Please try again.",
+      ToastAndroid.LONG
     );
+    setCheckoutUrl(null);
   }, []);
 
   if (checkoutUrl) {
