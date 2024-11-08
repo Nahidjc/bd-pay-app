@@ -8,20 +8,23 @@ import {
   Dimensions,
   Alert,
   ActivityIndicator,
+  SafeAreaView,
+  ScrollView,
 } from "react-native";
 import { useSelector } from "react-redux";
 import { privatePost } from "../../../utilities/apiCaller";
 import WebView from "react-native-webview";
 
-const MIN_AMOUNT = 50;
+const MIN_AMOUNT = 500;
 const CURRENCY = "৳";
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
 const MyAccountTab = () => {
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [checkoutUrl, setCheckoutUrl] = useState(null);
   const { token } = useSelector((state) => state.auth);
+
   const isProceedEnabled = useMemo(() => {
     const numAmount = parseFloat(amount);
     return !isNaN(numAmount) && numAmount >= MIN_AMOUNT;
@@ -73,8 +76,9 @@ const MyAccountTab = () => {
       setLoading(false);
     }
   }, [amount, isProceedEnabled, token]);
-  const handleNavigationStateChange = useCallback((navState) => {
-    if (navState.url.includes("payment-success")) {
+
+  const handleNavigationStateChange = useCallback((event) => {
+    if (event.url.includes("payment-success")) {
       Alert.alert(
         "Payment Successful",
         "Your payment was processed successfully.",
@@ -88,7 +92,7 @@ const MyAccountTab = () => {
           },
         ]
       );
-    } else if (navState.url.includes("payment-cancel")) {
+    } else if (event.url.includes("payment-cancel")) {
       Alert.alert("Payment Cancelled", "The payment process was cancelled.", [
         {
           text: "OK",
@@ -99,6 +103,7 @@ const MyAccountTab = () => {
       ]);
     }
   }, []);
+
   const handleWebViewError = useCallback(() => {
     Alert.alert(
       "Connection Error",
@@ -114,7 +119,7 @@ const MyAccountTab = () => {
 
   if (checkoutUrl) {
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <WebView
           source={{ uri: checkoutUrl }}
           onNavigationStateChange={handleNavigationStateChange}
@@ -125,48 +130,50 @@ const MyAccountTab = () => {
               <ActivityIndicator size="large" color="#E91E63" />
             </View>
           )}
-          style={styles.webView}
+          style={[styles.webView, { height: height - 100 }]}
         />
-      </View>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>Your BD Pay Account Number</Text>
-      <Text style={styles.accountNumber}>01910125428</Text>
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.contentContainer}>
+        <Text style={styles.label}>Your BD Pay Account Number</Text>
+        <Text style={styles.accountNumber}>01910125428</Text>
 
-      <View style={styles.inputContainer}>
-        <Text style={styles.label}>Amount</Text>
-        <TextInput
-          style={styles.input}
-          placeholder={`Enter amount (min ${CURRENCY}${MIN_AMOUNT})`}
-          keyboardType="decimal-pad"
-          value={amount}
-          onChangeText={handleAmountChange}
-          editable={!loading}
-        />
-        <Text style={styles.minAmountText}>
-          Min. amount {CURRENCY}
-          {MIN_AMOUNT}.00
-        </Text>
-      </View>
+        <View style={styles.inputContainer}>
+          <Text style={styles.label}>Amount</Text>
+          <TextInput
+            style={styles.input}
+            placeholder={`Enter amount (min ${CURRENCY}${MIN_AMOUNT})`}
+            keyboardType="decimal-pad"
+            value={amount}
+            onChangeText={handleAmountChange}
+            editable={!loading}
+          />
+          <Text style={styles.minAmountText}>
+            Min. amount {CURRENCY}
+            {MIN_AMOUNT}.00
+          </Text>
+        </View>
 
-      <TouchableOpacity
-        style={[
-          styles.proceedButton,
-          isProceedEnabled ? styles.buttonEnabled : styles.buttonDisabled,
-        ]}
-        onPress={handleAddMoney}
-        disabled={!isProceedEnabled || loading}
-      >
-        {loading ? (
-          <ActivityIndicator color="#fff" size="small" />
-        ) : (
-          <Text style={styles.buttonText}>Proceed</Text>
-        )}
-      </TouchableOpacity>
-    </View>
+        <TouchableOpacity
+          style={[
+            styles.proceedButton,
+            isProceedEnabled ? styles.buttonEnabled : styles.buttonDisabled,
+          ]}
+          onPress={handleAddMoney}
+          disabled={!isProceedEnabled || loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="#fff" size="small" />
+          ) : (
+            <Text style={styles.buttonText}>Proceed</Text>
+          )}
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
@@ -174,7 +181,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+  },
+  contentContainer: {
     padding: 20,
+    alignItems: "center",
   },
   label: {
     fontSize: 16,
@@ -189,6 +199,7 @@ const styles = StyleSheet.create({
     color: "#333",
   },
   inputContainer: {
+    width: "100%",
     marginBottom: 20,
   },
   input: {
@@ -208,6 +219,7 @@ const styles = StyleSheet.create({
     marginTop: 5,
   },
   proceedButton: {
+    width: "100%",
     height: 50,
     justifyContent: "center",
     alignItems: "center",
@@ -226,7 +238,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   webView: {
-    flex: 1,
+    width: "100%",
   },
   webViewLoader: {
     position: "absolute",
