@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   SafeAreaView,
   ScrollView,
+  RefreshControl,
 } from "react-native";
 import { useSelector } from "react-redux";
 import { privatePost } from "../../../utilities/apiCaller";
@@ -19,10 +20,11 @@ const MIN_AMOUNT = 500;
 const CURRENCY = "৳";
 const { width, height } = Dimensions.get("window");
 
-const MyAccountTab = () => {
+const MyAccountTab = ({ navigation }) => {
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [checkoutUrl, setCheckoutUrl] = useState(null);
+  const [refreshing, setRefreshing] = useState(false); // State for refreshing
   const { token } = useSelector((state) => state.auth);
 
   const isProceedEnabled = useMemo(() => {
@@ -76,22 +78,26 @@ const MyAccountTab = () => {
     }
   }, [amount, isProceedEnabled, token]);
 
-  const handleNavigationStateChange = useCallback((event) => {
-    if (event.url.includes("payment-success")) {
-      ToastAndroid.show(
-        "Payment Successful: Your payment was processed successfully.",
-        ToastAndroid.LONG
-      );
-      setCheckoutUrl(null);
-      setAmount("");
-    } else if (event.url.includes("payment-cancel")) {
-      ToastAndroid.show(
-        "Payment Cancelled: The payment process was cancelled.",
-        ToastAndroid.LONG
-      );
-      setCheckoutUrl(null);
-    }
-  }, []);
+  const handleNavigationStateChange = useCallback(
+    (event) => {
+      if (event.url.includes("payment-success")) {
+        ToastAndroid.show(
+          "Payment Successful: Your payment was processed successfully.",
+          ToastAndroid.LONG
+        );
+        setTimeout(() => {
+          navigation.navigate("Dashboard");
+        }, 5000);
+      } else if (event.url.includes("payment-cancel")) {
+        ToastAndroid.show(
+          "Payment Cancelled: The payment process was cancelled.",
+          ToastAndroid.LONG
+        );
+        setCheckoutUrl(null);
+      }
+    },
+    [navigation]
+  );
 
   const handleWebViewError = useCallback(() => {
     ToastAndroid.show(
@@ -99,6 +105,15 @@ const MyAccountTab = () => {
       ToastAndroid.LONG
     );
     setCheckoutUrl(null);
+  }, []);
+
+  // Function to handle pull-to-refresh
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    setTimeout(() => {
+      // Simulate a network request or refresh logic here
+      setRefreshing(false);
+    }, 2000);
   }, []);
 
   if (checkoutUrl) {
@@ -122,7 +137,12 @@ const MyAccountTab = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={styles.contentContainer}>
+      <ScrollView
+        contentContainerStyle={styles.contentContainer}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <Text style={styles.label}>Your BD Pay Account Number</Text>
         <Text style={styles.accountNumber}>01910125428</Text>
 
