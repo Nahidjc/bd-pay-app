@@ -8,6 +8,7 @@ import messaging from "@react-native-firebase/messaging";
 import { registerPushNotifications } from "./utilities/notifications";
 import LoadingScreen from "./components/Loader/Loader";
 import { ThemeProvider } from "./context/ThemeProvider";
+import { StripeProvider } from "@stripe/stripe-react-native";
 export default function App() {
   useEffect(() => {
     const hideSplashScreen = async () => {
@@ -41,10 +42,12 @@ export default function App() {
   return (
     <Provider store={store}>
       <ThemeProvider>
-        <Suspense fallback={<LoadingScreen />}>
-          <MainApp />
-          <FlashMessage position="bottom" />
-        </Suspense>
+        <StripeProvider publishableKey="your-publishable-key-from-stripe">
+          <Suspense fallback={<LoadingScreen />}>
+            <MainApp />
+            <FlashMessage position="bottom" />
+          </Suspense>
+        </StripeProvider>
       </ThemeProvider>
     </Provider>
   );

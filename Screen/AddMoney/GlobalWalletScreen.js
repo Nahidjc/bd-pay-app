@@ -17,11 +17,17 @@ const { width, height } = Dimensions.get("window");
 
 const BANK_DATA = [
   { id: "1", name: "PayPal", logo: PaypalLogo, isLinked: false },
-  { id: "2", name: "Stripe", logo: StripeLogo, isLinked: true },
+  {
+    id: "2",
+    name: "Stripe",
+    logo: StripeLogo,
+    isLinked: true,
+    link: "StripeScreen",
+  },
   { id: "3", name: "Apex", logo: ApexLogo, isLinked: false },
 ];
 
-const GlobalWalletScreen = () => {
+const GlobalWalletScreen = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState("");
 
   const filteredBanks = BANK_DATA.filter((bank) =>
@@ -29,7 +35,10 @@ const GlobalWalletScreen = () => {
   );
 
   const renderBankItem = ({ item }) => (
-    <TouchableOpacity style={styles.bankItem}>
+    <TouchableOpacity
+      style={styles.bankItem}
+      onPress={() => navigation.navigate(item.link)}
+    >
       <View style={styles.bankInfo}>
         <item.logo width={width * 0.1} height={width * 0.1} />
         <Text style={styles.bankName}>{item.name}</Text>
