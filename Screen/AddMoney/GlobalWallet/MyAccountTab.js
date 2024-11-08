@@ -24,7 +24,7 @@ const MyAccountTab = ({ navigation }) => {
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [checkoutUrl, setCheckoutUrl] = useState(null);
-  const [refreshing, setRefreshing] = useState(false); // State for refreshing
+  const [refreshing, setRefreshing] = useState(false);
   const { token } = useSelector((state) => state.auth);
 
   const isProceedEnabled = useMemo(() => {

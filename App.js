@@ -42,7 +42,10 @@ export default function App() {
   return (
     <Provider store={store}>
       <ThemeProvider>
-        <StripeProvider publishableKey="your-publishable-key-from-stripe">
+        <StripeProvider
+          urlScheme="bdpay"
+          publishableKey="pk_test_51N8zbXCYlfhEx0YIi9bWofbZUr7H8qZaKkN8tkNFtOXcwyW24fL7mLFz3LDlycvXF4qqhhany9rm6MDsMIZjWaGU00dFPj02U3"
+        >
           <Suspense fallback={<LoadingScreen />}>
             <MainApp />
             <FlashMessage position="bottom" />

@@ -8,14 +8,18 @@ import {
   Dimensions,
   Alert,
 } from "react-native";
-const MIN_AMOUNT = 50;
+import { useStripe } from "@stripe/stripe-react-native";
+import { privatePost } from "../../../utilities/apiCaller";
+import { useSelector } from "react-redux";
 
+const MIN_AMOUNT = 50;
 const { width } = Dimensions.get("window");
 
 const OtherAccountTab = () => {
   const [amount, setAmount] = useState("");
   const [isProceedEnabled, setProceedEnabled] = useState(false);
-
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
+  const { token } = useSelector((state) => state.auth);
   const handleAmountChange = (value) => {
     setAmount(value);
     setProceedEnabled(parseFloat(value) >= MIN_AMOUNT);
@@ -31,14 +35,38 @@ const OtherAccountTab = () => {
     }
 
     try {
-      const response = await createStripeSession(
-        parseFloat(amount),
-        "otherAccount"
-      );
-      if (response?.sessionUrl) {
-        Linking.openURL(response.sessionUrl);
+      const response = await privatePost("/transfer/payment-sheet", token, {
+        amount: parseFloat(amount),
+      });
+
+      if (
+        !response?.data?.paymentIntent ||
+        !response?.data?.ephemeralKey ||
+        !response?.data?.customer
+      ) {
+        Alert.alert("Error", "Unable to initialize payment.");
+        return;
+      }
+
+      const initSheetResponse = await initPaymentSheet({
+        paymentIntentClientSecret: response.data.paymentIntent,
+        customerEphemeralKeySecret: response.data.ephemeralKey,
+        customerId: response.data.customer,
+        merchantDisplayName: "Add Money From Stripe Wallet",
+      });
+
+      if (initSheetResponse.error) {
+        Alert.alert("Error", initSheetResponse.error.message);
+        return;
+      }
+
+      const presentSheetResponse = await presentPaymentSheet();
+
+      if (presentSheetResponse.error) {
+        Alert.alert("Error", presentSheetResponse.error.message);
       } else {
-        Alert.alert("Error", "Unable to initiate payment.");
+        Alert.alert("Success", "Your payment was successful!");
+        setAmount("");
       }
     } catch (error) {
       console.error("Payment initiation error:", error);
