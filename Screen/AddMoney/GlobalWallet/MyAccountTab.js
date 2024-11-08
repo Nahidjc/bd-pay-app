@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 import {
   View,
   Text,
@@ -7,84 +7,189 @@ import {
   StyleSheet,
   Dimensions,
   Alert,
-  Linking,
+  ActivityIndicator,
 } from "react-native";
 import { useSelector } from "react-redux";
 import { privatePost } from "../../../utilities/apiCaller";
-// import { createStripeSession } from "../services/api";
-// import { MIN_AMOUNT } from "../utils/constants";
+import WebView from "react-native-webview";
+
 const MIN_AMOUNT = 50;
+const CURRENCY = "৳";
 const { width } = Dimensions.get("window");
 
 const MyAccountTab = () => {
   const [amount, setAmount] = useState("");
-  const [isProceedEnabled, setProceedEnabled] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [checkoutUrl, setCheckoutUrl] = useState(null);
   const { token } = useSelector((state) => state.auth);
-  const handleAmountChange = (value) => {
-    setAmount(value);
-    setProceedEnabled(parseFloat(value) >= MIN_AMOUNT);
-  };
+  const isProceedEnabled = useMemo(() => {
+    const numAmount = parseFloat(amount);
+    return !isNaN(numAmount) && numAmount >= MIN_AMOUNT;
+  }, [amount]);
 
-  const handleAddMoney = async () => {
+  const handleAmountChange = useCallback((value) => {
+    const sanitizedValue = value.replace(/[^0-9.]/g, "");
+    if (sanitizedValue.split(".").length > 2) return;
+
+    if (
+      sanitizedValue.startsWith("0") &&
+      sanitizedValue.length > 1 &&
+      !sanitizedValue.startsWith("0.")
+    ) {
+      return;
+    }
+
+    setAmount(sanitizedValue);
+  }, []);
+
+  const handleAddMoney = useCallback(async () => {
     if (!isProceedEnabled) {
       Alert.alert(
-        "Invalid amount",
-        `Please enter an amount of at least ৳${MIN_AMOUNT}.`
+        "Invalid Amount",
+        `Please enter an amount of at least ${CURRENCY}${MIN_AMOUNT}.`
       );
       return;
     }
-    console.log("============starting==================");
+
+    setLoading(true);
     try {
       const response = await privatePost("/transfer/stripe-checkout", token, {
         amount: parseFloat(amount),
       });
-      console.log(response);
+
       if (response?.data?.checkoutUrl) {
-        Linking.openURL(response.data.checkoutUrl);
+        setCheckoutUrl(response.data.checkoutUrl);
       } else {
-        Alert.alert("Error", "Unable to initiate payment.");
+        throw new Error("No checkout URL received");
       }
     } catch (error) {
       console.error("Payment initiation error:", error);
-      Alert.alert("Error", "Failed to start payment. Please try again.");
+      Alert.alert(
+        "Error",
+        error.response?.data?.message ||
+          "Failed to start payment. Please try again."
+      );
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [amount, isProceedEnabled, token]);
+  const handleNavigationStateChange = useCallback((navState) => {
+    if (navState.url.includes("payment-success")) {
+      Alert.alert(
+        "Payment Successful",
+        "Your payment was processed successfully.",
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              setCheckoutUrl(null);
+              setAmount("");
+            },
+          },
+        ]
+      );
+    } else if (navState.url.includes("payment-cancel")) {
+      Alert.alert("Payment Cancelled", "The payment process was cancelled.", [
+        {
+          text: "OK",
+          onPress: () => {
+            setCheckoutUrl(null);
+          },
+        },
+      ]);
+    }
+  }, []);
+  const handleWebViewError = useCallback(() => {
+    Alert.alert(
+      "Connection Error",
+      "Failed to load payment page. Please try again.",
+      [
+        {
+          text: "OK",
+          onPress: () => setCheckoutUrl(null),
+        },
+      ]
+    );
+  }, []);
+
+  if (checkoutUrl) {
+    return (
+      <View style={styles.container}>
+        <WebView
+          source={{ uri: checkoutUrl }}
+          onNavigationStateChange={handleNavigationStateChange}
+          onError={handleWebViewError}
+          startInLoadingState={true}
+          renderLoading={() => (
+            <View style={styles.webViewLoader}>
+              <ActivityIndicator size="large" color="#E91E63" />
+            </View>
+          )}
+          style={styles.webView}
+        />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       <Text style={styles.label}>Your BD Pay Account Number</Text>
       <Text style={styles.accountNumber}>01910125428</Text>
-      <Text style={styles.label}>Amount</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Enter amount"
-        keyboardType="numeric"
-        value={amount}
-        onChangeText={handleAmountChange}
-      />
-      <Text style={styles.minAmountText}>Min. amount ৳{MIN_AMOUNT}.00</Text>
+
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Amount</Text>
+        <TextInput
+          style={styles.input}
+          placeholder={`Enter amount (min ${CURRENCY}${MIN_AMOUNT})`}
+          keyboardType="decimal-pad"
+          value={amount}
+          onChangeText={handleAmountChange}
+          editable={!loading}
+        />
+        <Text style={styles.minAmountText}>
+          Min. amount {CURRENCY}
+          {MIN_AMOUNT}.00
+        </Text>
+      </View>
+
       <TouchableOpacity
         style={[
           styles.proceedButton,
           isProceedEnabled ? styles.buttonEnabled : styles.buttonDisabled,
         ]}
         onPress={handleAddMoney}
-        disabled={!isProceedEnabled}
+        disabled={!isProceedEnabled || loading}
       >
-        <Text style={styles.buttonText}>Proceed</Text>
+        {loading ? (
+          <ActivityIndicator color="#fff" size="small" />
+        ) : (
+          <Text style={styles.buttonText}>Proceed</Text>
+        )}
       </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { padding: 20, backgroundColor: "#fff" },
-  label: { fontSize: 16, fontWeight: "600", marginBottom: 5 },
+  container: {
+    flex: 1,
+    backgroundColor: "#fff",
+    padding: 20,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 5,
+    color: "#333",
+  },
   accountNumber: {
     fontSize: 18,
     fontWeight: "700",
-    marginBottom: 15,
+    marginBottom: 20,
     color: "#333",
+  },
+  inputContainer: {
+    marginBottom: 20,
   },
   input: {
     width: "100%",
@@ -93,18 +198,46 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     borderRadius: 5,
     paddingHorizontal: 10,
-    marginBottom: 10,
+    fontSize: 16,
+    color: "#333",
+    backgroundColor: "#fff",
   },
-  minAmountText: { color: "gray", marginBottom: 20 },
+  minAmountText: {
+    color: "gray",
+    fontSize: 12,
+    marginTop: 5,
+  },
   proceedButton: {
     height: 50,
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 5,
+    marginTop: 10,
   },
-  buttonEnabled: { backgroundColor: "#E91E63" },
-  buttonDisabled: { backgroundColor: "#ccc" },
-  buttonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
+  buttonEnabled: {
+    backgroundColor: "#E91E63",
+  },
+  buttonDisabled: {
+    backgroundColor: "#ccc",
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  webView: {
+    flex: 1,
+  },
+  webViewLoader: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(255,255,255,0.9)",
+  },
 });
 
 export default MyAccountTab;
