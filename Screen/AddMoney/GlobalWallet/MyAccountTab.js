@@ -107,11 +107,9 @@ const MyAccountTab = ({ navigation }) => {
     setCheckoutUrl(null);
   }, []);
 
-  // Function to handle pull-to-refresh
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     setTimeout(() => {
-      // Simulate a network request or refresh logic here
       setRefreshing(false);
     }, 2000);
   }, []);

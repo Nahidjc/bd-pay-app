@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,7 +6,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
-  Alert,
+  ToastAndroid,
+  ActivityIndicator,
 } from "react-native";
 import { useStripe } from "@stripe/stripe-react-native";
 import { privatePost } from "../../../utilities/apiCaller";
@@ -18,8 +19,10 @@ const { width } = Dimensions.get("window");
 const OtherAccountTab = () => {
   const [amount, setAmount] = useState("");
   const [isProceedEnabled, setProceedEnabled] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const { token } = useSelector((state) => state.auth);
+
   const handleAmountChange = (value) => {
     setAmount(value);
     setProceedEnabled(parseFloat(value) >= MIN_AMOUNT);
@@ -27,12 +30,14 @@ const OtherAccountTab = () => {
 
   const handleAddMoney = async () => {
     if (!isProceedEnabled) {
-      Alert.alert(
-        "Invalid amount",
-        `Please enter an amount of at least ৳${MIN_AMOUNT}.`
+      ToastAndroid.show(
+        `Please enter an amount of at least ৳${MIN_AMOUNT}.`,
+        ToastAndroid.SHORT
       );
       return;
     }
+
+    setIsLoading(true);
 
     try {
       const response = await privatePost("/transfer/payment-sheet", token, {
@@ -44,7 +49,8 @@ const OtherAccountTab = () => {
         !response?.data?.ephemeralKey ||
         !response?.data?.customer
       ) {
-        Alert.alert("Error", "Unable to initialize payment.");
+        ToastAndroid.show("Unable to initialize payment.", ToastAndroid.SHORT);
+        setIsLoading(false);
         return;
       }
 
@@ -54,23 +60,41 @@ const OtherAccountTab = () => {
         customerId: response.data.customer,
         merchantDisplayName: "Add Money From Stripe Wallet",
       });
-
+      console.log(
+        "==============initSheetResponse=============",
+        initSheetResponse
+      );
       if (initSheetResponse.error) {
-        Alert.alert("Error", initSheetResponse.error.message);
+        ToastAndroid.show(initSheetResponse.error.message, ToastAndroid.SHORT);
+        setIsLoading(false);
         return;
       }
 
       const presentSheetResponse = await presentPaymentSheet();
 
+      console.log(
+        "=============presentSheetResponse===========",
+        presentSheetResponse
+      );
+
       if (presentSheetResponse.error) {
-        Alert.alert("Error", presentSheetResponse.error.message);
+        ToastAndroid.show(
+          presentSheetResponse.error.message,
+          ToastAndroid.SHORT
+        );
+        setIsLoading(false);
       } else {
-        Alert.alert("Success", "Your payment was successful!");
+        ToastAndroid.show("Your payment was successful!", ToastAndroid.SHORT);
         setAmount("");
+        setIsLoading(false);
       }
     } catch (error) {
       console.error("Payment initiation error:", error);
-      Alert.alert("Error", "Failed to start payment. Please try again.");
+      ToastAndroid.show(
+        "Failed to start payment. Please try again.",
+        ToastAndroid.SHORT
+      );
+      setIsLoading(false);
     }
   };
 
@@ -93,16 +117,24 @@ const OtherAccountTab = () => {
           isProceedEnabled ? styles.buttonEnabled : styles.buttonDisabled,
         ]}
         onPress={handleAddMoney}
-        disabled={!isProceedEnabled}
+        disabled={!isProceedEnabled || isLoading}
       >
-        <Text style={styles.buttonText}>Proceed</Text>
+        {isLoading ? (
+          <ActivityIndicator color="#fff" />
+        ) : (
+          <Text style={styles.buttonText}>Proceed</Text>
+        )}
       </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { padding: 20, backgroundColor: "#f5f5f5" },
+  container: {
+    padding: 20,
+    backgroundColor: "#f5f5f5",
+    height: "100%",
+  },
   label: { fontSize: 16, fontWeight: "600", marginBottom: 5 },
   input: {
     width: "100%",
@@ -119,8 +151,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 5,
+    width: "100%",
   },
-  buttonEnabled: { backgroundColor: "#4CAF50" },
+  buttonEnabled: { backgroundColor: "#E91E63" },
   buttonDisabled: { backgroundColor: "#ccc" },
   buttonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
 });
