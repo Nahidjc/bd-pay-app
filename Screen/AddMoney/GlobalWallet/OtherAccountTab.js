@@ -7,13 +7,15 @@ import {
   StyleSheet,
   ToastAndroid,
   ActivityIndicator,
+  Dimensions,
 } from "react-native";
 import { useStripe } from "@stripe/stripe-react-native";
 import { privatePost } from "../../../utilities/apiCaller";
 import { useSelector } from "react-redux";
 
-const MIN_AMOUNT = 50;
+const MIN_AMOUNT = 500;
 const ACCOUNT_NUMBER_LENGTH = 11;
+const { width, height } = Dimensions.get("window");
 
 const OtherAccountTab = () => {
   const [formData, setFormData] = useState({
@@ -110,7 +112,6 @@ const OtherAccountTab = () => {
       ToastAndroid.show("Your payment was successful!", ToastAndroid.SHORT);
       setFormData({ accountNumber: "", amount: "" });
     } catch (error) {
-      console.error("Payment error:", error);
       ToastAndroid.show(
         error.message || "Payment failed. Please try again.",
         ToastAndroid.SHORT
@@ -166,41 +167,43 @@ const OtherAccountTab = () => {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 20,
-    backgroundColor: "#f5f5f5",
+    padding: width * 0.05,
+    backgroundColor: "#fffff",
     height: "100%",
+    elevation: 2,
   },
   label: {
-    fontSize: 16,
+    fontSize: width * 0.04,
     fontWeight: "600",
-    marginBottom: 5,
+    marginBottom: height * 0.01,
   },
   input: {
     width: "100%",
-    height: 50,
+    height: height * 0.06,
     borderWidth: 1,
     borderColor: "#ccc",
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    marginBottom: 5,
+    borderRadius: width * 0.02,
+    paddingHorizontal: width * 0.03,
+    marginBottom: height * 0.01,
   },
   inputError: {
     borderColor: "#ff0000",
   },
   errorText: {
     color: "#ff0000",
-    fontSize: 12,
-    marginBottom: 10,
+    fontSize: width * 0.03,
+    marginBottom: height * 0.015,
   },
   minAmountText: {
     color: "gray",
-    marginBottom: 20,
+    fontSize: width * 0.035,
+    marginBottom: height * 0.02,
   },
   proceedButton: {
-    height: 50,
+    height: height * 0.05,
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 5,
+    borderRadius: width * 0.02,
     width: "100%",
   },
   buttonEnabled: {
@@ -211,7 +214,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: width * 0.04,
     fontWeight: "bold",
   },
 });
