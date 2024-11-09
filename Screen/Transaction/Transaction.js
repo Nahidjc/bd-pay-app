@@ -21,6 +21,10 @@ const StatementScreen = () => {
     dispatch(fetchTransactions(token));
   }, [dispatch, token]);
 
+  const handleRefresh = () => {
+    dispatch(fetchTransactions(token));
+  };
+
   const routes = useMemo(
     () => [
       { key: "history", title: "Transaction History" },
@@ -37,6 +41,7 @@ const StatementScreen = () => {
           filter={filter}
           onFilterPress={setFilter}
           isLoading={isLoading}
+          onRefresh={handleRefresh}
         />
       ),
       summary: TransactionSummary,

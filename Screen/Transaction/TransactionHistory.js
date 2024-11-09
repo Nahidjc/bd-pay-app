@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Dimensions,
   TextInput,
+  RefreshControl,
 } from "react-native";
 import BottomSheet, {
   BottomSheetBackdrop,
@@ -107,6 +108,7 @@ const TransactionHistory = ({
   filter,
   onFilterPress,
   isLoading,
+  onRefresh,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedTransaction, setSelectedTransaction] = useState(null);
@@ -172,6 +174,9 @@ const TransactionHistory = ({
           <TransactionItem item={item} onPress={handlePress} />
         )}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={isLoading} onRefresh={onRefresh} />
+        }
         contentContainerStyle={[
           styles.listContainer,
           filteredTransactions.length === 0 && {

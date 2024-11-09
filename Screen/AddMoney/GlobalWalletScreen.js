@@ -37,7 +37,11 @@ const GlobalWalletScreen = ({ navigation }) => {
   const renderBankItem = ({ item }) => (
     <TouchableOpacity
       style={styles.bankItem}
-      onPress={() => navigation.navigate(item.link)}
+      onPress={() => {
+        if (item.link) {
+          navigation.navigate(item.link);
+        }
+      }}
     >
       <View style={styles.bankInfo}>
         <item.logo width={width * 0.1} height={width * 0.1} />
