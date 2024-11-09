@@ -82,6 +82,7 @@ const OtherAccountTab = () => {
       const response = await privatePost("/transfer/payment-sheet", token, {
         amount: parseFloat(formData.amount),
         receiverAccountNumber: formData.accountNumber,
+        accountType: "OTHER_ACCOUNT",
       });
 
       if (
