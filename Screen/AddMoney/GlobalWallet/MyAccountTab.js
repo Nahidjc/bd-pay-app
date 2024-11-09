@@ -10,7 +10,6 @@ import {
   ActivityIndicator,
   SafeAreaView,
   ScrollView,
-  RefreshControl,
 } from "react-native";
 import { useStripe } from "@stripe/stripe-react-native";
 import { privatePost } from "../../../utilities/apiCaller";
@@ -49,7 +48,7 @@ const MyAccountTab = ({ navigation }) => {
     setLoading(true);
     try {
       const response = await privatePost("/transfer/payment-sheet", token, {
-        amount: parseFloat(formData.amount),
+        amount: parseFloat(amount),
         receiverAccountNumber: user.accountNumber,
         accountType: "OWN_ACCOUNT",
       });
@@ -94,10 +93,7 @@ const MyAccountTab = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView
-        contentContainerStyle={styles.contentContainer}
-        refreshControl={<RefreshControl refreshing={loading} />}
-      >
+      <ScrollView contentContainerStyle={styles.contentContainer}>
         <Text style={styles.label}>Your BD Pay Account Number</Text>
         <Text style={styles.accountNumber}>{user.accountNumber}</Text>
 
