@@ -11,7 +11,9 @@ import {
 } from "react-native";
 import { useStripe } from "@stripe/stripe-react-native";
 import { privatePost } from "../../../utilities/apiCaller";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { checkSendMoney } from "../../../state/reducers/sendMoneySlice";
+import LoadingScreen from "../../../components/Loader/Loader";
 
 const MIN_AMOUNT = 500;
 const ACCOUNT_NUMBER_LENGTH = 11;
@@ -26,10 +28,11 @@ const OtherAccountTab = () => {
     accountNumber: "",
     amount: "",
   });
+  const dispatch = useDispatch();
+  const { isLoading: checkLoading } = useSelector((state) => state.sendMoney);
   const [isLoading, setIsLoading] = useState(false);
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const { token } = useSelector((state) => state.auth);
-
   const validateAccountNumber = useCallback((number) => {
     if (!number) return "Account number is required";
     if (!/^\d+$/.test(number)) return "Account number must contain only digits";
@@ -73,6 +76,18 @@ const OtherAccountTab = () => {
   const handleAddMoney = async () => {
     if (!isProceedEnabled) {
       ToastAndroid.show("Please check all fields", ToastAndroid.SHORT);
+      return;
+    }
+
+    const checkResponse = await dispatch(
+      checkSendMoney({
+        token,
+        accountNumber: formData.accountNumber,
+      })
+    ).unwrap();
+
+    if (!checkResponse.isAvailable) {
+      ToastAndroid.show("Account number is not available", ToastAndroid.SHORT);
       return;
     }
 
@@ -124,6 +139,7 @@ const OtherAccountTab = () => {
 
   return (
     <View style={styles.container}>
+      <LoadingScreen visible={checkLoading} />
       <Text style={styles.label}>Receiver Account Number</Text>
       <TextInput
         style={[styles.input, errors.accountNumber && styles.inputError]}
