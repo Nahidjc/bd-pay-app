@@ -12,9 +12,9 @@ import {
   ScrollView,
   RefreshControl,
 } from "react-native";
-import { useSelector } from "react-redux";
+import { useStripe } from "@stripe/stripe-react-native";
 import { privatePost } from "../../../utilities/apiCaller";
-import WebView from "react-native-webview";
+import { useSelector } from "react-redux";
 
 const MIN_AMOUNT = 500;
 const CURRENCY = "৳";
@@ -23,9 +23,8 @@ const { width, height } = Dimensions.get("window");
 const MyAccountTab = ({ navigation }) => {
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
-  const [checkoutUrl, setCheckoutUrl] = useState(null);
-  const [refreshing, setRefreshing] = useState(false);
-  const { token } = useSelector((state) => state.auth);
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
+  const { token, user } = useSelector((state) => state.auth);
 
   const isProceedEnabled = useMemo(() => {
     const numAmount = parseFloat(amount);
@@ -35,19 +34,10 @@ const MyAccountTab = ({ navigation }) => {
   const handleAmountChange = useCallback((value) => {
     const sanitizedValue = value.replace(/[^0-9.]/g, "");
     if (sanitizedValue.split(".").length > 2) return;
-
-    if (
-      sanitizedValue.startsWith("0") &&
-      sanitizedValue.length > 1 &&
-      !sanitizedValue.startsWith("0.")
-    ) {
-      return;
-    }
-
     setAmount(sanitizedValue);
   }, []);
 
-  const handleAddMoney = useCallback(async () => {
+  const handleAddMoney = async () => {
     if (!isProceedEnabled) {
       ToastAndroid.show(
         `Invalid Amount: Please enter an amount of at least ${CURRENCY}${MIN_AMOUNT}.`,
@@ -58,97 +48,64 @@ const MyAccountTab = ({ navigation }) => {
 
     setLoading(true);
     try {
-      const response = await privatePost("/transfer/stripe-checkout", token, {
-        amount: parseFloat(amount),
+      const response = await privatePost("/transfer/payment-sheet", token, {
+        amount: parseFloat(formData.amount),
+        receiverAccountNumber: user.accountNumber,
+        accountType: "OWN_ACCOUNT",
       });
 
-      if (response?.data?.checkoutUrl) {
-        setCheckoutUrl(response.data.checkoutUrl);
-      } else {
-        throw new Error("No checkout URL received");
+      if (
+        !response?.data?.paymentIntent ||
+        !response?.data?.ephemeralKey ||
+        !response?.data?.customer
+      ) {
+        throw new Error("Invalid payment initialization response");
       }
+
+      const { error: initError } = await initPaymentSheet({
+        paymentIntentClientSecret: response.data.paymentIntent,
+        customerEphemeralKeySecret: response.data.ephemeralKey,
+        customerId: response.data.customer,
+        merchantDisplayName: "Add Money From Stripe Wallet",
+      });
+
+      if (initError) {
+        throw new Error(initError.message);
+      }
+
+      const { error: presentError } = await presentPaymentSheet();
+
+      if (presentError) {
+        throw new Error(presentError.message);
+      }
+
+      ToastAndroid.show("Your payment was successful!", ToastAndroid.SHORT);
+      setAmount("");
     } catch (error) {
+      console.error("Payment error:", error);
       ToastAndroid.show(
-        error.response?.data?.message ||
-          "Failed to start payment. Please try again.",
-        ToastAndroid.LONG
+        error.message || "Payment failed. Please try again.",
+        ToastAndroid.SHORT
       );
     } finally {
       setLoading(false);
     }
-  }, [amount, isProceedEnabled, token]);
-
-  const handleNavigationStateChange = useCallback(
-    (event) => {
-      if (event.url.includes("payment-success")) {
-        ToastAndroid.show(
-          "Payment Successful: Your payment was processed successfully.",
-          ToastAndroid.LONG
-        );
-        setTimeout(() => {
-          navigation.navigate("Dashboard");
-        }, 5000);
-      } else if (event.url.includes("payment-cancel")) {
-        ToastAndroid.show(
-          "Payment Cancelled: The payment process was cancelled.",
-          ToastAndroid.LONG
-        );
-        setCheckoutUrl(null);
-      }
-    },
-    [navigation]
-  );
-
-  const handleWebViewError = useCallback(() => {
-    ToastAndroid.show(
-      "Connection Error: Failed to load payment page. Please try again.",
-      ToastAndroid.LONG
-    );
-    setCheckoutUrl(null);
-  }, []);
-
-  const onRefresh = useCallback(() => {
-    setRefreshing(true);
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 2000);
-  }, []);
-
-  if (checkoutUrl) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <WebView
-          source={{ uri: checkoutUrl }}
-          onNavigationStateChange={handleNavigationStateChange}
-          onError={handleWebViewError}
-          startInLoadingState={true}
-          renderLoading={() => (
-            <View style={styles.webViewLoader}>
-              <ActivityIndicator size="large" color="#E91E63" />
-            </View>
-          )}
-          style={[styles.webView, { height: height - 100 }]}
-        />
-      </SafeAreaView>
-    );
-  }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
         contentContainerStyle={styles.contentContainer}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
+        refreshControl={<RefreshControl refreshing={loading} />}
       >
         <Text style={styles.label}>Your BD Pay Account Number</Text>
-        <Text style={styles.accountNumber}>01910125428</Text>
+        <Text style={styles.accountNumber}>{user.accountNumber}</Text>
 
         <View style={styles.inputContainer}>
           <Text style={styles.label}>Amount</Text>
           <TextInput
             style={styles.input}
-            placeholder={`Enter amount (min ${CURRENCY}${MIN_AMOUNT})`}
+            placeholder={`Enter Add Money Amount`}
             keyboardType="decimal-pad"
             value={amount}
             onChangeText={handleAmountChange}
@@ -185,48 +142,48 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   contentContainer: {
-    padding: 20,
+    padding: width * 0.05,
     alignItems: "center",
   },
   label: {
-    fontSize: 16,
+    fontSize: width * 0.03,
     fontWeight: "600",
-    marginBottom: 5,
+    marginBottom: height * 0.01,
     color: "#333",
   },
   accountNumber: {
-    fontSize: 18,
+    fontSize: width * 0.04,
     fontWeight: "700",
-    marginBottom: 20,
+    marginBottom: height * 0.02,
     color: "#333",
   },
   inputContainer: {
     width: "100%",
-    marginBottom: 20,
+    marginBottom: height * 0.02,
   },
   input: {
     width: "100%",
-    height: 50,
+    height: height * 0.06,
     borderWidth: 1,
     borderColor: "#ccc",
-    borderRadius: 5,
-    paddingHorizontal: 10,
-    fontSize: 16,
+    borderRadius: width * 0.02,
+    paddingHorizontal: width * 0.03,
+    fontSize: width * 0.04,
     color: "#333",
     backgroundColor: "#fff",
   },
   minAmountText: {
     color: "gray",
-    fontSize: 12,
-    marginTop: 5,
+    fontSize: width * 0.035,
+    marginTop: height * 0.005,
   },
   proceedButton: {
     width: "100%",
-    height: 50,
+    height: height * 0.05,
     justifyContent: "center",
     alignItems: "center",
-    borderRadius: 5,
-    marginTop: 10,
+    borderRadius: width * 0.02,
+    marginTop: height * 0.015,
   },
   buttonEnabled: {
     backgroundColor: "#E91E63",
@@ -236,21 +193,8 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: width * 0.04,
     fontWeight: "bold",
-  },
-  webView: {
-    width: "100%",
-  },
-  webViewLoader: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "rgba(255,255,255,0.9)",
   },
 });
 
