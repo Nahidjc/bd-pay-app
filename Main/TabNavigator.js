@@ -76,7 +76,11 @@ const TabNavigator = () => {
           }
           return (
             <View style={styles.iconContainer}>
-              <Icon size={24} color={color} strokeWidth={focused ? 2.5 : 2} />
+              <Icon
+                size={dynamicWidth(6)}
+                color={color}
+                strokeWidth={focused ? 2.5 : 2}
+              />
               <Text
                 style={[
                   styles.iconLabel,
@@ -164,8 +168,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   iconLabel: {
-    fontSize: 12,
-    marginTop: 4,
+    fontSize: dynamicWidth(2.8),
   },
 });
 

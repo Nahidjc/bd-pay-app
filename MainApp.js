@@ -29,6 +29,7 @@ import { CardStyleInterpolators } from "@react-navigation/stack";
 import AddMoneyScreen from "./Screen/AddMoney/AddMoneyScreen";
 import GlobalWalletScreen from "./Screen/AddMoney/GlobalWalletScreen";
 import BankScreen from "./Screen/AddMoney/BankScreen";
+import StripeAddMoneyScreen from "./Screen/AddMoney/GlobalWallet/StripeAddMoneyScreen";
 enableScreens();
 const Stack = createNativeStackNavigator();
 LogBox.ignoreAllLogs();
@@ -93,6 +94,13 @@ const AuthenticatedStack = () => {
           component={BankScreen}
           options={{
             title: "Bank to BD Pay",
+          }}
+        />
+        <Stack.Screen
+          name="StripeScreen"
+          component={StripeAddMoneyScreen}
+          options={{
+            title: "Stripe",
           }}
         />
         <Stack.Screen

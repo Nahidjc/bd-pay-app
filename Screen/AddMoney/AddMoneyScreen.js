@@ -19,13 +19,13 @@ const { width, height } = Dimensions.get("window");
 const DATA = [
   {
     id: "1",
-    title: "Bank to bKash",
+    title: "Bank to BD Pay",
     icon: Landmark,
     link: "BankScreen",
   },
   {
     id: "2",
-    title: "Card to bKash",
+    title: "Card to BD Pay",
     icon: CreditCard,
     link: "CardScreen",
   },

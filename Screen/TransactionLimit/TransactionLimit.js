@@ -33,7 +33,7 @@ const dailyData = [
     limitAmount: "৳50,000.00",
   },
   {
-    title: "bKash to Bank",
+    title: "BD Pay to Bank",
     count: "0",
     amount: "৳0.00",
     limitCount: "10 times",
@@ -113,7 +113,7 @@ const monthlyData = [
     limitAmount: "৳200,000.00",
   },
   {
-    title: "bKash to Bank",
+    title: "BD Pay to Bank",
     count: "0",
     amount: "৳0.00",
     limitCount: "20 times",

@@ -15,6 +15,7 @@ import {
   TouchableOpacity,
   Dimensions,
   Platform,
+  RefreshControl,
 } from "react-native";
 import BottomSheet, {
   BottomSheetView,
@@ -128,6 +129,7 @@ const NotificationScreen = () => {
   const { token } = useSelector((state) => state.auth);
 
   const [selectedNotification, setSelectedNotification] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
   const bottomSheetRef = useRef(null);
 
   useEffect(() => {
@@ -169,6 +171,12 @@ const NotificationScreen = () => {
     if (index === -1) setSelectedNotification(null);
   }, []);
 
+  const onRefresh = useCallback(() => {
+    setRefreshing(true);
+    dispatch(fetchNotifications(token));
+    setRefreshing(false);
+  }, [dispatch, token]);
+
   return (
     <SafeAreaView style={styles.container}>
       {isLoading && <LoadingScreen visible={isLoading} />}
@@ -184,6 +192,9 @@ const NotificationScreen = () => {
         ]}
         showsVerticalScrollIndicator={false}
         ListEmptyComponent={EmptyState}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
       />
 
       <BottomSheet
@@ -201,6 +212,7 @@ const NotificationScreen = () => {
     </SafeAreaView>
   );
 };
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -269,7 +281,6 @@ const styles = StyleSheet.create({
     height: 56,
     borderRadius: 12,
   },
-  // Empty State Styles
   emptyContainer: {
     flex: 1,
     justifyContent: "center",
@@ -290,56 +301,53 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
     color: "#333333",
-    marginBottom: 6,
-    textAlign: "center",
+    marginBottom: 8,
   },
   emptySubtitle: {
     fontSize: 14,
-    color: "#666666",
+    color: "#777777",
     textAlign: "center",
-    lineHeight: 20,
-  },
-  // Bottom Sheet Styles
-  bottomSheetBackground: {
-    backgroundColor: "#FFFFFF",
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-  },
-  handleIndicator: {
-    width: 40,
-    height: 4,
-    backgroundColor: "#E0E0E0",
-    borderRadius: 2,
   },
   detailsContainer: {
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingTop: 8,
   },
   detailImage: {
-    width: SCREEN_WIDTH - 32,
+    width: "100%",
     height: 200,
-    borderRadius: 16,
+    borderRadius: 12,
     marginBottom: 16,
   },
   detailsContent: {
-    paddingBottom: 32,
+    marginBottom: 24,
   },
   detailTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#1A1A1A",
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#333333",
     marginBottom: 8,
-    letterSpacing: -0.5,
   },
   detailBody: {
-    fontSize: 16,
-    color: "#4A4A4A",
-    lineHeight: 24,
+    fontSize: 14,
+    color: "#555555",
     marginBottom: 12,
+    lineHeight: 22,
   },
   detailDate: {
-    fontSize: 14,
-    color: "#999999",
-    letterSpacing: -0.2,
+    fontSize: 12,
+    color: "#888888",
+  },
+  handleIndicator: {
+    backgroundColor: "#DDD",
+    width: 40,
+    height: 5,
+    borderRadius: 10,
+    marginTop: 8,
+  },
+  bottomSheetBackground: {
+    backgroundColor: "#F8F9FA",
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
   },
 });
 

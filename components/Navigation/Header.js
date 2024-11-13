@@ -13,8 +13,10 @@ import { useTranslation } from "react-i18next";
 import { Ionicons } from "@expo/vector-icons";
 
 const DefaultAvatar = require("../../assets/avatar.png");
+const { height, width } = Dimensions.get("window");
 
-const { width } = Dimensions.get("window");
+const dynamicHeight = (percentage) => (height * percentage) / 100;
+const dynamicWidth = (percentage) => (width * percentage) / 100;
 const baseWidth = 375;
 const scale = width / baseWidth;
 
@@ -104,7 +106,7 @@ const Header = ({ navigation, route, options, tabName, user }) => {
 
   const renderMenuButton = () => (
     <Pressable onPress={openMenu} style={styles.menuButton}>
-      <Ionicons name="menu" size={24} color="white" />
+      <Ionicons name="menu" size={24 * scale} color="white" />
     </Pressable>
   );
 
@@ -131,69 +133,60 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    height: 50,
-    paddingHorizontal: 10,
+    height: dynamicHeight(6),
+    paddingHorizontal: dynamicWidth(4),
+    paddingVertical: dynamicHeight(1),
   },
   button: {
-    borderRadius: 16,
+    borderRadius: dynamicWidth(2),
     zIndex: 1,
   },
   backButton: {
-    width: 48,
+    width: dynamicWidth(12),
     justifyContent: "center",
     alignItems: "center",
   },
   rightButton: {
-    marginRight: 16,
+    marginRight: dynamicWidth(4),
   },
   menuButton: {
-    paddingRight: 10,
+    paddingRight: dynamicWidth(2.5),
   },
   title: {
     position: "absolute",
-    left: 72,
-    right: 72,
+    left: dynamicWidth(18),
+    right: dynamicWidth(18),
     textAlign: "center",
-    fontSize: 16,
-    lineHeight: 22,
+    fontSize: dynamicWidth(4.5),
+    lineHeight: dynamicHeight(2.5),
     color: "white",
   },
   backIcon: {
     position: "absolute",
-    left: 10 * scale,
+    left: dynamicWidth(2.5),
     top: "50%",
-    transform: [{ translateY: -12 * scale }],
+    transform: [{ translateY: -dynamicHeight(1.5) }],
   },
   profileContainer: {
     flexDirection: "row",
     alignItems: "center",
   },
   profileImage: {
-    width: 35,
-    height: 35,
-    borderRadius: 20,
-    marginRight: 10,
-  },
-  placeholderImage: {
-    backgroundColor: "#e0e0e0",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  placeholderText: {
-    color: "#ffffff",
-    fontSize: 18,
-    fontWeight: "bold",
+    width: dynamicWidth(9),
+    height: dynamicWidth(9),
+    borderRadius: dynamicWidth(4.5),
+    marginRight: dynamicWidth(2.5),
   },
   textContainer: {
     flexDirection: "column",
   },
   greeting: {
-    fontSize: 14,
+    fontSize: dynamicWidth(3.7),
     color: "white",
     fontWeight: "bold",
   },
   subtitle: {
-    fontSize: 12,
+    fontSize: dynamicWidth(3.2),
     color: "white",
   },
 });
