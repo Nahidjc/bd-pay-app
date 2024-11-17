@@ -24,7 +24,6 @@ const TransactionList = () => {
   useEffect(() => {
     dispatch(fetchTransactions(token));
   }, [dispatch, token]);
-  console.log(transactions[0]);
   const renderTransaction = useCallback(
     ({ item }) => (
       <View style={styles.transactionItem}>

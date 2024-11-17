@@ -9,6 +9,8 @@ import { registerPushNotifications } from "./utilities/notifications";
 import LoadingScreen from "./components/Loader/Loader";
 import { ThemeProvider } from "./context/ThemeProvider";
 import { StripeProvider } from "@stripe/stripe-react-native";
+import { AppWrapper } from "./components/AppWrapper";
+import ErrorBoundary from "./components/ErrorBoundary/ErrorBoundary";
 export default function App() {
   useEffect(() => {
     const hideSplashScreen = async () => {
@@ -40,18 +42,22 @@ export default function App() {
   }, []);
 
   return (
-    <Provider store={store}>
-      <ThemeProvider>
-        <StripeProvider
-          urlScheme="bdpay"
-          publishableKey="pk_test_51N8zbXCYlfhEx0YIi9bWofbZUr7H8qZaKkN8tkNFtOXcwyW24fL7mLFz3LDlycvXF4qqhhany9rm6MDsMIZjWaGU00dFPj02U3"
-        >
-          <Suspense fallback={<LoadingScreen />}>
-            <MainApp />
-            <FlashMessage position="bottom" />
-          </Suspense>
-        </StripeProvider>
-      </ThemeProvider>
-    </Provider>
+    <ErrorBoundary>
+      <Provider store={store}>
+        <ThemeProvider>
+          <StripeProvider
+            urlScheme="bdpay"
+            publishableKey="pk_test_51N8zbXCYlfhEx0YIi9bWofbZUr7H8qZaKkN8tkNFtOXcwyW24fL7mLFz3LDlycvXF4qqhhany9rm6MDsMIZjWaGU00dFPj02U3"
+          >
+            <AppWrapper>
+              <Suspense fallback={<LoadingScreen />}>
+                <MainApp />
+                <FlashMessage position="bottom" />
+              </Suspense>
+            </AppWrapper>
+          </StripeProvider>
+        </ThemeProvider>
+      </Provider>
+    </ErrorBoundary>
   );
 }
