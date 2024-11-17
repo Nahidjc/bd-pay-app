@@ -72,7 +72,7 @@ const Header = ({ navigation, route, options, tabName, user }) => {
         />
       )}
       <View style={styles.textContainer}>
-        <Text style={styles.greeting}>{user?.fullName || t("user")}</Text>
+        <Text style={styles.greeting}>{user?.fullName || t("User")}</Text>
         <Text style={styles.subtitle}>{t("welcome")}</Text>
       </View>
     </Pressable>
@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    height: dynamicHeight(6),
+    height: dynamicHeight(7),
     paddingHorizontal: dynamicWidth(4),
     paddingVertical: dynamicHeight(1),
   },

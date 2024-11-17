@@ -44,6 +44,7 @@
     "react-native": "0.74.5",
     "react-native-biometrics": "^3.0.1",
     "react-native-camera": "^4.2.1",
+    "react-native-compressor": "^1.9.0",
     "react-native-device-info": "^13.1.0",
     "react-native-elements": "^3.4.3",
     "react-native-flash-message": "^0.4.2",
