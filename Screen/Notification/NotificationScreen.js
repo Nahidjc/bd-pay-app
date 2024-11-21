@@ -21,12 +21,12 @@ import BottomSheet, {
   BottomSheetView,
   BottomSheetBackdrop,
 } from "@gorhom/bottom-sheet";
-import { Bell } from "lucide-react-native";
+import { Bell, X } from "lucide-react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchNotifications } from "../../state/reducers/notificationSlice";
 import LoadingScreen from "../../components/Loader/Loader";
 
-const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const { width: SCREEN_WIDTH, height } = Dimensions.get("window");
 
 const NotificationItem = ({ item, onPress }) => {
   const formattedDate = useMemo(
@@ -208,6 +208,12 @@ const NotificationScreen = () => {
         backgroundStyle={styles.bottomSheetBackground}
       >
         <NotificationDetails notification={selectedNotification} />
+        <TouchableOpacity
+          style={styles.closeIconContainer}
+          onPress={() => bottomSheetRef.current?.close()}
+        >
+          <X size={24} color="red" />
+        </TouchableOpacity>
       </BottomSheet>
     </SafeAreaView>
   );
@@ -217,6 +223,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#F8F9FA",
+  },
+  closeIconContainer: {
+    position: "absolute",
+    top: height * 0.01,
+    right: SCREEN_WIDTH * 0.03,
+    zIndex: 1,
   },
   listContainer: {
     padding: 16,

@@ -6,8 +6,8 @@ import { logout } from "../state/reducers/authSlice";
 
 // Configuration
 const CONFIG = {
-  BACKGROUND_TIMEOUT: 20000,
-  INACTIVITY_TIMEOUT: 20000,
+  BACKGROUND_TIMEOUT: 60000,
+  INACTIVITY_TIMEOUT: 60000,
   DEBUG: __DEV__,
 };
 
