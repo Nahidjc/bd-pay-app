@@ -15,6 +15,7 @@ import TransactionList from "../components/TransactionList";
 import { useTranslation } from "react-i18next";
 
 const { width, height } = Dimensions.get("window");
+const CONTAINER_HEIGHT = height * 1;
 
 const DashboardScreen = ({ navigation }) => {
   const { t } = useTranslation();
@@ -74,27 +75,31 @@ const DashboardScreen = ({ navigation }) => {
   return (
     <ImageBackground
       source={require("../assets/bg.jpg")}
-      style={styles.container}
+      style={styles.backgroundContainer}
       resizeMode="cover"
     >
-      <View style={styles.header}>
-        <Card />
-        <View style={styles.gridContainer}>
-          {features.map((feature, index) => (
-            <View key={index} style={styles.gridItemContainer}>
-              <TouchableOpacity
-                style={styles.iconBox}
-                onPress={() => handlePress(feature)}
-              >
-                <Image source={feature.image} style={styles.iconImage} />
-              </TouchableOpacity>
-              <Text style={styles.gridText}>{feature.text}</Text>
-            </View>
-          ))}
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <View style={styles.cardContainer}>
+            <Card />
+          </View>
+          <View style={styles.gridContainer}>
+            {features.map((feature, index) => (
+              <View key={index} style={styles.gridItemContainer}>
+                <TouchableOpacity
+                  style={styles.iconBox}
+                  onPress={() => handlePress(feature)}
+                >
+                  <Image source={feature.image} style={styles.iconImage} />
+                </TouchableOpacity>
+                <Text style={styles.gridText}>{feature.text}</Text>
+              </View>
+            ))}
+          </View>
         </View>
-      </View>
-      <View style={styles.scrollableSection}>
-        <TransactionList />
+        <View style={styles.transactionContainer}>
+          <TransactionList />
+        </View>
       </View>
 
       <Modal
@@ -131,55 +136,66 @@ const DashboardScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
+  backgroundContainer: {
     flex: 1,
   },
+  container: {
+    height: CONTAINER_HEIGHT,
+    // marginTop: height * 0.05,
+  },
   header: {
+    height: CONTAINER_HEIGHT * 0.45,
     borderBottomLeftRadius: width * 0.08,
     borderBottomRightRadius: width * 0.08,
     backgroundColor: "transparent",
   },
+  cardContainer: {
+    height: "35%",
+    paddingTop: height * 0.02,
+  },
   gridContainer: {
+    height: "65%",
     flexDirection: "row",
+    flexWrap: "wrap",
     justifyContent: "space-around",
     alignItems: "center",
-    paddingVertical: height * 0.01,
-    paddingHorizontal: width * 0.05,
-    flexWrap: "wrap",
+    paddingHorizontal: width * 0.03,
   },
   gridItemContainer: {
     width: width * 0.22,
+    height: "45%",
     alignItems: "center",
     paddingVertical: height * 0.01,
     justifyContent: "center",
   },
   iconBox: {
     backgroundColor: "white",
-    padding: width * 0.04,
+    padding: width * 0.01,
     borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
     width: width * 0.15,
     height: width * 0.15,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 4,
   },
   iconImage: {
-    width: width * 0.08,
-    height: width * 0.08,
+    width: "70%",
+    height: "70%",
+    resizeMode: "contain",
   },
   gridText: {
     color: "#e2136e",
-    fontSize: width * 0.035,
+    fontSize: width * 0.03,
     fontWeight: "500",
     marginTop: height * 0.01,
+    textAlign: "center",
   },
-  scrollableSection: {
-    flex: 1,
-    paddingTop: height * 0.02,
+  transactionContainer: {
+    height: CONTAINER_HEIGHT * 0.4,
     backgroundColor: "transparent",
   },
   modalContainer: {
@@ -194,6 +210,7 @@ const styles = StyleSheet.create({
     padding: 20,
     alignItems: "center",
     width: width * 0.85,
+    maxHeight: height * 0.4,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
@@ -201,30 +218,30 @@ const styles = StyleSheet.create({
     elevation: 10,
   },
   modalTitle: {
-    fontSize: width * 0.05,
+    fontSize: width * 0.045,
     fontWeight: "bold",
-    marginBottom: 15,
+    marginBottom: height * 0.015,
   },
   modalImage: {
-    width: width * 0.2,
-    height: width * 0.2,
-    marginBottom: 15,
+    width: width * 0.15,
+    height: width * 0.15,
+    marginBottom: height * 0.015,
   },
   modalText: {
-    fontSize: width * 0.04,
+    fontSize: width * 0.035,
     textAlign: "center",
-    marginBottom: 15,
+    marginBottom: height * 0.015,
     color: "#333",
   },
   modalButton: {
-    backgroundColor: "#D4AF37",
-    paddingVertical: 10,
-    paddingHorizontal: 30,
+    backgroundColor: "#E91E63",
+    paddingVertical: height * 0.01,
+    paddingHorizontal: width * 0.08,
     borderRadius: 10,
   },
   modalButtonText: {
     color: "white",
-    fontSize: width * 0.045,
+    fontSize: width * 0.04,
     fontWeight: "600",
   },
 });

@@ -1,38 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { privatePostFile, publicPost } from "../../utilities/apiCaller";
-import { storage, StorageKeys } from "../storage";
-
-const saveAuthState = (isAuthenticated, user, token) => {
-  storage.set(StorageKeys.IsAuthenticated, isAuthenticated ? "true" : "false");
-  storage.set(StorageKeys.User, JSON.stringify(user));
-  storage.set(StorageKeys.Token, token);
-};
-
-const loadAuthState = () => {
-  const isAuthenticated =
-    storage.getString(StorageKeys.IsAuthenticated) === "true";
-  const userString = storage.getString(StorageKeys.User);
-  const user = userString ? JSON.parse(userString) : {};
-  const token = storage.getString(StorageKeys.Token) || null;
-  return { isAuthenticated, user, token };
-};
-
-const clearAuthState = () => {
-  storage.delete(StorageKeys.IsAuthenticated);
-  storage.delete(StorageKeys.User);
-  storage.delete(StorageKeys.Token);
-};
-
-const updateUserInStorage = (updatedUser) => {
-  const userString = storage.getString(StorageKeys.User);
-  if (userString) {
-    const user = JSON.parse(userString);
-    const newUser = { ...user, ...updatedUser };
-    storage.set(StorageKeys.User, JSON.stringify(newUser));
-    return newUser;
-  }
-  return null;
-};
 
 export const createUserLogin = createAsyncThunk(
   "user/login",
@@ -57,6 +24,7 @@ export const createUserRegistration = createAsyncThunk(
     }
   }
 );
+
 export const updateUserProfile = createAsyncThunk(
   "profile/update",
   async ({ data, token }, { rejectWithValue }) => {
@@ -81,7 +49,6 @@ const authSlice = createSlice({
     isUpdating: false,
     updateError: null,
     updateSuccess: false,
-    ...loadAuthState(),
   },
   reducers: {
     logout: (state) => {
@@ -91,7 +58,6 @@ const authSlice = createSlice({
       state.token = null;
       state.error = false;
       state.errorMessage = "";
-      clearAuthState();
     },
     clearProfileState: (state) => {
       state.isUpdating = false;
@@ -102,7 +68,6 @@ const authSlice = createSlice({
       state.isAuthenticated = true;
       state.user = action.payload.user;
       state.token = action.payload.token;
-      saveAuthState(true, action.payload.user, action.payload.token);
     },
   },
   extraReducers: (builder) => {
@@ -113,12 +78,10 @@ const authSlice = createSlice({
       })
       .addCase(createUserLogin.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.error = null;
         state.isAuthenticated = true;
         state.user = action.payload.user;
         state.token = action.payload.token;
         state.errorMessage = "";
-        saveAuthState(true, action.payload.user, action.payload.token);
       })
       .addCase(createUserLogin.rejected, (state, action) => {
         state.isLoading = false;
@@ -131,7 +94,7 @@ const authSlice = createSlice({
         state.isLoading = true;
         state.error = false;
       })
-      .addCase(createUserRegistration.fulfilled, (state, action) => {
+      .addCase(createUserRegistration.fulfilled, (state) => {
         state.isLoading = false;
         state.errorMessage = "";
       })
@@ -151,10 +114,7 @@ const authSlice = createSlice({
         state.isUpdating = false;
         state.updateError = null;
         state.updateSuccess = true;
-        const updatedUser = updateUserInStorage(action.payload);
-        if (updatedUser) {
-          state.user = updatedUser;
-        }
+        state.user = { ...state.user, ...action.payload };
       })
       .addCase(updateUserProfile.rejected, (state, action) => {
         state.isUpdating = false;
@@ -164,5 +124,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, clearProfileState, setBiometricUser } = authSlice.actions;
+export const { logout, clearProfileState, setBiometricUser } =
+  authSlice.actions;
 export default authSlice.reducer;

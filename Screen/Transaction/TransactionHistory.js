@@ -13,12 +13,12 @@ import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetScrollView,
 } from "@gorhom/bottom-sheet";
-import { CircleUser } from "lucide-react-native";
+import { CircleUser, X } from "lucide-react-native";
 import LoadingScreen from "./../../components/Loader/Loader";
 import TransactionDetails from "./TransactionDetails";
 import { formatNotificationDate } from "../../utilities/helper/useCurrencyFormatter";
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
 
 const FilterButtons = React.memo(
   ({ onFilterPress, currentFilter, searchTerm, setSearchTerm }) => (
@@ -201,6 +201,12 @@ const TransactionHistory = ({
           {selectedTransaction && (
             <TransactionDetails transaction={selectedTransaction} />
           )}
+          <TouchableOpacity
+            style={styles.closeIconContainer}
+            onPress={() => bottomSheetRef.current?.close()}
+          >
+            <X size={24} color="red" />
+          </TouchableOpacity>
         </BottomSheetScrollView>
       </BottomSheet>
     </View>
@@ -356,6 +362,12 @@ const styles = StyleSheet.create({
   },
   bottomSheetContent: {
     padding: 20,
+  },
+  closeIconContainer: {
+    position: "absolute",
+    top: height * 0.025,
+    right: 10,
+    zIndex: 1,
   },
 });
 

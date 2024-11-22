@@ -47,7 +47,7 @@ const MyAccountTab = ({ navigation }) => {
 
     setLoading(true);
     try {
-      const response = await privatePost("/transfer/payment-sheet", token, {
+      const response = await privatePost("/wallets/payment-sheet", token, {
         amount: parseFloat(amount),
         receiverAccountNumber: user.accountNumber,
         accountType: "OWN_ACCOUNT",

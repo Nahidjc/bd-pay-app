@@ -26,7 +26,7 @@ const TransactionDetails = ({ transaction }) => {
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.title}>{transaction.transactionType}</Text>
-        <Text style={styles.close}>Close</Text>
+        {/* <Text style={styles.close}>Close</Text> */}
       </View>
 
       <View style={styles.table}>
