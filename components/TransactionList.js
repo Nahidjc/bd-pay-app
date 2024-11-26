@@ -1,102 +1,89 @@
-import React from "react";
+import React, { useEffect, useCallback } from "react";
 import {
   View,
   Text,
   StyleSheet,
   FlatList,
-  Image,
   Dimensions,
+  ActivityIndicator,
 } from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchTransactions } from "../state/reducers/transactionsSlice";
+import { formatNotificationDate } from "../utilities/helper/useCurrencyFormatter";
+import { CircleUserRound } from "lucide-react-native";
+
 const { width, height } = Dimensions.get("window");
 
-const transactions = [
-  {
-    id: "1",
-    description: "Paypal Receive",
-    date: "04/11/21",
-    amount: "+$100.00",
-    icon: require("../assets/images/paypal.png"),
-  },
-  {
-    id: "2",
-    description: "Gopay Top-Up",
-    date: "04/11/21",
-    amount: "-$50.00",
-    icon: require("../assets/images/paypal.png"),
-  },
-  {
-    id: "3",
-    description: "Send To Alexis",
-    date: "03/11/21",
-    amount: "-$250.00",
-    icon: require("../assets/images/paypal.png"),
-  },
-];
-
 const TransactionList = () => {
-  const renderItem = ({ item }) => (
-    <View style={styles.transactionItem}>
-      <Image source={item.icon} style={styles.icon} />
-      <View style={styles.details}>
-        <Text style={styles.transactionDescription}>{item.description}</Text>
-        <Text style={styles.transactionDate}>{item.date}</Text>
+  const dispatch = useDispatch();
+  const { isLoading, transactions } = useSelector(
+    (state) => state.transactionsReducer
+  );
+  const { token } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    dispatch(fetchTransactions(token));
+  }, [dispatch, token]);
+  const renderTransaction = useCallback(
+    ({ item }) => (
+      <View style={styles.transactionItem}>
+        <CircleUserRound color="#E91E63" size={width * 0.1} />
+        <View style={styles.details}>
+          <Text style={styles.transactionDescription}>
+            {item.transactionType}
+          </Text>
+          <Text style={styles.transactionDate}>
+            {formatNotificationDate(item.transactionDate)}
+          </Text>
+        </View>
+        <Text
+          style={[
+            styles.transactionAmount,
+            { color: item.isCredited ? "#4CAF50" : "#E91E63" },
+          ]}
+        >
+          ৳{item.amount}
+        </Text>
       </View>
-      <Text
-        style={[
-          styles.transactionAmount,
-          { color: item.amount.startsWith("+") ? "#4CAF50" : "#F44336" },
-        ]}
-      >
-        {item.amount}
-      </Text>
-    </View>
+    ),
+    []
   );
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Recent Activity</Text>
-        <Text style={styles.headerFilter}>All</Text>
-      </View>
-      <View style={styles.listContainer}>
-        <FlatList
-          data={transactions}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          ListHeaderComponent={() => {
-            return <Text style={styles.sectionHeader}>Today</Text>;
-          }}
-          contentContainerStyle={styles.listContent}
-        />
-      </View>
+      {isLoading ? (
+        <ActivityIndicator size="large" color="#4CAF50" style={styles.loader} />
+      ) : (
+        <View style={styles.listContainer}>
+          <FlatList
+            data={transactions.slice(0, 3)}
+            renderItem={renderTransaction}
+            keyExtractor={(item) => item._id.toString()}
+            ListEmptyComponent={() => (
+              <Text style={styles.emptyMessage}>No transactions available</Text>
+            )}
+            contentContainerStyle={styles.listContent}
+          />
+        </View>
+      )}
     </View>
   );
 };
+export default React.memo(TransactionList);
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5F5F5",
     paddingHorizontal: width * 0.04,
     paddingTop: height * 0.02,
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: height * 0.02,
-  },
-  headerText: {
-    fontSize: width * 0.05,
-    fontWeight: "bold",
-  },
-  headerFilter: {
-    fontSize: width * 0.035,
-    color: "#8E8E93",
+  loader: {
+    marginTop: height * 0.1,
   },
   listContainer: {
     backgroundColor: "#FFFFFF",
     borderRadius: 12,
+    paddingVertical: height * 0.01,
     overflow: "hidden",
   },
   listContent: {
@@ -107,22 +94,23 @@ const styles = StyleSheet.create({
     color: "#8E8E93",
     marginVertical: height * 0.01,
   },
+  emptyMessage: {
+    fontSize: width * 0.04,
+    color: "#8E8E93",
+    textAlign: "center",
+    marginTop: height * 0.02,
+  },
   transactionItem: {
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: height * 0.015,
-  },
-  icon: {
-    width: width * 0.1,
-    height: width * 0.1,
-    borderRadius: (width * 0.1) / 2,
   },
   details: {
     flex: 1,
     marginLeft: width * 0.03,
   },
   transactionDescription: {
-    fontSize: width * 0.04,
+    fontSize: width * 0.037,
     fontWeight: "500",
   },
   transactionDate: {
@@ -135,5 +123,3 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
 });
-
-export default TransactionList;

@@ -36,6 +36,7 @@ import {
   isBiometricsEnabled,
 } from "../../utilities/biometrics/BiometricsUtils";
 import { showMessage } from "react-native-flash-message";
+import { compressImage } from "../../utilities/imageCompress";
 const defaultAvatar = require("../../assets/avatar.png");
 const { width, height } = Dimensions.get("window");
 
@@ -162,17 +163,61 @@ const ProfileScreen = ({ navigation }) => {
       });
 
       if (!result.canceled && result.assets[0]) {
-        const formData = new FormData();
-        formData.append("profilePic", {
-          uri: result.assets[0].uri,
-          type: "image/jpeg",
-          name: "profile.jpg",
-        });
-        setProfileImage(result.assets[0].uri);
-        dispatch(updateUserProfile({ data: formData, token }));
+        try {
+          showMessage({
+            message: "Processing",
+            description: "Compressing image...",
+            type: "info",
+            backgroundColor: "#2196F3",
+            duration: 2000,
+          });
+
+          const compressedUri = await compressImage(result.assets[0].uri);
+
+          const formData = new FormData();
+          formData.append("profilePic", {
+            uri: compressedUri,
+            type: "image/jpeg",
+            name: "profile.jpg",
+          });
+
+          setProfileImage(compressedUri);
+          await dispatch(updateUserProfile({ data: formData, token })).unwrap();
+
+          showMessage({
+            message: "Success",
+            description: "Profile picture updated successfully",
+            type: "success",
+            backgroundColor: "#4CAF50",
+            duration: 2000,
+          });
+        } catch (error) {
+          showMessage({
+            message: "Warning",
+            description: "Compression failed, using original image",
+            type: "warning",
+            backgroundColor: "#FF9800",
+            duration: 2000,
+          });
+
+          const formData = new FormData();
+          formData.append("profilePic", {
+            uri: result.assets[0].uri,
+            type: "image/jpeg",
+            name: "profile.jpg",
+          });
+          setProfileImage(result.assets[0].uri);
+          await dispatch(updateUserProfile({ data: formData, token })).unwrap();
+        }
       }
     } catch (error) {
-      Alert.alert("Error", "Failed to update profile picture");
+      showMessage({
+        message: "Error",
+        description: "Failed to update profile picture",
+        type: "danger",
+        backgroundColor: "#F44336",
+        duration: 3000,
+      });
     }
   };
 

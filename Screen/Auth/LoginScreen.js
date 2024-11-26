@@ -31,6 +31,8 @@ import {
   getAccountNumberStorage,
   setAccountNumberStorage,
 } from "../../state/storage";
+import { getDeviceType, getFCMToken } from "../../utilities/notifications";
+import DeviceInfo from "react-native-device-info";
 
 const window = Dimensions.get("window");
 const { height } = Dimensions.get("window");
@@ -157,13 +159,23 @@ export default function LoginScreen({ navigation }) {
       });
       return;
     }
-
+    const deviceToken = await getFCMToken();
+    const deviceType = getDeviceType();
+    const deviceId = DeviceInfo.getDeviceId();
     try {
       if (isSaveIdEnabled) {
         await setAccountNumberStorage(accountNumber);
       }
 
-      await dispatch(createUserLogin({ accountNumber, pin })).unwrap();
+      await dispatch(
+        createUserLogin({
+          accountNumber,
+          pin,
+          deviceToken,
+          deviceType,
+          deviceId,
+        })
+      ).unwrap();
 
       showMessage({
         message: "Login successful!",

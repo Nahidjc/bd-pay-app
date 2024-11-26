@@ -12,6 +12,7 @@
   "dependencies": {
     "@expo/metro-runtime": "~3.2.3",
     "@expo/vector-icons": "^14.0.3",
+    "@gorhom/bottom-sheet": "^5.0.5",
     "@react-native-firebase/app": "^21.0.0",
     "@react-native-firebase/messaging": "^21.0.0",
     "@react-native/metro-config": "^0.75.3",
@@ -21,6 +22,7 @@
     "@react-navigation/native-stack": "^6.11.0",
     "@react-navigation/stack": "^6.4.1",
     "@reduxjs/toolkit": "^2.2.7",
+    "@stripe/stripe-react-native": "0.37.2",
     "axios": "^1.7.7",
     "expo": "~51.0.28",
     "expo-application": "~5.9.1",
@@ -42,6 +44,7 @@
     "react-native": "0.74.5",
     "react-native-biometrics": "^3.0.1",
     "react-native-camera": "^4.2.1",
+    "react-native-compressor": "^1.9.0",
     "react-native-device-info": "^13.1.0",
     "react-native-elements": "^3.4.3",
     "react-native-flash-message": "^0.4.2",

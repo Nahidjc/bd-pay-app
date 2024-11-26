@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   StyleSheet,
@@ -6,129 +6,243 @@ import {
   Image,
   Dimensions,
   TouchableOpacity,
+  ImageBackground,
+  Modal,
+  TouchableWithoutFeedback,
 } from "react-native";
 import Card from "../components/Card";
 import TransactionList from "../components/TransactionList";
-import { LinearGradient } from "expo-linear-gradient";
 import { useTranslation } from "react-i18next";
+
 const { width, height } = Dimensions.get("window");
+const CONTAINER_HEIGHT = height * 1;
 
 const DashboardScreen = ({ navigation }) => {
   const { t } = useTranslation();
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const features = [
+    {
+      image: require("../assets/icon/send.png"),
+      text: t("send"),
+      navigate: "InitialSendMoney",
+    },
+    {
+      image: require("../assets/icon/cash-out.png"),
+      text: t("cashOut"),
+      navigate: "InitialCashOutScreen",
+    },
+    {
+      image: require("../assets/icon/payment.png"),
+      text: t("payment"),
+      navigate: null,
+    },
+    {
+      image: require("../assets/icon/add-money.png"),
+      text: t("addMoney"),
+      navigate: "AddMoneyScreen",
+    },
+    {
+      image: require("../assets/icon/auto.png"),
+      text: "Auto Pay",
+      navigate: null,
+    },
+    {
+      image: require("../assets/icon/remittance.png"),
+      text: "Remittance",
+      navigate: null,
+    },
+    {
+      image: require("../assets/icon/donate.png"),
+      text: "Donation",
+      navigate: null,
+    },
+    {
+      image: require("../assets/icon/govt.png"),
+      text: "Govt. Pay",
+      navigate: null,
+    },
+  ];
+
+  const handlePress = (feature) => {
+    if (feature.navigate) {
+      navigation.navigate(feature.navigate);
+    } else {
+      setModalVisible(true);
+    }
+  };
+
   return (
-    <View style={styles.container}>
-      <LinearGradient colors={["#CBF2FD", "#F4FAFB"]} style={styles.header}>
-        <Card />
-        <View style={styles.gridContainer}>
-          <View style={styles.gridItemContainer}>
-            <TouchableOpacity
-              style={styles.iconBox}
-              onPress={() => navigation.navigate("InitialSendMoney")}
-            >
-              <Image
-                source={require("../assets/icon/send.png")}
-                style={styles.iconImage}
-              />
-            </TouchableOpacity>
-            <Text style={styles.gridText}>{t("send")}</Text>
+    <ImageBackground
+      source={require("../assets/bg.jpg")}
+      style={styles.backgroundContainer}
+      resizeMode="cover"
+    >
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <View style={styles.cardContainer}>
+            <Card />
           </View>
-
-          <View style={styles.gridItemContainer}>
-            <TouchableOpacity
-              style={styles.iconBox}
-              onPress={() => navigation.navigate("InitialCashOutScreen")}
-            >
-              <Image
-                source={require("../assets/icon/cash-out.png")}
-                style={styles.iconImage}
-              />
-            </TouchableOpacity>
-            <Text style={styles.gridText}>{t("cashOut")}</Text>
-          </View>
-
-          <View style={styles.gridItemContainer}>
-            <View style={styles.iconBox}>
-              <Image
-                source={require("../assets/icon/payment.png")}
-                style={styles.iconImage}
-              />
-            </View>
-            <Text style={styles.gridText}>{t("payment")}</Text>
-          </View>
-
-          <View style={styles.gridItemContainer}>
-            <View style={styles.iconBox}>
-              <Image
-                source={require("../assets/icon/add-money.png")}
-                style={styles.iconImage}
-              />
-            </View>
-            <Text style={styles.gridText}>{t("addMoney")}</Text>
+          <View style={styles.gridContainer}>
+            {features.map((feature, index) => (
+              <View key={index} style={styles.gridItemContainer}>
+                <TouchableOpacity
+                  style={styles.iconBox}
+                  onPress={() => handlePress(feature)}
+                >
+                  <Image source={feature.image} style={styles.iconImage} />
+                </TouchableOpacity>
+                <Text style={styles.gridText}>{feature.text}</Text>
+              </View>
+            ))}
           </View>
         </View>
-      </LinearGradient>
-      <View style={styles.scrollableSection}>
-        <TransactionList />
+        <View style={styles.transactionContainer}>
+          <TransactionList />
+        </View>
       </View>
-    </View>
+
+      <Modal
+        visible={modalVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+          <View style={styles.modalContainer}>
+            <TouchableWithoutFeedback>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitle}>Warning</Text>
+                <Image
+                  source={require("../assets/icon/warning.png")}
+                  style={styles.modalImage}
+                />
+                <Text style={styles.modalText}>
+                  This feature will be coming soon
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setModalVisible(false)}
+                  style={styles.modalButton}
+                >
+                  <Text style={styles.modalButtonText}>Okay</Text>
+                </TouchableOpacity>
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  backgroundContainer: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+  },
+  container: {
+    height: CONTAINER_HEIGHT,
+    // marginTop: height * 0.05,
   },
   header: {
-    height: height * 0.3,
-    paddingBottom: height * 0.04,
+    height: CONTAINER_HEIGHT * 0.45,
     borderBottomLeftRadius: width * 0.08,
     borderBottomRightRadius: width * 0.08,
+    backgroundColor: "transparent",
   },
-  greeting: {
-    color: "black",
-    fontWeight: "bold",
-    fontSize: width * 0.04,
-  },
-  subtitle: {
-    color: "black",
-    fontSize: width * 0.03,
+  cardContainer: {
+    height: "35%",
+    paddingTop: height * 0.02,
   },
   gridContainer: {
+    height: "65%",
     flexDirection: "row",
+    flexWrap: "wrap",
     justifyContent: "space-around",
     alignItems: "center",
-    paddingVertical: height * 0.02,
-    paddingHorizontal: width * 0.05,
-    flexWrap: "wrap",
+    paddingHorizontal: width * 0.03,
   },
   gridItemContainer: {
     width: width * 0.22,
+    height: "45%",
     alignItems: "center",
+    paddingVertical: height * 0.01,
     justifyContent: "center",
   },
   iconBox: {
-    backgroundColor: "#F1E6FE",
-    padding: width * 0.04,
+    backgroundColor: "white",
+    padding: width * 0.01,
     borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
     width: width * 0.15,
     height: width * 0.15,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 4,
   },
   iconImage: {
-    width: width * 0.08,
-    height: width * 0.08,
+    width: "70%",
+    height: "70%",
+    resizeMode: "contain",
   },
   gridText: {
-    color: "#6c5ce7",
+    color: "#e2136e",
     fontSize: width * 0.03,
     fontWeight: "500",
     marginTop: height * 0.01,
+    textAlign: "center",
   },
-  scrollableSection: {
+  transactionContainer: {
+    height: CONTAINER_HEIGHT * 0.4,
+    backgroundColor: "transparent",
+  },
+  modalContainer: {
     flex: 1,
-    marginTop: height * 0.02,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+  },
+  modalContent: {
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 20,
+    alignItems: "center",
+    width: width * 0.85,
+    maxHeight: height * 0.4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 10,
+  },
+  modalTitle: {
+    fontSize: width * 0.045,
+    fontWeight: "bold",
+    marginBottom: height * 0.015,
+  },
+  modalImage: {
+    width: width * 0.15,
+    height: width * 0.15,
+    marginBottom: height * 0.015,
+  },
+  modalText: {
+    fontSize: width * 0.035,
+    textAlign: "center",
+    marginBottom: height * 0.015,
+    color: "#333",
+  },
+  modalButton: {
+    backgroundColor: "#E91E63",
+    paddingVertical: height * 0.01,
+    paddingHorizontal: width * 0.08,
+    borderRadius: 10,
+  },
+  modalButtonText: {
+    color: "white",
+    fontSize: width * 0.04,
+    fontWeight: "600",
   },
 });
 

@@ -1,6 +1,7 @@
 {
   "expo": {
     "name": "Bd Pay",
+    "scheme": "bdpay",
     "slug": "bd-pay",
     "version": "1.0.0",
     "orientation": "portrait",

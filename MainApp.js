@@ -26,6 +26,10 @@ import ScanQrCodeScreen from "./Screen/QRCode/ScanQrCodeScreen";
 import DrawerNavigator from "./Main/DrawerNavigator";
 import { enableScreens } from "react-native-screens";
 import { CardStyleInterpolators } from "@react-navigation/stack";
+import AddMoneyScreen from "./Screen/AddMoney/AddMoneyScreen";
+import GlobalWalletScreen from "./Screen/AddMoney/GlobalWalletScreen";
+import BankScreen from "./Screen/AddMoney/BankScreen";
+import StripeAddMoneyScreen from "./Screen/AddMoney/GlobalWallet/StripeAddMoneyScreen";
 enableScreens();
 const Stack = createNativeStackNavigator();
 LogBox.ignoreAllLogs();
@@ -69,6 +73,34 @@ const AuthenticatedStack = () => {
           component={SendMoney}
           options={{
             title: t("send"),
+          }}
+        />
+        <Stack.Screen
+          name="AddMoneyScreen"
+          component={AddMoneyScreen}
+          options={{
+            title: "Add Money",
+          }}
+        />
+        <Stack.Screen
+          name="GlobalWalletScreen"
+          component={GlobalWalletScreen}
+          options={{
+            title: "Global Wallet",
+          }}
+        />
+        <Stack.Screen
+          name="BankScreen"
+          component={BankScreen}
+          options={{
+            title: "Bank to BD Pay",
+          }}
+        />
+        <Stack.Screen
+          name="StripeScreen"
+          component={StripeAddMoneyScreen}
+          options={{
+            title: "Stripe",
           }}
         />
         <Stack.Screen

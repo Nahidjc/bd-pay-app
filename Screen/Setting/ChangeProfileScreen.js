@@ -9,11 +9,12 @@ import {
   Dimensions,
   Alert,
 } from "react-native";
-import { ArrowLeft, Edit2, ArrowRight } from "lucide-react-native";
+import { Edit2, ArrowRight } from "lucide-react-native";
 import * as ImagePicker from "expo-image-picker";
 import { useDispatch, useSelector } from "react-redux";
 import { updateUserProfile } from "./../../state/reducers/authSlice";
 import LoadingScreen from "../../components/Loader/Loader";
+import { compressImage } from "../../utilities/imageCompress";
 
 const defaultAvatar = require("../../assets/avatar.png");
 
@@ -51,9 +52,16 @@ const ChangePictureScreen = ({ navigation, route }) => {
     });
 
     if (!pickerResult.canceled) {
-      const newImage = { uri: pickerResult.assets[0].uri };
-      setProfileImage(newImage);
-      setIsChanged(true);
+      const originalUri = pickerResult.assets[0].uri;
+
+      try {
+        const compressedUri = await compressImage(originalUri);
+        setProfileImage({ uri: compressedUri });
+        setIsChanged(true);
+      } catch (error) {
+        setProfileImage({ uri: originalUri });
+        setIsChanged(true);
+      }
     }
   };
 
@@ -61,10 +69,11 @@ const ChangePictureScreen = ({ navigation, route }) => {
     if (!isChanged || !profileImage) return;
 
     const formData = new FormData();
+    const fileName = profileImage.uri.split("/").pop() || "profile.jpg";
     formData.append("profilePic", {
       uri: profileImage.uri,
       type: "image/jpeg",
-      name: "profile.jpg",
+      name: fileName,
     });
 
     try {

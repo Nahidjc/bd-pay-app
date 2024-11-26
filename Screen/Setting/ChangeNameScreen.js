@@ -9,14 +9,20 @@ import {
   KeyboardAvoidingView,
   Platform,
   Dimensions,
-  Alert,
 } from "react-native";
 import { ArrowRight } from "lucide-react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { updateUserProfile } from "./../../state/reducers/authSlice";
 import LoadingScreen from "../../components/Loader/Loader";
+import { showMessage } from "react-native-flash-message";
 
-const { width } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
+
+const scale = width / 375;
+const verticalScale = height / 812;
+const s = (size) => size * scale;
+const vs = (size) => size * verticalScale;
+const ms = (size, factor = 0.5) => size + (s(size) - size) * factor;
 
 const ChangeNameScreen = ({ navigation }) => {
   const dispatch = useDispatch();
@@ -43,8 +49,22 @@ const ChangeNameScreen = ({ navigation }) => {
 
     try {
       await dispatch(updateUserProfile({ data: updatedData, token })).unwrap();
+      showMessage({
+        message: "Success",
+        description: "Profile updated successfully!",
+        type: "success",
+        duration: 3000,
+        icon: "success",
+      });
+      navigation.goBack();
     } catch (error) {
-      Alert.alert("Error", error.message || "Failed to update profile");
+      showMessage({
+        message: "Error",
+        description: error.message || "Failed to update profile",
+        type: "danger",
+        duration: 3000,
+        icon: "danger",
+      });
     }
   };
 
@@ -90,6 +110,7 @@ const ChangeNameScreen = ({ navigation }) => {
               value={fullName}
               onChangeText={onChangeFullName}
               placeholder="Enter your full name"
+              placeholderTextColor="#999"
             />
           </View>
 
@@ -100,6 +121,7 @@ const ChangeNameScreen = ({ navigation }) => {
               value={nid}
               onChangeText={onChangeNid}
               placeholder="Enter your NID number"
+              placeholderTextColor="#999"
               keyboardType="numeric"
             />
           </View>
@@ -107,10 +129,11 @@ const ChangeNameScreen = ({ navigation }) => {
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Address</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, styles.multilineInput]}
               value={address}
               onChangeText={onChangeAddress}
               placeholder="Enter your address"
+              placeholderTextColor="#999"
               multiline
             />
           </View>
@@ -124,7 +147,7 @@ const ChangeNameScreen = ({ navigation }) => {
             disabled={!isUpdated}
           >
             <Text style={styles.updateButtonText}>Update</Text>
-            <ArrowRight color="white" size={24} />
+            <ArrowRight color="white" size={s(24)} style={styles.arrowIcon} />
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -142,45 +165,60 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 16,
+    padding: s(16),
     width: width * 0.9,
     alignSelf: "center",
   },
   infoText: {
-    fontSize: 16,
+    fontSize: ms(16),
     color: "#333",
-    marginBottom: 34,
+    marginBottom: vs(34),
     textAlign: "center",
   },
   inputContainer: {
-    marginBottom: 24,
+    marginBottom: vs(24),
   },
   label: {
-    fontSize: 16,
+    fontSize: ms(16),
     color: "#666",
-    marginBottom: 8,
+    marginBottom: vs(8),
+    fontWeight: "500",
   },
   input: {
-    fontSize: 18,
+    fontSize: ms(18),
     borderBottomWidth: 1,
     borderBottomColor: "#E0E0E0",
-    paddingVertical: 8,
+    paddingVertical: vs(8),
+    color: "#333",
+  },
+  multilineInput: {
+    minHeight: vs(60),
+    textAlignVertical: "top",
   },
   updateButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    width: width * 0.95,
+    width: width * 0.9,
+    paddingVertical: vs(12),
+    paddingHorizontal: s(16),
+    borderRadius: s(8),
+    marginTop: vs(24),
     alignSelf: "center",
-    padding: 10,
-    borderRadius: 8,
-    marginTop: 16,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   updateButtonText: {
     color: "white",
-    fontSize: 18,
+    fontSize: ms(18),
     fontWeight: "bold",
-    marginRight: 8,
+    marginRight: s(8),
+  },
+  arrowIcon: {
+    marginLeft: s(8),
   },
 });
 
