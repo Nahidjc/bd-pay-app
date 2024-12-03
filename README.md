@@ -11,7 +11,7 @@ A feature-rich mobile payment app enabling seamless money transfers, wallet mana
 - Secure login and registration with support for biometric authentication.
 - Biometric enable/disable options in profile settings.
 
-![Authentication Form](readme/auth.jpg)
+<img src="readme/auth.jpg" alt="Authentication Form" width="400" height="600" />
 
 ---
 
@@ -20,7 +20,7 @@ A feature-rich mobile payment app enabling seamless money transfers, wallet mana
 - Real-time updates on wallet balance and recent transactions.
 - Intuitive and user-friendly interface for quick actions.
 
-![Home Page](readme/home.png)
+<img src="readme/home.png" alt="Home Page" width="400" height="600" />
 
 ---
 
@@ -28,7 +28,7 @@ A feature-rich mobile payment app enabling seamless money transfers, wallet mana
 
 - Detailed transaction history with real-time filtering options.
 
-![Account Statement](readme/account_statement.png)
+<img src="readme/account_statement.png" alt="Account Statement" width="400" height="600" />
 
 ---
 
@@ -36,7 +36,7 @@ A feature-rich mobile payment app enabling seamless money transfers, wallet mana
 
 - Instant notifications for all user actions via Firebase.
 
-![Notifications](readme/notifications.png)
+<img src="readme/notifications.png" alt="Notifications" width="400" height="600" />
 
 ---
 
@@ -44,7 +44,7 @@ A feature-rich mobile payment app enabling seamless money transfers, wallet mana
 
 - Secure integration with Stripe for adding funds to wallets.
 
-![Add Money](readme/add_money.png)
+<img src="readme/add_money.png" alt="Add Money" width="400" height="600" />
 
 ---
 
@@ -53,7 +53,7 @@ A feature-rich mobile payment app enabling seamless money transfers, wallet mana
 - Update personal details and preferences.
 - Enable or disable biometric authentication.
 
-![Profile Settings](readme/profile.png)
+<img src="readme/profile.png" alt="Profile Settings" width="400" height="600" />
 
 ---
 
